@@ -1,0 +1,52 @@
+{
+  "name": "Virtus Publishing",
+  "short_name": "Virtus",
+  "description": "The world's most elite AI-powered eBook creation and publishing platform. Zero paper waste. Military-grade encryption.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1A1A1F",
+  "theme_color": "#1A1A1F",
+  "orientation": "any",
+  "scope": "/",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/logo-shield.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-shield@2x.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["books", "productivity", "business"],
+  "screenshots": [
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Virtus Publishing Dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Create eBook",
+      "short_name": "Create",
+      "description": "Start creating a new eBook with AI",
+      "url": "/create",
+      "icons": [{ "src": "/logo-shield.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Browse Store",
+      "short_name": "Store",
+      "description": "Browse the digital bookstore",
+      "url": "/store",
+      "icons": [{ "src": "/logo-shield.png", "sizes": "192x192" }]
+    }
+  ]
+}

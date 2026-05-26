@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://virtuspublishing.us/sitemap.xml
+
+# Crawl rate
+Crawl-delay: 1
+
+# Disallow API routes
+Disallow: /api/
+Disallow: /login
+
+# Allow important pages
+Allow: /$
+Allow: /store
+Allow: /store/
+Allow: /book/
+Allow: /dashboard
+Allow: /create
