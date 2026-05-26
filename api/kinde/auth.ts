@@ -5,13 +5,16 @@ const kindeDomain = process.env.KINDE_DOMAIN;
 const kindeClientId = process.env.KINDE_CLIENT_ID;
 const kindeClientSecret = process.env.KINDE_CLIENT_SECRET;
 
+const redirectUri = process.env.KINDE_REDIRECT_URI || `${kindeDomain}/api/callback`;
+const logoutRedirectUri = process.env.KINDE_POST_LOGOUT_REDIRECT_URI || kindeDomain;
+
 export const kindeClient = kindeDomain && kindeClientId && kindeClientSecret
   ? createKindeServerClient(GrantType.AUTHORIZATION_CODE, {
       authDomain: kindeDomain,
       clientId: kindeClientId,
       clientSecret: kindeClientSecret,
-      redirectURL: process.env.KINDE_REDIRECT_URI || `${kindeDomain}/api/callback`,
-      logoutRedirectURL: process.env.KINDE_POST_LOGOUT_REDIRECT_URI || kindeDomain,
+      redirectURL: redirectUri,
+      logoutRedirectURL: logoutRedirectUri,
     })
   : null;
 

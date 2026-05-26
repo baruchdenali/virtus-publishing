@@ -22,10 +22,11 @@ export const kindeRouter = createRouter({
     const sessionId = generateSessionId();
     const kindeDomain = process.env.KINDE_DOMAIN || "";
     const kindeClientId = process.env.KINDE_CLIENT_ID || "";
+    const redirectUri = process.env.KINDE_REDIRECT_URI || `${kindeDomain}/api/callback`;
 
     const loginUrl = `${kindeDomain}/oauth2/auth?` + new URLSearchParams({
       client_id: kindeClientId,
-      redirect_uri: `${kindeDomain}/api/callback`,
+      redirect_uri: redirectUri,
       response_type: "code",
       scope: "openid profile email",
       state: sessionId,
