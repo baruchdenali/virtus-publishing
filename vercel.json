@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/boot.ts"
+      "destination": "/api/index.ts"
     },
     {
       "source": "/((?!api/|assets/).*)",
@@ -71,7 +71,7 @@
     }
   ],
   "functions": {
-    "api/boot.ts": {
+    "api/index.ts": {
       "maxDuration": 30
     }
   }
