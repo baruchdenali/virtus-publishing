@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 11%;
+    --foreground: 40 30% 94%;
+    --card: 240 8% 15%;
+    --card-foreground: 40 30% 94%;
+    --popover: 240 7% 19%;
+    --popover-foreground: 40 30% 94%;
+    --primary: 42 45% 57%;
+    --primary-foreground: 240 10% 11%;
+    --secondary: 240 8% 15%;
+    --secondary-foreground: 40 30% 94%;
+    --muted: 240 8% 15%;
+    --muted-foreground: 37 8% 57%;
+    --accent: 240 7% 19%;
+    --accent-foreground: 40 30% 94%;
+    --destructive: 0 35% 60%;
+    --destructive-foreground: 40 30% 94%;
+    --border: 40 30% 94% / 0.08;
+    --input: 40 30% 94% / 0.14;
+    --ring: 42 45% 57%;
+    --radius: 0.5rem;
+    --sidebar-background: 240 10% 11%;
+    --sidebar-foreground: 40 30% 94%;
+    --sidebar-primary: 42 45% 57%;
+    --sidebar-primary-foreground: 240 10% 11%;
+    --sidebar-accent: 240 7% 19%;
+    --sidebar-accent-foreground: 40 30% 94%;
+    --sidebar-border: 40 30% 94% / 0.08;
+    --sidebar-ring: 42 45% 57%;
+  }
+
+  body {
+    @apply bg-[#1A1A1F] text-[#F5F0E8] antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  ::selection {
+    background: rgba(200, 165, 92, 0.3);
+    color: #F5F0E8;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(245, 240, 232, 0.12);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(245, 240, 232, 0.2);
+  }
+}
+
+@layer utilities {
+  .glass-surface {
+    background: rgba(35, 35, 40, 0.72);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(245, 240, 232, 0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32);
+    border-radius: 12px;
+  }
+
+  .card-hover {
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.2s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.40);
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, #C8A55C 0%, #A08040 100%);
+    color: #1A1A1F;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .btn-gold:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #C8A55C 0%, #D9BC7A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shimmer-text {
+    background: linear-gradient(90deg, #9B9589 0%, #C8A55C 40%, #D9BC7A 50%, #C8A55C 60%, #9B9589 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+  }
+
+  .page-enter {
+    animation: pageEnter 0.3s ease forwards;
+  }
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fAZ9hiJ-Ek-_EeA.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYAZ9hiJ-Ek-_EeA.woff2') format('woff2');
+}
