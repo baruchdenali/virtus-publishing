@@ -1,7 +1,7 @@
 import { Outlet, useLocation, Link } from 'react-router'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { Search, Menu, X, Sparkles, BookOpen, Store, LayoutDashboard, Settings, LogOut, BarChart3, Globe, ChevronDown } from 'lucide-react'
+import { Search, Menu, X, Sparkles, BookOpen, Store, LayoutDashboard, Settings, LogOut, BarChart3, Globe, ChevronDown, Calendar, Newspaper, Mic, Mail, Phone, MapPin } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import Logo from '@/components/Logo'
 
@@ -19,6 +19,9 @@ export default function AppShell() {
   const navLinks = [
     { path: '/', label: 'Home', icon: BookOpen },
     { path: '/store', label: 'Store', icon: Store },
+    { path: '/events', label: 'Events', icon: Calendar },
+    { path: '/blog', label: 'Blog', icon: Newspaper },
+    { path: '/podcast', label: 'Podcast', icon: Mic },
     ...(isAuthenticated ? [
       { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     ] : []),
@@ -187,11 +190,92 @@ export default function AppShell() {
       )}
 
       {/* Main Content */}
-      <main className="pt-[136px] pb-16" dir={isRtl ? 'rtl' : 'ltr'}>
+      <main className="pt-[136px] pb-0" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-12 page-enter">
           <Outlet />
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-[rgba(245,240,232,0.06)] mt-16">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-12 pt-12 pb-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-1">
+              <div className="mb-4">
+                <Logo size="sm" />
+              </div>
+              <p className="text-[13px] text-[#9B9589] leading-relaxed">
+                AI-powered publishing for serious authors. Create, publish, and sell professional eBooks worldwide.
+              </p>
+            </div>
+
+            {/* Platform */}
+            <div>
+              <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4">Platform</h4>
+              <ul className="space-y-2.5">
+                <li><Link to="/create" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Create eBook</Link></li>
+                <li><Link to="/store" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Store</Link></li>
+                <li><Link to="/dashboard" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Dashboard</Link></li>
+                <li><Link to="/login" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Sign In</Link></li>
+              </ul>
+            </div>
+
+            {/* Community */}
+            <div>
+              <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4">Community</h4>
+              <ul className="space-y-2.5">
+                <li><Link to="/events" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Events</Link></li>
+                <li><Link to="/blog" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Blog</Link></li>
+                <li><Link to="/podcast" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Podcast</Link></li>
+                <li><Link to="/store" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Authors</Link></li>
+              </ul>
+            </div>
+
+            {/* Support */}
+            <div>
+              <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4">Support</h4>
+              <ul className="space-y-2.5">
+                <li><Link to="#" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Help Center</Link></li>
+                <li><Link to="#" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Privacy Policy</Link></li>
+                <li><Link to="#" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Terms of Service</Link></li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4">Contact</h4>
+              <ul className="space-y-2.5">
+                <li className="flex items-start gap-2 text-[13px] text-[#9B9589]">
+                  <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#C8A55C]" />
+                  <span>New York — Miami — London — Remote</span>
+                </li>
+                <li>
+                  <a href="mailto:publishing@virtus-edu.net" className="flex items-center gap-2 text-[13px] text-[#9B9589] hover:text-[#C8A55C] transition-colors">
+                    <Mail className="w-3.5 h-3.5 shrink-0 text-[#C8A55C]" />
+                    publishing@virtus-edu.net
+                  </a>
+                </li>
+                <li>
+                  <a href="tel:+12029845787" className="flex items-center gap-2 text-[13px] text-[#9B9589] hover:text-[#C8A55C] transition-colors">
+                    <Phone className="w-3.5 h-3.5 shrink-0 text-[#C8A55C]" />
+                    (202) 984-5787
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-[rgba(245,240,232,0.06)] pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-[12px] text-[#9B9589]">&copy; {new Date().getFullYear()} Virtus Publishing. All rights reserved.</p>
+            <div className="flex items-center gap-4">
+              {['Twitter', 'LinkedIn', 'Instagram', 'YouTube'].map((social) => (
+                <a key={social} href="#" className="text-[12px] text-[#9B9589] hover:text-[#C8A55C] transition-colors">{social}</a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

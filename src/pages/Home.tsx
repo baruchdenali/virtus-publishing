@@ -303,33 +303,43 @@ export default function Home() {
           <div>
             <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4">Platform</h4>
             <ul className="space-y-2">
-              {['Create eBook', 'My Dashboard', 'Store', 'Pricing'].map((item) => (
-                <li key={item}><Link to="#" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">{item}</Link></li>
-              ))}
+              <li><Link to="/create" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Create eBook</Link></li>
+              <li><Link to="/dashboard" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">My Dashboard</Link></li>
+              <li><Link to="/store" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Store</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4">Community</h4>
             <ul className="space-y-2">
-              {['Events', 'Blog', 'Podcast', 'Authors'].map((item) => (
-                <li key={item}><Link to="#" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">{item}</Link></li>
-              ))}
+              <li><Link to="/events" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Events</Link></li>
+              <li><Link to="/blog" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Blog</Link></li>
+              <li><Link to="/podcast" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Podcast</Link></li>
+              <li><Link to="/store" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Authors</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4">Support</h4>
             <ul className="space-y-2">
-              {['Help Center', 'Contact Us', 'Privacy Policy', 'Terms of Service'].map((item) => (
-                <li key={item}><Link to="#" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">{item}</Link></li>
-              ))}
+              <li><Link to="#" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Help Center</Link></li>
+              <li><Link to="#" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Privacy Policy</Link></li>
+              <li><Link to="#" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
+        {/* Contact Row */}
+        <div className="border-t border-[rgba(245,240,232,0.06)] pt-6 pb-6 flex flex-col md:flex-row items-center justify-center gap-4 text-[12px] text-[#9B9589]">
+          <span>New York — Miami — London — Remote</span>
+          <span className="hidden md:inline">|</span>
+          <a href="mailto:publishing@virtus-edu.net" className="hover:text-[#C8A55C] transition-colors">publishing@virtus-edu.net</a>
+          <span className="hidden md:inline">|</span>
+          <a href="tel:+12029845787" className="hover:text-[#C8A55C] transition-colors">(202) 984-5787</a>
+        </div>
+
         <div className="border-t border-[rgba(245,240,232,0.06)] pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-[12px] text-[#9B9589]"> {new Date().getFullYear()} Virtus Publishing. {t('footer.rights')}</p>
+          <p className="text-[12px] text-[#9B9589]">&copy; {new Date().getFullYear()} Virtus Publishing. {t('footer.rights')}</p>
           <div className="flex items-center gap-4">
             {['Twitter', 'LinkedIn', 'Instagram', 'YouTube'].map((social) => (
-              <Link key={social} to="#" className="text-[12px] text-[#9B9589] hover:text-[#C8A55C] transition-colors">{social}</Link>
+              <a key={social} href="#" className="text-[12px] text-[#9B9589] hover:text-[#C8A55C] transition-colors">{social}</a>
             ))}
           </div>
         </div>

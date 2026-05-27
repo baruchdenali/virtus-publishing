@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
-import { BookOpen, Sparkles, Globe, Lock, Shield } from 'lucide-react'
+import { BookOpen, Sparkles, Globe, Lock, Shield, Loader2 } from 'lucide-react'
 import { trpc } from '@/providers/trpc'
 import Logo from '@/components/Logo'
 
@@ -21,9 +21,16 @@ function getOAuthUrl() {
 }
 
 export default function Login() {
-  const { data: kindeData } = trpc.kinde.getLoginUrl.useQuery(undefined, {
+  const { data: kindeData, isLoading: kindeLoading } = trpc.kinde.getLoginUrl.useQuery(undefined, {
     retry: false,
   });
+
+  const handleKindeLogin = () => {
+    if (kindeData?.loginUrl) {
+      document.cookie = `kinde_session_id=${kindeData.sessionId};path=/;max-age=604800`;
+      window.location.href = kindeData.loginUrl;
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -91,18 +98,18 @@ export default function Login() {
             </div>
 
             {/* Primary: Kinde Auth */}
-            {kindeData?.loginUrl ? (
-              <button
-                onClick={() => {
-                  document.cookie = `kinde_session_id=${kindeData.sessionId};path=/;max-age=604800`;
-                  window.location.href = kindeData.loginUrl;
-                }}
-                className="w-full flex items-center justify-center gap-3 btn-gold text-[14px] py-3.5 mb-4"
-              >
+            <button
+              onClick={handleKindeLogin}
+              disabled={kindeLoading || !kindeData?.loginUrl}
+              className="w-full flex items-center justify-center gap-3 btn-gold text-[14px] py-3.5 mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {kindeLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
                 <Shield className="w-5 h-5" />
-                Sign in with Kinde
-              </button>
-            ) : null}
+              )}
+              {kindeLoading ? 'Loading...' : 'Sign in with Kinde'}
+            </button>
 
             {/* Secondary: Kimi Auth */}
             <button
@@ -122,7 +129,7 @@ export default function Login() {
             <div className="text-center">
               <p className="text-[13px] text-[#9B9589] mb-3">New to Virtus?</p>
               <Link
-                to="/"
+                to="/store"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[rgba(245,240,232,0.14)] text-[13px] font-medium text-[#F5F0E8] hover:bg-[rgba(245,240,232,0.04)] transition-all"
               >
                 <BookOpen className="w-4 h-4" />

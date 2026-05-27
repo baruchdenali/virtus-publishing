@@ -8,6 +8,9 @@ import CreateEbook from './pages/CreateEbook'
 import Editor from './pages/Editor'
 import Settings from './pages/Settings'
 import Admin from './pages/Admin'
+import Events from './pages/Events'
+import Blog from './pages/Blog'
+import Podcast from './pages/Podcast'
 import NotFound from './pages/NotFound'
 import AppShell from './components/AppShell'
 
@@ -24,6 +27,9 @@ export default function App() {
         <Route path="/editor/:id" element={<Editor />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/podcast" element={<Podcast />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
