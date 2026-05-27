@@ -125,6 +125,39 @@ export const activityLog = pgTable("activity_log", {
   createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
 });
 
+export const blogPosts = pgTable("blog_posts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  excerpt: text("excerpt"),
+  content: text("content").notNull(),
+  author: varchar("author", { length: 255 }).default("Virtus Editorial"),
+  category: varchar("category", { length: 50 }).default("General"),
+  image: text("image"),
+  published: boolean("published").default(false),
+  featured: boolean("featured").default(false),
+  readTime: varchar("readTime", { length: 20 }).default("5 min read"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull().$onUpdate(() => new Date()),
+});
+
+export const podcasts = pgTable("podcasts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  guest: varchar("guest", { length: 255 }),
+  guestTitle: varchar("guestTitle", { length: 255 }),
+  embedUrl: text("embedUrl"),
+  audioUrl: text("audioUrl"),
+  duration: varchar("duration", { length: 20 }).default("30 min"),
+  episodeNumber: integer("episodeNumber"),
+  date: varchar("date", { length: 50 }),
+  plays: integer("plays").default(0),
+  featured: boolean("featured").default(false),
+  published: boolean("published").default(false),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Ebook = typeof ebooks.$inferSelect;
@@ -134,3 +167,5 @@ export type Review = typeof reviews.$inferSelect;
 export type AiConversation = typeof aiConversations.$inferSelect;
 export type AiMessage = typeof aiMessages.$inferSelect;
 export type ActivityLog = typeof activityLog.$inferSelect;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type Podcast = typeof podcasts.$inferSelect;

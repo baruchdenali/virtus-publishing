@@ -7,6 +7,8 @@ import { reviewRouter } from "./review-router";
 import { aiRouter } from "./ai-router";
 import { userRouter } from "./user-router";
 import { adminRouter } from "./admin-router";
+import { blogRouter } from "./blog-router";
+import { podcastRouter } from "./podcast-router";
 import { createRouter, publicQuery } from "./middleware";
 
 export const appRouter = createRouter({
@@ -20,6 +22,8 @@ export const appRouter = createRouter({
   ai: aiRouter,
   user: userRouter,
   admin: adminRouter,
+  blog: blogRouter,
+  podcast: podcastRouter,
 });
 
 export type AppRouter = typeof appRouter;

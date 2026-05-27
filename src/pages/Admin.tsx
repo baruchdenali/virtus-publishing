@@ -10,10 +10,49 @@ import {
 import {
   Users, BookOpen, ShoppingCart, DollarSign, Star, MessageSquare,
   TrendingUp, TrendingDown, Activity, ChevronLeft,
-  ChevronRight, Shield, BarChart3, Tag, Eye
+  ChevronRight, Shield, BarChart3, Tag, Eye, Newspaper, Mic, Download, FileText
 } from 'lucide-react'
 
 const COLORS = ['#C8A55C', '#7AAE7A', '#6B9BD1', '#C27070', '#9B9589', '#D9BC7A']
+
+function EbookDownloadButton({ bookId, bookTitle }: { bookId: number; bookTitle: string }) {
+  const [downloading, setDownloading] = useState(false);
+  const { data } = trpc.ebook.download.useQuery({ id: bookId }, { enabled: false });
+  const utils = trpc.useUtils();
+
+  async function handleDownload() {
+    setDownloading(true);
+    try {
+      const result = await utils.ebook.download.fetch({ id: bookId });
+      if (result) {
+        const blob = new Blob([`# ${result.title}\n\n**Author:** ${result.author}\n**Category:** ${result.category}\n\n---\n\n${result.content || 'No content available.'}`], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${result.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (e) {
+      alert('Download failed. Make sure you are logged in as admin.');
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  return (
+    <button
+      onClick={handleDownload}
+      disabled={downloading}
+      className="w-8 h-8 rounded-lg bg-[rgba(200,165,92,0.1)] flex items-center justify-center hover:bg-[rgba(200,165,92,0.2)] transition-all disabled:opacity-50"
+      title={`Download ${bookTitle}`}
+    >
+      <Download className="w-3.5 h-3.5 text-[#C8A55C]" />
+    </button>
+  );
+}
 
 const fadeIn = {
   hidden: { opacity: 0, y: 10 },
@@ -107,6 +146,30 @@ export default function Admin() {
               {stat.change}
             </div>
           </motion.div>
+        ))}
+      </div>
+
+      {/* Content Management Quick Links */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          { label: 'Blog Editor', desc: 'Write & publish blog posts', icon: Newspaper, path: '/admin/blog', color: '#C8A55C' },
+          { label: 'Podcast Manager', desc: 'Add & manage episodes', icon: Mic, path: '/admin/podcast', color: '#7AAE7A' },
+          { label: 'Create eBook', desc: 'Create new eBook with AI', icon: FileText, path: '/create', color: '#6B9BD1' },
+        ].map((item, i) => (
+          <motion.button
+            key={item.label}
+            custom={i}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeIn}
+            onClick={() => navigate(item.path)}
+            className="glass-surface p-5 text-left card-hover group"
+          >
+            <item.icon className="w-6 h-6 mb-3" style={{ color: item.color }} />
+            <div className="text-[15px] font-semibold">{item.label}</div>
+            <div className="text-[12px] text-[#9B9589] mt-0.5">{item.desc}</div>
+          </motion.button>
         ))}
       </div>
 
@@ -286,7 +349,8 @@ export default function Admin() {
                 <th className="text-right px-4 py-3 text-[11px] font-medium uppercase tracking-wider text-[#9B9589]">Price</th>
                 <th className="text-right px-4 py-3 text-[11px] font-medium uppercase tracking-wider text-[#9B9589]">Sales</th>
                 <th className="text-right px-4 py-3 text-[11px] font-medium uppercase tracking-wider text-[#9B9589]">Revenue</th>
-                <th className="text-right px-6 py-3 text-[11px] font-medium uppercase tracking-wider text-[#9B9589]">Rating</th>
+                <th className="text-right px-4 py-3 text-[11px] font-medium uppercase tracking-wider text-[#9B9589]">Rating</th>
+                <th className="text-right px-6 py-3 text-[11px] font-medium uppercase tracking-wider text-[#9B9589]">Download</th>
               </tr>
             </thead>
             <tbody>
@@ -325,12 +389,15 @@ export default function Admin() {
                   </td>
                   <td className="px-4 py-3 text-right">{book.sales}</td>
                   <td className="px-4 py-3 text-right font-medium text-[#7AAE7A]">${(book.revenue ?? 0).toFixed(2)}</td>
-                  <td className="px-6 py-3 text-right">
+                  <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Star className="w-3 h-3 text-[#C8A55C] fill-[#C8A55C]" />
                       <span>{(book.avgRating ?? 0).toFixed(1)}</span>
                       <span className="text-[11px] text-[#9B9589]">({book.reviewCount})</span>
                     </div>
+                  </td>
+                  <td className="px-6 py-3 text-right">
+                    <EbookDownloadButton bookId={book.id} bookTitle={book.title} />
                   </td>
                 </tr>
               ))}

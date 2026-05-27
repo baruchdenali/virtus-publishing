@@ -174,7 +174,7 @@ export default function Podcast() {
         <h2 className="text-[24px] md:text-[32px] font-semibold mb-3">Never Miss an Episode</h2>
         <p className="text-[14px] text-[#9B9589] max-w-md mx-auto mb-6">Subscribe to Voices of Virtus and get notified every Tuesday when a new episode drops.</p>
         <div className="flex flex-wrap justify-center gap-3">
-          <button className="btn-gold text-[14px] flex items-center gap-2"><Mic className="w-4 h-4" />Subscribe</button>
+          <button className="btn-gold text-[14px] flex items-center gap-2" onClick={() => alert('Subscribe feature coming soon! You will be notified of new episodes via email.')}><Mic className="w-4 h-4" />Subscribe</button>
           <button className="px-5 py-2.5 rounded-lg border border-[rgba(245,240,232,0.14)] text-[14px] font-medium text-[#F5F0E8] hover:bg-[rgba(245,240,232,0.04)] transition-all flex items-center gap-2"><Download className="w-4 h-4" />RSS Feed</button>
         </div>
       </section>

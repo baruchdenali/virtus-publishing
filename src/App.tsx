@@ -11,6 +11,8 @@ import Admin from './pages/Admin'
 import Events from './pages/Events'
 import Blog from './pages/Blog'
 import Podcast from './pages/Podcast'
+import BlogEditor from './pages/BlogEditor'
+import PodcastManager from './pages/PodcastManager'
 import NotFound from './pages/NotFound'
 import AppShell from './components/AppShell'
 
@@ -30,6 +32,8 @@ export default function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/podcast" element={<Podcast />} />
+        <Route path="/admin/blog" element={<BlogEditor />} />
+        <Route path="/admin/podcast" element={<PodcastManager />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

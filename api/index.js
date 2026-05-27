@@ -3848,8 +3848,8 @@ function handleCatchall(proms, input, payload, ctx, def, inst) {
 }
 var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
   $ZodType.init(inst, def);
-  const desc7 = Object.getOwnPropertyDescriptor(def, "shape");
-  if (!desc7?.get) {
+  const desc9 = Object.getOwnPropertyDescriptor(def, "shape");
+  if (!desc9?.get) {
     const sh = def.shape;
     Object.defineProperty(def, "shape", {
       get: () => {
@@ -14694,9 +14694,11 @@ __export(schema_exports, {
   activityLog: () => activityLog,
   aiConversations: () => aiConversations,
   aiMessages: () => aiMessages,
+  blogPosts: () => blogPosts,
   categoryEnum: () => categoryEnum,
   ebooks: () => ebooks,
   messageRoleEnum: () => messageRoleEnum,
+  podcasts: () => podcasts,
   purchaseStatusEnum: () => purchaseStatusEnum,
   purchases: () => purchases,
   reviews: () => reviews,
@@ -14817,6 +14819,37 @@ var activityLog = pgTable("activity_log", {
   userAgent: text("userAgent"),
   createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
 });
+var blogPosts = pgTable("blog_posts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  excerpt: text("excerpt"),
+  content: text("content").notNull(),
+  author: varchar("author", { length: 255 }).default("Virtus Editorial"),
+  category: varchar("category", { length: 50 }).default("General"),
+  image: text("image"),
+  published: boolean4("published").default(false),
+  featured: boolean4("featured").default(false),
+  readTime: varchar("readTime", { length: 20 }).default("5 min read"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
+});
+var podcasts = pgTable("podcasts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  guest: varchar("guest", { length: 255 }),
+  guestTitle: varchar("guestTitle", { length: 255 }),
+  embedUrl: text("embedUrl"),
+  audioUrl: text("audioUrl"),
+  duration: varchar("duration", { length: 20 }).default("30 min"),
+  episodeNumber: integer2("episodeNumber"),
+  date: varchar("date", { length: 50 }),
+  plays: integer2("plays").default(0),
+  featured: boolean4("featured").default(false),
+  published: boolean4("published").default(false),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
+});
 
 // db/relations.ts
 var relations_exports = {};
@@ -14911,9 +14944,9 @@ function createSessionManager(sessionId) {
   };
 }
 function getSessionIdFromCookie(headers) {
-  const cookie3 = headers.get("cookie");
-  if (!cookie3) return null;
-  const match = cookie3.match(/kinde_session_id=([^;]+)/);
+  const cookie4 = headers.get("cookie");
+  if (!cookie4) return null;
+  const match = cookie4.match(/kinde_session_id=([^;]+)/);
   return match ? match[1] : null;
 }
 function generateSessionId() {
@@ -15170,6 +15203,22 @@ var ebookRouter = createRouter({
       publishedBooks: publishedBooks[0]?.count ?? 0,
       totalPurchases: totalPurchases[0]?.count ?? 0,
       revenue: Number(revenue[0]?.total ?? 0)
+    };
+  }),
+  download: authedQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input, ctx }) => {
+    const db = getDb();
+    const result = await db.select().from(ebooks).where(eq2(ebooks.id, input.id)).limit(1);
+    const book = result[0];
+    if (!book) throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
+    const isOwner = book.userId === ctx.user.id;
+    const isAdmin = ctx.user.role === "admin";
+    if (!isOwner && !isAdmin) throw new TRPCError3({ code: "FORBIDDEN", message: "Not authorized" });
+    return {
+      title: book.title,
+      author: book.authorName || "Unknown",
+      content: book.content || "",
+      description: book.description || "",
+      category: book.category || "other"
     };
   })
 });
@@ -15795,6 +15844,170 @@ var adminRouter = createRouter({
   })
 });
 
+// api/blog-router.ts
+import { eq as eq9, desc as desc7 } from "drizzle-orm";
+var blogRouter = createRouter({
+  list: publicQuery.input(external_exports.object({ publishedOnly: external_exports.boolean().default(true) }).optional()).query(async ({ input }) => {
+    const db = getDb();
+    const publishedOnly = input?.publishedOnly ?? true;
+    let query = db.select().from(blogPosts).orderBy(desc7(blogPosts.createdAt));
+    if (publishedOnly) {
+      return db.select().from(blogPosts).where(eq9(blogPosts.published, true)).orderBy(desc7(blogPosts.createdAt));
+    }
+    return query;
+  }),
+  getBySlug: publicQuery.input(external_exports.object({ slug: external_exports.string() })).query(async ({ input }) => {
+    const db = getDb();
+    const result = await db.select().from(blogPosts).where(eq9(blogPosts.slug, input.slug)).limit(1);
+    return result[0] || null;
+  }),
+  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+    const db = getDb();
+    const result = await db.select().from(blogPosts).where(eq9(blogPosts.id, input.id)).limit(1);
+    return result[0] || null;
+  }),
+  create: adminQuery.input(
+    external_exports.object({
+      title: external_exports.string().min(1),
+      slug: external_exports.string().min(1),
+      excerpt: external_exports.string().optional(),
+      content: external_exports.string().min(1),
+      author: external_exports.string().optional(),
+      category: external_exports.string().optional(),
+      image: external_exports.string().optional(),
+      published: external_exports.boolean().default(false),
+      featured: external_exports.boolean().default(false),
+      readTime: external_exports.string().optional()
+    })
+  ).mutation(async ({ input }) => {
+    const db = getDb();
+    const result = await db.insert(blogPosts).values({
+      title: input.title,
+      slug: input.slug,
+      excerpt: input.excerpt || "",
+      content: input.content,
+      author: input.author || "Virtus Editorial",
+      category: input.category || "General",
+      image: input.image || null,
+      published: input.published,
+      featured: input.featured,
+      readTime: input.readTime || "5 min read"
+    }).returning();
+    return result[0];
+  }),
+  update: adminQuery.input(
+    external_exports.object({
+      id: external_exports.number(),
+      title: external_exports.string().optional(),
+      slug: external_exports.string().optional(),
+      excerpt: external_exports.string().optional(),
+      content: external_exports.string().optional(),
+      author: external_exports.string().optional(),
+      category: external_exports.string().optional(),
+      image: external_exports.string().optional(),
+      published: external_exports.boolean().optional(),
+      featured: external_exports.boolean().optional(),
+      readTime: external_exports.string().optional()
+    })
+  ).mutation(async ({ input }) => {
+    const db = getDb();
+    const { id, ...data } = input;
+    const result = await db.update(blogPosts).set(data).where(eq9(blogPosts.id, id)).returning();
+    return result[0];
+  }),
+  delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    const db = getDb();
+    await db.delete(blogPosts).where(eq9(blogPosts.id, input.id));
+    return { success: true };
+  }),
+  togglePublish: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    const db = getDb();
+    const existing = await db.select().from(blogPosts).where(eq9(blogPosts.id, input.id)).limit(1);
+    if (!existing[0]) throw new Error("Post not found");
+    const result = await db.update(blogPosts).set({ published: !existing[0].published }).where(eq9(blogPosts.id, input.id)).returning();
+    return result[0];
+  })
+});
+
+// api/podcast-router.ts
+import { eq as eq10, desc as desc8 } from "drizzle-orm";
+var podcastRouter = createRouter({
+  list: publicQuery.input(external_exports.object({ publishedOnly: external_exports.boolean().default(true) }).optional()).query(async ({ input }) => {
+    const db = getDb();
+    const publishedOnly = input?.publishedOnly ?? true;
+    if (publishedOnly) {
+      return db.select().from(podcasts).where(eq10(podcasts.published, true)).orderBy(desc8(podcasts.createdAt));
+    }
+    return db.select().from(podcasts).orderBy(desc8(podcasts.createdAt));
+  }),
+  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+    const db = getDb();
+    const result = await db.select().from(podcasts).where(eq10(podcasts.id, input.id)).limit(1);
+    return result[0] || null;
+  }),
+  create: adminQuery.input(
+    external_exports.object({
+      title: external_exports.string().min(1),
+      description: external_exports.string().optional(),
+      guest: external_exports.string().optional(),
+      guestTitle: external_exports.string().optional(),
+      embedUrl: external_exports.string().optional(),
+      audioUrl: external_exports.string().optional(),
+      duration: external_exports.string().default("30 min"),
+      episodeNumber: external_exports.number().optional(),
+      date: external_exports.string().optional(),
+      plays: external_exports.number().default(0),
+      featured: external_exports.boolean().default(false),
+      published: external_exports.boolean().default(false)
+    })
+  ).mutation(async ({ input }) => {
+    const db = getDb();
+    const result = await db.insert(podcasts).values(input).returning();
+    return result[0];
+  }),
+  update: adminQuery.input(
+    external_exports.object({
+      id: external_exports.number(),
+      title: external_exports.string().optional(),
+      description: external_exports.string().optional(),
+      guest: external_exports.string().optional(),
+      guestTitle: external_exports.string().optional(),
+      embedUrl: external_exports.string().optional(),
+      audioUrl: external_exports.string().optional(),
+      duration: external_exports.string().optional(),
+      episodeNumber: external_exports.number().optional(),
+      date: external_exports.string().optional(),
+      plays: external_exports.number().optional(),
+      featured: external_exports.boolean().optional(),
+      published: external_exports.boolean().optional()
+    })
+  ).mutation(async ({ input }) => {
+    const db = getDb();
+    const { id, ...data } = input;
+    const result = await db.update(podcasts).set(data).where(eq10(podcasts.id, id)).returning();
+    return result[0];
+  }),
+  delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    const db = getDb();
+    await db.delete(podcasts).where(eq10(podcasts.id, input.id));
+    return { success: true };
+  }),
+  togglePublish: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    const db = getDb();
+    const existing = await db.select().from(podcasts).where(eq10(podcasts.id, input.id)).limit(1);
+    if (!existing[0]) throw new Error("Podcast not found");
+    const result = await db.update(podcasts).set({ published: !existing[0].published }).where(eq10(podcasts.id, input.id)).returning();
+    return result[0];
+  }),
+  incrementPlays: publicQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    const db = getDb();
+    const existing = await db.select().from(podcasts).where(eq10(podcasts.id, input.id)).limit(1);
+    if (!existing[0]) return null;
+    const result = await db.update(podcasts).set({ plays: (existing[0].plays || 0) + 1 }).where(eq10(podcasts.id, input.id)).returning();
+    return result[0];
+  })
+});
+
 // api/router.ts
 var appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
@@ -15806,26 +16019,28 @@ var appRouter = createRouter({
   review: reviewRouter,
   ai: aiRouter,
   user: userRouter,
-  admin: adminRouter
+  admin: adminRouter,
+  blog: blogRouter,
+  podcast: podcastRouter
 });
 
 // api/kimi/auth.ts
-import { eq as eq9 } from "drizzle-orm";
+import { eq as eq11 } from "drizzle-orm";
 var sessions = /* @__PURE__ */ new Map();
 function generateSessionId2() {
   return crypto.randomUUID();
 }
 function setSessionCookie(resHeaders, sessionId) {
   const options = getSessionCookieOptions(new Headers());
-  let cookie3 = `session_id=${sessionId}; Path=${options.path}; SameSite=${options.sameSite}; Max-Age=${options.maxAge}`;
-  if (options.httpOnly) cookie3 += "; HttpOnly";
-  if (options.secure) cookie3 += "; Secure";
-  resHeaders.append("Set-Cookie", cookie3);
+  let cookie4 = `session_id=${sessionId}; Path=${options.path}; SameSite=${options.sameSite}; Max-Age=${options.maxAge}`;
+  if (options.httpOnly) cookie4 += "; HttpOnly";
+  if (options.secure) cookie4 += "; Secure";
+  resHeaders.append("Set-Cookie", cookie4);
 }
 function getSessionId(headers) {
-  const cookie3 = headers.get("cookie");
-  if (!cookie3) return null;
-  const match = cookie3.match(/session_id=([^;]+)/);
+  const cookie4 = headers.get("cookie");
+  if (!cookie4) return null;
+  const match = cookie4.match(/session_id=([^;]+)/);
   return match ? match[1] : null;
 }
 async function authenticateRequest(headers) {
@@ -15838,7 +16053,7 @@ async function authenticateRequest(headers) {
     return void 0;
   }
   const db = getDb();
-  const rows = await db.select().from(users).where(eq9(users.unionId, session.unionId)).limit(1);
+  const rows = await db.select().from(users).where(eq11(users.unionId, session.unionId)).limit(1);
   return rows[0];
 }
 function createOAuthCallbackHandler() {
@@ -15902,7 +16117,7 @@ function createOAuthCallbackHandler() {
 }
 
 // api/context.ts
-import { eq as eq10 } from "drizzle-orm";
+import { eq as eq12 } from "drizzle-orm";
 async function createContext(opts) {
   const ctx = { req: opts.req, resHeaders: opts.resHeaders };
   try {
@@ -15918,7 +16133,7 @@ async function createContext(opts) {
         if (isAuthenticated) {
           const userProfile = await kindeClient.getUserProfile(sessionManager);
           const db = getDb();
-          const existing = await db.select().from(users).where(eq10(users.unionId, `kinde_${userProfile.id}`)).limit(1);
+          const existing = await db.select().from(users).where(eq12(users.unionId, `kinde_${userProfile.id}`)).limit(1);
           if (existing[0]) {
             ctx.user = existing[0];
           }
@@ -15931,9 +16146,65 @@ async function createContext(opts) {
 }
 
 // api/app.ts
+import { eq as eq13 } from "drizzle-orm";
+import * as cookie3 from "cookie";
+var COOKIE_NAME2 = "kinde_session_id";
+var COOKIE_MAX_AGE2 = 60 * 60 * 24 * 7;
 var app = new Hono();
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 app.get(Paths.oauthCallback, createOAuthCallbackHandler());
+app.get("/api/kinde/callback", async (c) => {
+  if (!kindeClient) {
+    return c.redirect("/login?error=kinde_not_configured");
+  }
+  const code = c.req.query("code");
+  const state = c.req.query("state");
+  if (!code || !state) {
+    return c.redirect("/login?error=missing_params");
+  }
+  try {
+    const sessionManager = createSessionManager(state);
+    await sessionManager.setSessionItem("code", code);
+    await kindeClient.getToken(sessionManager);
+    const userProfile = await kindeClient.getUserProfile(sessionManager);
+    const db = getDb();
+    const email3 = userProfile.email || userProfile.preferred_email || "";
+    const picture = userProfile.picture || "";
+    const givenName = userProfile.given_name || "";
+    const familyName = userProfile.family_name || "";
+    const existing = await db.select().from(users).where(eq13(users.unionId, `kinde_${userProfile.id}`)).limit(1);
+    let user = existing[0];
+    const unionId = `kinde_${userProfile.id}`;
+    const isOwner = unionId === env.ownerUnionId;
+    if (!user) {
+      const result = await db.insert(users).values({
+        unionId,
+        name: `${givenName} ${familyName}`.trim() || email3 || "User",
+        email: email3 || null,
+        avatar: picture || null,
+        role: isOwner ? "admin" : "user"
+      }).returning();
+      user = result[0];
+    } else {
+      await db.update(users).set({
+        lastSignInAt: /* @__PURE__ */ new Date(),
+        role: isOwner ? "admin" : user.role
+      }).where(eq13(users.id, user.id));
+    }
+    const cookieValue = cookie3.serialize(COOKIE_NAME2, state, {
+      httpOnly: true,
+      path: "/",
+      sameSite: "lax",
+      secure: true,
+      maxAge: COOKIE_MAX_AGE2
+    });
+    c.header("set-cookie", cookieValue);
+    return c.redirect("/dashboard");
+  } catch (error48) {
+    console.error("Kinde callback error:", error48);
+    return c.redirect("/login?error=auth_failed");
+  }
+});
 app.use("/api/trpc/*", async (c) => {
   return fetchRequestHandler({
     endpoint: "/api/trpc",

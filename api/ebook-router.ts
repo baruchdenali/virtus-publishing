@@ -240,4 +240,30 @@ export const ebookRouter = createRouter({
       revenue: Number(revenue[0]?.total ?? 0),
     };
   }),
+
+  download: authedQuery
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const db = getDb();
+      const result = await db
+        .select()
+        .from(ebooks)
+        .where(eq(ebooks.id, input.id))
+        .limit(1);
+
+      const book = result[0];
+      if (!book) throw new TRPCError({ code: "NOT_FOUND", message: "eBook not found" });
+
+      const isOwner = book.userId === ctx.user.id;
+      const isAdmin = ctx.user.role === "admin";
+      if (!isOwner && !isAdmin) throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+
+      return {
+        title: book.title,
+        author: book.authorName || "Unknown",
+        content: book.content || "",
+        description: book.description || "",
+        category: book.category || "other",
+      };
+    }),
 });

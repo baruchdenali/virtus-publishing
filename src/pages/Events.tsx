@@ -124,9 +124,7 @@ export default function Events() {
                 </div>
                 <div className="flex items-center justify-between mt-4">
                   <span className="text-[11px] text-[#9B9589] flex items-center gap-1"><Users className="w-3 h-3" />{event.attendees} attending</span>
-                  <button className="px-4 py-1.5 rounded-lg bg-[rgba(200,165,92,0.12)] text-[#C8A55C] text-[12px] font-medium hover:bg-[rgba(200,165,92,0.2)] transition-all">
-                    RSVP
-                  </button>
+                  <button className="px-4 py-1.5 rounded-lg bg-[rgba(200,165,92,0.12)] text-[#C8A55C] text-[12px] font-medium hover:bg-[rgba(200,165,92,0.2)] transition-all" onClick={() => alert('RSVP feature coming soon! You will receive an email confirmation.')}>RSVP</button>
                 </div>
               </div>
             </motion.div>

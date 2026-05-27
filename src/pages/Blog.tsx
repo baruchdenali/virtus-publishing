@@ -99,7 +99,7 @@ export default function Blog() {
       {/* Featured Post */}
       {featured && (
         <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
-          <Link to="#" className="group block glass-surface overflow-hidden card-hover">
+          <div className="group block glass-surface overflow-hidden card-hover">
             <div className="flex flex-col md:flex-row">
               <div className="md:w-1/2 h-56 md:h-auto">
                 <img src={featured.image} alt={featured.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
@@ -118,7 +118,7 @@ export default function Blog() {
                 </div>
               </div>
             </div>
-          </Link>
+          </div>
         </motion.section>
       )}
 
@@ -127,7 +127,7 @@ export default function Blog() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {rest.map((post, i) => (
             <motion.div key={post.id} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
-              <Link to="#" className="group block glass-surface overflow-hidden card-hover h-full">
+              <div className="group block glass-surface overflow-hidden card-hover h-full">
                 <div className="relative h-40">
                   <img src={post.image} alt={post.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
                   <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[10px] font-medium bg-[rgba(200,165,92,0.15)] text-[#C8A55C] uppercase">{post.category}</span>
@@ -140,7 +140,7 @@ export default function Blog() {
                     <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{post.date}</span>
                   </div>
                 </div>
-              </Link>
+              </div>
             </motion.div>
           ))}
         </div>
