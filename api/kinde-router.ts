@@ -5,6 +5,7 @@ import { getDb } from "./queries/connection";
 import { users } from "@db/schema";
 import { eq } from "drizzle-orm";
 import { kindeClient, createSessionManager, getSessionIdFromCookie, generateSessionId } from "./kinde/auth";
+import { env } from "./lib/env";
 import * as cookie from "cookie";
 
 const COOKIE_NAME = "kinde_session_id";
@@ -64,15 +65,18 @@ export const kindeRouter = createRouter({
 
         let user = existing[0];
 
+        const unionId = `kinde_${userProfile.id}`;
+        const isOwner = unionId === env.ownerUnionId;
+
         if (!user) {
           const result = await db
             .insert(users)
             .values({
-              unionId: `kinde_${userProfile.id}`,
+              unionId,
               name: `${givenName} ${familyName}`.trim() || email || "User",
               email: email || null,
               avatar: picture || null,
-              role: "user",
+              role: isOwner ? "admin" : "user",
             })
             .returning();
 
@@ -80,8 +84,12 @@ export const kindeRouter = createRouter({
         } else {
           await db
             .update(users)
-            .set({ lastSignInAt: new Date() })
+            .set({
+              lastSignInAt: new Date(),
+              role: isOwner ? "admin" : user.role,
+            })
             .where(eq(users.id, user.id));
+          user.role = isOwner ? "admin" : user.role;
         }
 
         ctx.resHeaders.append(

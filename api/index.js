@@ -14961,17 +14961,23 @@ var kindeRouter = createRouter({
       const familyName = userProfile.family_name || "";
       const existing = await db.select().from(users).where(eq(users.unionId, `kinde_${userProfile.id}`)).limit(1);
       let user = existing[0];
+      const unionId = `kinde_${userProfile.id}`;
+      const isOwner = unionId === env.ownerUnionId;
       if (!user) {
         const result = await db.insert(users).values({
-          unionId: `kinde_${userProfile.id}`,
+          unionId,
           name: `${givenName} ${familyName}`.trim() || email3 || "User",
           email: email3 || null,
           avatar: picture || null,
-          role: "user"
+          role: isOwner ? "admin" : "user"
         }).returning();
         user = result[0];
       } else {
-        await db.update(users).set({ lastSignInAt: /* @__PURE__ */ new Date() }).where(eq(users.id, user.id));
+        await db.update(users).set({
+          lastSignInAt: /* @__PURE__ */ new Date(),
+          role: isOwner ? "admin" : user.role
+        }).where(eq(users.id, user.id));
+        user.role = isOwner ? "admin" : user.role;
       }
       ctx.resHeaders.append(
         "set-cookie",
