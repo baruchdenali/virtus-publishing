@@ -1,7 +1,6 @@
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
-import { BookOpen, Sparkles, Globe, Lock, Shield, Loader2 } from 'lucide-react'
-import { trpc } from '@/providers/trpc'
+import { BookOpen, Sparkles, Globe, Lock, Shield, LogIn, UserPlus } from 'lucide-react'
 import Logo from '@/components/Logo'
 
 function getOAuthUrl() {
@@ -21,16 +20,7 @@ function getOAuthUrl() {
 }
 
 export default function Login() {
-  const { data: kindeData, isLoading: kindeLoading } = trpc.kinde.getLoginUrl.useQuery(undefined, {
-    retry: false,
-  });
-
-  const handleKindeLogin = () => {
-    if (kindeData?.loginUrl) {
-      document.cookie = `kinde_session_id=${kindeData.sessionId};path=/;max-age=604800`;
-      window.location.href = kindeData.loginUrl;
-    }
-  };
+  const oauthUrl = getOAuthUrl()
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -39,13 +29,11 @@ export default function Login() {
         <div className="absolute top-0 left-0 w-full h-full opacity-30">
           <div className="absolute top-[10%] left-[20%] w-[400px] h-[400px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(200,165,92,0.08) 0%, transparent 70%)' }} />
           <div className="absolute bottom-[20%] right-[10%] w-[300px] h-[300px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(200,165,92,0.05) 0%, transparent 70%)' }} />
-          <div className="absolute top-[40%] right-[30%] w-[200px] h-[200px] rounded-full border border-[rgba(200,165,92,0.06)]" />
-          <div className="absolute bottom-[30%] left-[15%] w-[150px] h-[150px] rounded-full border border-[rgba(200,165,92,0.04)]" />
         </div>
       </div>
 
       <div className="relative z-10 flex flex-col lg:flex-row items-center gap-12 max-w-5xl mx-auto px-6">
-        {/* Left side - Branding */}
+        {/* Left side — Branding */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
@@ -80,7 +68,7 @@ export default function Login() {
           </div>
         </motion.div>
 
-        {/* Right side - Login Card */}
+        {/* Right side — Auth Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -93,32 +81,27 @@ export default function Login() {
             </div>
 
             <div className="text-center mb-8">
-              <h2 className="text-[24px] font-semibold mb-2">Welcome Back</h2>
-              <p className="text-[14px] text-[#9B9589]">Sign in to access your publishing studio</p>
+              <h2 className="text-[24px] font-semibold mb-2">Welcome to Virtus</h2>
+              <p className="text-[14px] text-[#9B9589]">Sign in or create your account</p>
             </div>
 
-            {/* Primary: Kinde Auth */}
-            <button
-              onClick={handleKindeLogin}
-              disabled={kindeLoading || !kindeData?.loginUrl}
-              className="w-full flex items-center justify-center gap-3 btn-gold text-[14px] py-3.5 mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            {/* Sign Up — New users */}
+            <a
+              href={oauthUrl}
+              className="w-full flex items-center justify-center gap-3 btn-gold text-[14px] py-3.5 mb-3"
             >
-              {kindeLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <Shield className="w-5 h-5" />
-              )}
-              {kindeLoading ? 'Loading...' : 'Sign in with Kinde'}
-            </button>
+              <UserPlus className="w-5 h-5" />
+              Create Account
+            </a>
 
-            {/* Secondary: Kimi Auth */}
-            <button
-              onClick={() => { window.location.href = getOAuthUrl() }}
+            {/* Sign In — Existing users */}
+            <a
+              href={oauthUrl}
               className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-lg border border-[rgba(245,240,232,0.14)] text-[14px] font-medium text-[#F5F0E8] hover:bg-[rgba(245,240,232,0.04)] transition-all"
             >
-              <Shield className="w-4 h-4 text-[#9B9589]" />
-              Sign in with Kimi
-            </button>
+              <LogIn className="w-4 h-4 text-[#9B9589]" />
+              Sign In
+            </a>
 
             <div className="flex items-center gap-3 my-6">
               <div className="flex-1 h-px bg-[rgba(245,240,232,0.08)]" />
@@ -127,7 +110,6 @@ export default function Login() {
             </div>
 
             <div className="text-center">
-              <p className="text-[13px] text-[#9B9589] mb-3">New to Virtus?</p>
               <Link
                 to="/store"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[rgba(245,240,232,0.14)] text-[13px] font-medium text-[#F5F0E8] hover:bg-[rgba(245,240,232,0.04)] transition-all"
@@ -137,9 +119,8 @@ export default function Login() {
               </Link>
             </div>
 
-            <p className="text-center text-[11px] text-[#9B9589] mt-6">
+            <p className="text-center text-[11px] text-[#9B9589] mt-6 leading-relaxed">
               By signing in, you agree to our Terms of Service and Privacy Policy.
-              <br />
               Your data is secured with end-to-end encryption.
             </p>
           </div>

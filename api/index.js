@@ -14662,7 +14662,7 @@ function date4(params) {
 // node_modules/zod/v4/classic/external.js
 config(en_default());
 
-// api/kinde-router.ts
+// api/ebook-router.ts
 import { TRPCError as TRPCError2 } from "@trpc/server";
 
 // api/queries/connection.ts
@@ -14905,166 +14905,8 @@ function getDb() {
   return instance;
 }
 
-// api/kinde-router.ts
-import { eq } from "drizzle-orm";
-
-// api/kinde/auth.ts
-import { createKindeServerClient, GrantType } from "@kinde-oss/kinde-typescript-sdk";
-var kindeDomain = process.env.KINDE_DOMAIN;
-var kindeClientId = process.env.KINDE_CLIENT_ID;
-var kindeClientSecret = process.env.KINDE_CLIENT_SECRET;
-var redirectUri = process.env.KINDE_REDIRECT_URI || `${kindeDomain}/api/callback`;
-var logoutRedirectUri = process.env.KINDE_POST_LOGOUT_REDIRECT_URI || kindeDomain;
-var kindeClient = kindeDomain && kindeClientId && kindeClientSecret ? createKindeServerClient(GrantType.AUTHORIZATION_CODE, {
-  authDomain: kindeDomain,
-  clientId: kindeClientId,
-  clientSecret: kindeClientSecret,
-  redirectURL: redirectUri,
-  logoutRedirectURL: logoutRedirectUri
-}) : null;
-var sessionStore = /* @__PURE__ */ new Map();
-function createSessionManager(sessionId) {
-  const store = sessionStore;
-  return {
-    async getSessionItem(key) {
-      return store.get(sessionId)?.[key] || null;
-    },
-    async setSessionItem(key, value) {
-      const session = store.get(sessionId) || {};
-      session[key] = value;
-      store.set(sessionId, session);
-    },
-    async removeSessionItem(key) {
-      const session = store.get(sessionId);
-      if (session) delete session[key];
-    },
-    async destroySession() {
-      store.delete(sessionId);
-    }
-  };
-}
-function getSessionIdFromCookie(headers) {
-  const cookie4 = headers.get("cookie");
-  if (!cookie4) return null;
-  const match = cookie4.match(/kinde_session_id=([^;]+)/);
-  return match ? match[1] : null;
-}
-function generateSessionId() {
-  return crypto.randomUUID();
-}
-
-// api/kinde-router.ts
-import * as cookie2 from "cookie";
-var COOKIE_NAME = "kinde_session_id";
-var COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-var kindeRouter = createRouter({
-  getLoginUrl: publicQuery.query(() => {
-    if (!kindeClient) {
-      throw new TRPCError2({
-        code: "NOT_FOUND",
-        message: "Kinde auth not configured"
-      });
-    }
-    const sessionId = generateSessionId();
-    const kindeDomain2 = process.env.KINDE_DOMAIN || "";
-    const kindeClientId2 = process.env.KINDE_CLIENT_ID || "";
-    const redirectUri2 = process.env.KINDE_REDIRECT_URI || `${kindeDomain2}/api/callback`;
-    const loginUrl = `${kindeDomain2}/oauth2/auth?` + new URLSearchParams({
-      client_id: kindeClientId2,
-      redirect_uri: redirectUri2,
-      response_type: "code",
-      scope: "openid profile email",
-      state: sessionId
-    }).toString();
-    return { loginUrl, sessionId };
-  }),
-  callback: publicQuery.input(external_exports.object({ code: external_exports.string(), state: external_exports.string() })).mutation(async ({ input, ctx }) => {
-    if (!kindeClient) {
-      throw new TRPCError2({ code: "NOT_FOUND", message: "Kinde not configured" });
-    }
-    const sessionManager = createSessionManager(input.state);
-    try {
-      await sessionManager.setSessionItem("code", input.code);
-      await kindeClient.getToken(sessionManager);
-      const userProfile = await kindeClient.getUserProfile(sessionManager);
-      const db = getDb();
-      const email3 = userProfile.email || userProfile.preferred_email || "";
-      const picture = userProfile.picture || "";
-      const givenName = userProfile.given_name || "";
-      const familyName = userProfile.family_name || "";
-      const existing = await db.select().from(users).where(eq(users.unionId, `kinde_${userProfile.id}`)).limit(1);
-      let user = existing[0];
-      const unionId = `kinde_${userProfile.id}`;
-      const isOwner = unionId === env.ownerUnionId;
-      if (!user) {
-        const result = await db.insert(users).values({
-          unionId,
-          name: `${givenName} ${familyName}`.trim() || email3 || "User",
-          email: email3 || null,
-          avatar: picture || null,
-          role: isOwner ? "admin" : "user"
-        }).returning();
-        user = result[0];
-      } else {
-        await db.update(users).set({
-          lastSignInAt: /* @__PURE__ */ new Date(),
-          role: isOwner ? "admin" : user.role
-        }).where(eq(users.id, user.id));
-        user.role = isOwner ? "admin" : user.role;
-      }
-      ctx.resHeaders.append(
-        "set-cookie",
-        cookie2.serialize(COOKIE_NAME, input.state, {
-          httpOnly: true,
-          path: "/",
-          sameSite: "lax",
-          secure: process.env.NODE_ENV === "production",
-          maxAge: COOKIE_MAX_AGE
-        })
-      );
-      return { success: true, user };
-    } catch (error48) {
-      console.error("Kinde callback error:", error48);
-      throw new TRPCError2({
-        code: "UNAUTHORIZED",
-        message: "Authentication failed"
-      });
-    }
-  }),
-  me: publicQuery.query(async ({ ctx }) => {
-    if (!kindeClient) return null;
-    const sessionId = getSessionIdFromCookie(ctx.req.headers);
-    if (!sessionId) return null;
-    const sessionManager = createSessionManager(sessionId);
-    try {
-      const isAuthenticated = await kindeClient.isAuthenticated(sessionManager);
-      if (!isAuthenticated) return null;
-      const userProfile = await kindeClient.getUserProfile(sessionManager);
-      const db = getDb();
-      const existing = await db.select().from(users).where(eq(users.unionId, `kinde_${userProfile.id}`)).limit(1);
-      return existing[0] || null;
-    } catch {
-      return null;
-    }
-  }),
-  logout: publicQuery.mutation(async ({ ctx }) => {
-    ctx.resHeaders.append(
-      "set-cookie",
-      cookie2.serialize(COOKIE_NAME, "", {
-        httpOnly: true,
-        path: "/",
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 0
-      })
-    );
-    return { success: true };
-  })
-});
-
 // api/ebook-router.ts
-import { TRPCError as TRPCError3 } from "@trpc/server";
-import { eq as eq2, and, desc, like, sql } from "drizzle-orm";
+import { eq, and, desc, like, sql } from "drizzle-orm";
 var ebookRouter = createRouter({
   list: authedQuery.input(
     external_exports.object({
@@ -15079,9 +14921,9 @@ var ebookRouter = createRouter({
     const page = input?.page ?? 1;
     const limit = input?.limit ?? 20;
     const offset = (page - 1) * limit;
-    const conditions = [eq2(ebooks.userId, userId)];
+    const conditions = [eq(ebooks.userId, userId)];
     if (input?.status) {
-      conditions.push(eq2(ebooks.status, input.status));
+      conditions.push(eq(ebooks.status, input.status));
     }
     if (input?.search) {
       conditions.push(like(ebooks.title, `%${input.search}%`));
@@ -15099,9 +14941,9 @@ var ebookRouter = createRouter({
   getById: authedQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const ebook = await db.select().from(ebooks).where(and(eq2(ebooks.id, input.id), eq2(ebooks.userId, userId))).limit(1);
+    const ebook = await db.select().from(ebooks).where(and(eq(ebooks.id, input.id), eq(ebooks.userId, userId))).limit(1);
     if (!ebook[0]) {
-      throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
+      throw new TRPCError2({ code: "NOT_FOUND", message: "eBook not found" });
     }
     return ebook[0];
   }),
@@ -15147,9 +14989,9 @@ var ebookRouter = createRouter({
     const db = getDb();
     const userId = ctx.user.id;
     const { id, ...data } = input;
-    const existing = await db.select().from(ebooks).where(and(eq2(ebooks.id, id), eq2(ebooks.userId, userId))).limit(1);
+    const existing = await db.select().from(ebooks).where(and(eq(ebooks.id, id), eq(ebooks.userId, userId))).limit(1);
     if (!existing[0]) {
-      throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
+      throw new TRPCError2({ code: "NOT_FOUND", message: "eBook not found" });
     }
     const updateData = {};
     if (data.title !== void 0) updateData.title = data.title;
@@ -15164,40 +15006,40 @@ var ebookRouter = createRouter({
     if (data.isbn !== void 0) updateData.isbn = data.isbn;
     if (data.language !== void 0) updateData.language = data.language;
     if (data.tags !== void 0) updateData.tags = data.tags;
-    const updated = await db.update(ebooks).set(updateData).where(eq2(ebooks.id, id)).returning();
+    const updated = await db.update(ebooks).set(updateData).where(eq(ebooks.id, id)).returning();
     return updated[0];
   }),
   delete: authedQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const existing = await db.select().from(ebooks).where(and(eq2(ebooks.id, input.id), eq2(ebooks.userId, userId))).limit(1);
+    const existing = await db.select().from(ebooks).where(and(eq(ebooks.id, input.id), eq(ebooks.userId, userId))).limit(1);
     if (!existing[0]) {
-      throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
+      throw new TRPCError2({ code: "NOT_FOUND", message: "eBook not found" });
     }
-    await db.delete(ebooks).where(eq2(ebooks.id, input.id));
+    await db.delete(ebooks).where(eq(ebooks.id, input.id));
     return { success: true };
   }),
   publish: authedQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ ctx, input }) => {
     const db = getDb();
-    const existing = await db.select().from(ebooks).where(and(eq2(ebooks.id, input.id), eq2(ebooks.userId, ctx.user.id))).limit(1);
+    const existing = await db.select().from(ebooks).where(and(eq(ebooks.id, input.id), eq(ebooks.userId, ctx.user.id))).limit(1);
     if (!existing[0]) {
-      throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
+      throw new TRPCError2({ code: "NOT_FOUND", message: "eBook not found" });
     }
-    const updated = await db.update(ebooks).set({ status: "published", publishedAt: /* @__PURE__ */ new Date() }).where(eq2(ebooks.id, input.id)).returning();
+    const updated = await db.update(ebooks).set({ status: "published", publishedAt: /* @__PURE__ */ new Date() }).where(eq(ebooks.id, input.id)).returning();
     return updated[0];
   }),
   updateCover: authedQuery.input(external_exports.object({ id: external_exports.number(), coverImageUrl: external_exports.string() })).mutation(async ({ ctx, input }) => {
     const db = getDb();
-    await db.update(ebooks).set({ coverImageUrl: input.coverImageUrl }).where(and(eq2(ebooks.id, input.id), eq2(ebooks.userId, ctx.user.id)));
+    await db.update(ebooks).set({ coverImageUrl: input.coverImageUrl }).where(and(eq(ebooks.id, input.id), eq(ebooks.userId, ctx.user.id)));
     return { success: true };
   }),
   stats: authedQuery.query(async ({ ctx }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const totalBooks = await db.select({ count: sql`count(*)::int` }).from(ebooks).where(eq2(ebooks.userId, userId));
-    const publishedBooks = await db.select({ count: sql`count(*)::int` }).from(ebooks).where(and(eq2(ebooks.userId, userId), eq2(ebooks.status, "published")));
-    const totalPurchases = await db.select({ count: sql`count(*)::int` }).from(purchases).innerJoin(ebooks, eq2(purchases.ebookId, ebooks.id)).where(and(eq2(ebooks.userId, userId), eq2(purchases.status, "completed")));
-    const revenue = await db.select({ total: sql`COALESCE(sum(purchases.amount), 0)::numeric` }).from(purchases).innerJoin(ebooks, eq2(purchases.ebookId, ebooks.id)).where(and(eq2(ebooks.userId, userId), eq2(purchases.status, "completed")));
+    const totalBooks = await db.select({ count: sql`count(*)::int` }).from(ebooks).where(eq(ebooks.userId, userId));
+    const publishedBooks = await db.select({ count: sql`count(*)::int` }).from(ebooks).where(and(eq(ebooks.userId, userId), eq(ebooks.status, "published")));
+    const totalPurchases = await db.select({ count: sql`count(*)::int` }).from(purchases).innerJoin(ebooks, eq(purchases.ebookId, ebooks.id)).where(and(eq(ebooks.userId, userId), eq(purchases.status, "completed")));
+    const revenue = await db.select({ total: sql`COALESCE(sum(purchases.amount), 0)::numeric` }).from(purchases).innerJoin(ebooks, eq(purchases.ebookId, ebooks.id)).where(and(eq(ebooks.userId, userId), eq(purchases.status, "completed")));
     return {
       totalBooks: totalBooks[0]?.count ?? 0,
       publishedBooks: publishedBooks[0]?.count ?? 0,
@@ -15207,12 +15049,12 @@ var ebookRouter = createRouter({
   }),
   download: authedQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input, ctx }) => {
     const db = getDb();
-    const result = await db.select().from(ebooks).where(eq2(ebooks.id, input.id)).limit(1);
+    const result = await db.select().from(ebooks).where(eq(ebooks.id, input.id)).limit(1);
     const book = result[0];
-    if (!book) throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
+    if (!book) throw new TRPCError2({ code: "NOT_FOUND", message: "eBook not found" });
     const isOwner = book.userId === ctx.user.id;
     const isAdmin = ctx.user.role === "admin";
-    if (!isOwner && !isAdmin) throw new TRPCError3({ code: "FORBIDDEN", message: "Not authorized" });
+    if (!isOwner && !isAdmin) throw new TRPCError2({ code: "FORBIDDEN", message: "Not authorized" });
     return {
       title: book.title,
       author: book.authorName || "Unknown",
@@ -15224,7 +15066,7 @@ var ebookRouter = createRouter({
 });
 
 // api/store-router.ts
-import { eq as eq3, and as and2, desc as desc2, like as like2, sql as sql2 } from "drizzle-orm";
+import { eq as eq2, and as and2, desc as desc2, like as like2, sql as sql2 } from "drizzle-orm";
 var storeRouter = createRouter({
   list: publicQuery.input(
     external_exports.object({
@@ -15240,11 +15082,11 @@ var storeRouter = createRouter({
     const limit = input?.limit ?? 20;
     const offset = (page - 1) * limit;
     const conditions = [
-      eq3(ebooks.status, "published"),
-      eq3(ebooks.visibility, "public")
+      eq2(ebooks.status, "published"),
+      eq2(ebooks.visibility, "public")
     ];
     if (input?.category) {
-      conditions.push(eq3(ebooks.category, input.category));
+      conditions.push(eq2(ebooks.category, input.category));
     }
     if (input?.search) {
       conditions.push(like2(ebooks.title, `%${input.search}%`));
@@ -15279,8 +15121,8 @@ var storeRouter = createRouter({
     }).from(ebooks).where(where).orderBy(orderBy).limit(limit).offset(offset);
     const itemsWithRatings = await Promise.all(
       items.map(async (item) => {
-        const avgRating = await db.select({ avg: sql2`COALESCE(avg(rating), 0)::numeric` }).from(reviews).where(eq3(reviews.ebookId, item.id));
-        const reviewCount = await db.select({ count: sql2`count(*)::int` }).from(reviews).where(eq3(reviews.ebookId, item.id));
+        const avgRating = await db.select({ avg: sql2`COALESCE(avg(rating), 0)::numeric` }).from(reviews).where(eq2(reviews.ebookId, item.id));
+        const reviewCount = await db.select({ count: sql2`count(*)::int` }).from(reviews).where(eq2(reviews.ebookId, item.id));
         return {
           ...item,
           rating: Number(avgRating[0]?.avg ?? 0),
@@ -15298,12 +15140,12 @@ var storeRouter = createRouter({
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const db = getDb();
-    const ebook = await db.select().from(ebooks).where(and2(eq3(ebooks.id, input.id), eq3(ebooks.status, "published"), eq3(ebooks.visibility, "public"))).limit(1);
+    const ebook = await db.select().from(ebooks).where(and2(eq2(ebooks.id, input.id), eq2(ebooks.status, "published"), eq2(ebooks.visibility, "public"))).limit(1);
     if (!ebook[0]) {
       return null;
     }
-    const avgRating = await db.select({ avg: sql2`COALESCE(avg(rating), 0)::numeric` }).from(reviews).where(eq3(reviews.ebookId, input.id));
-    const reviewCount = await db.select({ count: sql2`count(*)::int` }).from(reviews).where(eq3(reviews.ebookId, input.id));
+    const avgRating = await db.select({ avg: sql2`COALESCE(avg(rating), 0)::numeric` }).from(reviews).where(eq2(reviews.ebookId, input.id));
+    const reviewCount = await db.select({ count: sql2`count(*)::int` }).from(reviews).where(eq2(reviews.ebookId, input.id));
     return {
       ...ebook[0],
       rating: Number(avgRating[0]?.avg ?? 0),
@@ -15315,7 +15157,7 @@ var storeRouter = createRouter({
     const categories = await db.select({
       category: ebooks.category,
       count: sql2`count(*)::int`
-    }).from(ebooks).where(and2(eq3(ebooks.status, "published"), eq3(ebooks.visibility, "public"))).groupBy(ebooks.category);
+    }).from(ebooks).where(and2(eq2(ebooks.status, "published"), eq2(ebooks.visibility, "public"))).groupBy(ebooks.category);
     return categories;
   }),
   featured: publicQuery.query(async () => {
@@ -15330,11 +15172,11 @@ var storeRouter = createRouter({
       price: ebooks.price,
       isFree: ebooks.isFree,
       publishedAt: ebooks.publishedAt
-    }).from(ebooks).where(and2(eq3(ebooks.status, "published"), eq3(ebooks.visibility, "public"))).orderBy(desc2(ebooks.publishedAt)).limit(6);
+    }).from(ebooks).where(and2(eq2(ebooks.status, "published"), eq2(ebooks.visibility, "public"))).orderBy(desc2(ebooks.publishedAt)).limit(6);
     const itemsWithRatings = await Promise.all(
       items.map(async (item) => {
-        const avgRating = await db.select({ avg: sql2`COALESCE(avg(rating), 0)::numeric` }).from(reviews).where(eq3(reviews.ebookId, item.id));
-        const reviewCount = await db.select({ count: sql2`count(*)::int` }).from(reviews).where(eq3(reviews.ebookId, item.id));
+        const avgRating = await db.select({ avg: sql2`COALESCE(avg(rating), 0)::numeric` }).from(reviews).where(eq2(reviews.ebookId, item.id));
+        const reviewCount = await db.select({ count: sql2`count(*)::int` }).from(reviews).where(eq2(reviews.ebookId, item.id));
         return {
           ...item,
           rating: Number(avgRating[0]?.avg ?? 0),
@@ -15347,25 +15189,25 @@ var storeRouter = createRouter({
 });
 
 // api/purchase-router.ts
-import { TRPCError as TRPCError4 } from "@trpc/server";
-import { eq as eq4, and as and3, desc as desc3 } from "drizzle-orm";
+import { TRPCError as TRPCError3 } from "@trpc/server";
+import { eq as eq3, and as and3, desc as desc3 } from "drizzle-orm";
 var purchaseRouter = createRouter({
   list: authedQuery.query(async ({ ctx }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const items = await db.select().from(purchases).where(eq4(purchases.userId, userId)).orderBy(desc3(purchases.createdAt));
+    const items = await db.select().from(purchases).where(eq3(purchases.userId, userId)).orderBy(desc3(purchases.createdAt));
     return items;
   }),
   create: authedQuery.input(external_exports.object({ ebookId: external_exports.number(), amount: external_exports.string(), currency: external_exports.string().default("USD") })).mutation(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const ebook = await db.select().from(ebooks).where(eq4(ebooks.id, input.ebookId)).limit(1);
+    const ebook = await db.select().from(ebooks).where(eq3(ebooks.id, input.ebookId)).limit(1);
     if (!ebook[0]) {
-      throw new TRPCError4({ code: "NOT_FOUND", message: "eBook not found" });
+      throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
     }
-    const existingPurchase = await db.select().from(purchases).where(and3(eq4(purchases.userId, userId), eq4(purchases.ebookId, input.ebookId), eq4(purchases.status, "completed"))).limit(1);
+    const existingPurchase = await db.select().from(purchases).where(and3(eq3(purchases.userId, userId), eq3(purchases.ebookId, input.ebookId), eq3(purchases.status, "completed"))).limit(1);
     if (existingPurchase[0]) {
-      throw new TRPCError4({ code: "CONFLICT", message: "You already own this eBook" });
+      throw new TRPCError3({ code: "CONFLICT", message: "You already own this eBook" });
     }
     const result = await db.insert(purchases).values({
       userId,
@@ -15380,18 +15222,18 @@ var purchaseRouter = createRouter({
   checkOwnership: authedQuery.input(external_exports.object({ ebookId: external_exports.number() })).query(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const ebook = await db.select().from(ebooks).where(eq4(ebooks.id, input.ebookId)).limit(1);
+    const ebook = await db.select().from(ebooks).where(eq3(ebooks.id, input.ebookId)).limit(1);
     if (ebook[0]?.isFree) {
       return { owned: true, isFree: true };
     }
-    const purchase = await db.select().from(purchases).where(and3(eq4(purchases.userId, userId), eq4(purchases.ebookId, input.ebookId), eq4(purchases.status, "completed"))).limit(1);
+    const purchase = await db.select().from(purchases).where(and3(eq3(purchases.userId, userId), eq3(purchases.ebookId, input.ebookId), eq3(purchases.status, "completed"))).limit(1);
     return { owned: !!purchase[0], isFree: false };
   })
 });
 
 // api/review-router.ts
-import { TRPCError as TRPCError5 } from "@trpc/server";
-import { eq as eq5, desc as desc4 } from "drizzle-orm";
+import { TRPCError as TRPCError4 } from "@trpc/server";
+import { eq as eq4, desc as desc4 } from "drizzle-orm";
 var reviewRouter = createRouter({
   list: publicQuery.input(external_exports.object({ ebookId: external_exports.number() })).query(async ({ input }) => {
     const db = getDb();
@@ -15404,7 +15246,7 @@ var reviewRouter = createRouter({
       createdAt: reviews.createdAt,
       userName: users.name,
       userAvatar: users.avatar
-    }).from(reviews).where(eq5(reviews.ebookId, input.ebookId)).leftJoin(users, eq5(reviews.userId, users.id)).orderBy(desc4(reviews.createdAt));
+    }).from(reviews).where(eq4(reviews.ebookId, input.ebookId)).leftJoin(users, eq4(reviews.userId, users.id)).orderBy(desc4(reviews.createdAt));
     return items;
   }),
   create: authedQuery.input(
@@ -15416,9 +15258,9 @@ var reviewRouter = createRouter({
   ).mutation(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const existing = await db.select().from(reviews).where(eq5(reviews.ebookId, input.ebookId)).limit(1);
+    const existing = await db.select().from(reviews).where(eq4(reviews.ebookId, input.ebookId)).limit(1);
     if (existing.length > 0) {
-      const updated = await db.update(reviews).set({ rating: input.rating, comment: input.comment }).where(eq5(reviews.id, existing[0].id)).returning();
+      const updated = await db.update(reviews).set({ rating: input.rating, comment: input.comment }).where(eq4(reviews.id, existing[0].id)).returning();
       return updated[0];
     }
     const result = await db.insert(reviews).values({
@@ -15432,25 +15274,25 @@ var reviewRouter = createRouter({
   delete: authedQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const existing = await db.select().from(reviews).where(eq5(reviews.id, input.id)).limit(1);
+    const existing = await db.select().from(reviews).where(eq4(reviews.id, input.id)).limit(1);
     if (!existing[0]) {
-      throw new TRPCError5({ code: "NOT_FOUND", message: "Review not found" });
+      throw new TRPCError4({ code: "NOT_FOUND", message: "Review not found" });
     }
     if (existing[0].userId !== userId) {
-      throw new TRPCError5({ code: "FORBIDDEN", message: "Cannot delete another user's review" });
+      throw new TRPCError4({ code: "FORBIDDEN", message: "Cannot delete another user's review" });
     }
-    await db.delete(reviews).where(eq5(reviews.id, input.id));
+    await db.delete(reviews).where(eq4(reviews.id, input.id));
     return { success: true };
   })
 });
 
 // api/ai-router.ts
-import { eq as eq6, desc as desc5 } from "drizzle-orm";
+import { eq as eq5, desc as desc5 } from "drizzle-orm";
 var aiRouter = createRouter({
   listConversations: authedQuery.query(async ({ ctx }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const conversations = await db.select().from(aiConversations).where(eq6(aiConversations.userId, userId)).orderBy(desc5(aiConversations.createdAt));
+    const conversations = await db.select().from(aiConversations).where(eq5(aiConversations.userId, userId)).orderBy(desc5(aiConversations.createdAt));
     return conversations;
   }),
   createConversation: authedQuery.input(external_exports.object({ title: external_exports.string().optional(), ebookId: external_exports.number().optional() })).mutation(async ({ ctx, input }) => {
@@ -15466,17 +15308,17 @@ var aiRouter = createRouter({
   listMessages: authedQuery.input(external_exports.object({ conversationId: external_exports.number() })).query(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const conversation = await db.select().from(aiConversations).where(eq6(aiConversations.id, input.conversationId)).limit(1);
+    const conversation = await db.select().from(aiConversations).where(eq5(aiConversations.id, input.conversationId)).limit(1);
     if (!conversation[0] || conversation[0].userId !== userId) {
       return [];
     }
-    const messages = await db.select().from(aiMessages).where(eq6(aiMessages.conversationId, input.conversationId)).orderBy(aiMessages.createdAt);
+    const messages = await db.select().from(aiMessages).where(eq5(aiMessages.conversationId, input.conversationId)).orderBy(aiMessages.createdAt);
     return messages;
   }),
   sendMessage: authedQuery.input(external_exports.object({ conversationId: external_exports.number(), content: external_exports.string() })).mutation(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const conversation = await db.select().from(aiConversations).where(eq6(aiConversations.id, input.conversationId)).limit(1);
+    const conversation = await db.select().from(aiConversations).where(eq5(aiConversations.id, input.conversationId)).limit(1);
     if (!conversation[0] || conversation[0].userId !== userId) {
       return null;
     }
@@ -15594,8 +15436,8 @@ This refined version elevates the original text while preserving its core messag
 });
 
 // api/user-router.ts
-import { TRPCError as TRPCError6 } from "@trpc/server";
-import { eq as eq7, and as and4, sql as sql3 } from "drizzle-orm";
+import { TRPCError as TRPCError5 } from "@trpc/server";
+import { eq as eq6, and as and4, sql as sql3 } from "drizzle-orm";
 var userRouter = createRouter({
   profile: authedQuery.query(async ({ ctx }) => {
     const db = getDb();
@@ -15609,9 +15451,9 @@ var userRouter = createRouter({
       website: users.website,
       role: users.role,
       createdAt: users.createdAt
-    }).from(users).where(eq7(users.id, userId)).limit(1);
+    }).from(users).where(eq6(users.id, userId)).limit(1);
     if (!user[0]) {
-      throw new TRPCError6({ code: "NOT_FOUND", message: "User not found" });
+      throw new TRPCError5({ code: "NOT_FOUND", message: "User not found" });
     }
     return user[0];
   }),
@@ -15630,19 +15472,19 @@ var userRouter = createRouter({
     if (input.bio !== void 0) updateData.bio = input.bio;
     if (input.website !== void 0) updateData.website = input.website;
     if (input.avatar !== void 0) updateData.avatar = input.avatar;
-    const updated = await db.update(users).set(updateData).where(eq7(users.id, userId)).returning();
+    const updated = await db.update(users).set(updateData).where(eq6(users.id, userId)).returning();
     return updated[0];
   }),
   stats: authedQuery.query(async ({ ctx }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const totalBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(eq7(ebooks.userId, userId));
-    const publishedBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and4(eq7(ebooks.userId, userId), eq7(ebooks.status, "published")));
-    const inProgressBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and4(eq7(ebooks.userId, userId), eq7(ebooks.status, "in_progress")));
-    const draftBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and4(eq7(ebooks.userId, userId), eq7(ebooks.status, "draft")));
-    const totalPurchasesResult = await db.select({ count: sql3`count(*)::int` }).from(purchases).innerJoin(ebooks, eq7(purchases.ebookId, ebooks.id)).where(and4(eq7(ebooks.userId, userId), eq7(purchases.status, "completed")));
-    const revenueResult = await db.select({ total: sql3`COALESCE(sum(purchases.amount), 0)::numeric` }).from(purchases).innerJoin(ebooks, eq7(purchases.ebookId, ebooks.id)).where(and4(eq7(ebooks.userId, userId), eq7(purchases.status, "completed")));
-    const totalReviewsResult = await db.select({ count: sql3`count(*)::int` }).from(reviews).innerJoin(ebooks, eq7(reviews.ebookId, ebooks.id)).where(eq7(ebooks.userId, userId));
+    const totalBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(eq6(ebooks.userId, userId));
+    const publishedBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and4(eq6(ebooks.userId, userId), eq6(ebooks.status, "published")));
+    const inProgressBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and4(eq6(ebooks.userId, userId), eq6(ebooks.status, "in_progress")));
+    const draftBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and4(eq6(ebooks.userId, userId), eq6(ebooks.status, "draft")));
+    const totalPurchasesResult = await db.select({ count: sql3`count(*)::int` }).from(purchases).innerJoin(ebooks, eq6(purchases.ebookId, ebooks.id)).where(and4(eq6(ebooks.userId, userId), eq6(purchases.status, "completed")));
+    const revenueResult = await db.select({ total: sql3`COALESCE(sum(purchases.amount), 0)::numeric` }).from(purchases).innerJoin(ebooks, eq6(purchases.ebookId, ebooks.id)).where(and4(eq6(ebooks.userId, userId), eq6(purchases.status, "completed")));
+    const totalReviewsResult = await db.select({ count: sql3`count(*)::int` }).from(reviews).innerJoin(ebooks, eq6(reviews.ebookId, ebooks.id)).where(eq6(ebooks.userId, userId));
     return {
       totalBooks: totalBooks[0]?.count ?? 0,
       publishedBooks: publishedBooks[0]?.count ?? 0,
@@ -15656,15 +15498,15 @@ var userRouter = createRouter({
 });
 
 // api/admin-router.ts
-import { eq as eq8, and as and5, desc as desc6, sql as sql4, gte } from "drizzle-orm";
+import { eq as eq7, and as and5, desc as desc6, sql as sql4, gte } from "drizzle-orm";
 var adminRouter = createRouter({
   overview: adminQuery.query(async () => {
     const db = getDb();
     const totalUsers = await db.select({ count: sql4`count(*)::int` }).from(users);
     const totalEbooks = await db.select({ count: sql4`count(*)::int` }).from(ebooks);
-    const publishedEbooks = await db.select({ count: sql4`count(*)::int` }).from(ebooks).where(eq8(ebooks.status, "published"));
-    const totalPurchases = await db.select({ count: sql4`count(*)::int` }).from(purchases).where(eq8(purchases.status, "completed"));
-    const totalRevenue = await db.select({ total: sql4`COALESCE(sum(amount), 0)::numeric` }).from(purchases).where(eq8(purchases.status, "completed"));
+    const publishedEbooks = await db.select({ count: sql4`count(*)::int` }).from(ebooks).where(eq7(ebooks.status, "published"));
+    const totalPurchases = await db.select({ count: sql4`count(*)::int` }).from(purchases).where(eq7(purchases.status, "completed"));
+    const totalRevenue = await db.select({ total: sql4`COALESCE(sum(amount), 0)::numeric` }).from(purchases).where(eq7(purchases.status, "completed"));
     const totalReviews = await db.select({ count: sql4`count(*)::int` }).from(reviews);
     const aiMessagesCount = await db.select({ count: sql4`count(*)::int` }).from(aiMessages);
     const now = /* @__PURE__ */ new Date();
@@ -15672,7 +15514,7 @@ var adminRouter = createRouter({
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1e3);
     const newUsers7d = await db.select({ count: sql4`count(*)::int` }).from(users).where(gte(users.createdAt, sevenDaysAgo));
     const newUsers30d = await db.select({ count: sql4`count(*)::int` }).from(users).where(gte(users.createdAt, thirtyDaysAgo));
-    const revenue30d = await db.select({ total: sql4`COALESCE(sum(amount), 0)::numeric` }).from(purchases).where(and5(eq8(purchases.status, "completed"), gte(purchases.createdAt, thirtyDaysAgo)));
+    const revenue30d = await db.select({ total: sql4`COALESCE(sum(amount), 0)::numeric` }).from(purchases).where(and5(eq7(purchases.status, "completed"), gte(purchases.createdAt, thirtyDaysAgo)));
     return {
       totalUsers: totalUsers[0]?.count ?? 0,
       totalEbooks: totalEbooks[0]?.count ?? 0,
@@ -15694,7 +15536,7 @@ var adminRouter = createRouter({
       date: sql4`DATE("createdAt")`,
       revenue: sql4`COALESCE(sum(amount), 0)::numeric`,
       count: sql4`count(*)::int`
-    }).from(purchases).where(and5(eq8(purchases.status, "completed"), gte(purchases.createdAt, since))).groupBy(sql4`DATE("createdAt")`).orderBy(sql4`DATE("createdAt")`);
+    }).from(purchases).where(and5(eq7(purchases.status, "completed"), gte(purchases.createdAt, since))).groupBy(sql4`DATE("createdAt")`).orderBy(sql4`DATE("createdAt")`);
     const result = {};
     for (const row of rows) {
       result[row.date] = { revenue: Number(row.revenue), count: row.count };
@@ -15745,7 +15587,7 @@ var adminRouter = createRouter({
     const published = await db.select({
       date: sql4`DATE("publishedAt")`,
       count: sql4`count(*)::int`
-    }).from(ebooks).where(and5(gte(ebooks.publishedAt, since), eq8(ebooks.status, "published"))).groupBy(sql4`DATE("publishedAt")`).orderBy(sql4`DATE("publishedAt")`);
+    }).from(ebooks).where(and5(gte(ebooks.publishedAt, since), eq7(ebooks.status, "published"))).groupBy(sql4`DATE("publishedAt")`).orderBy(sql4`DATE("publishedAt")`);
     const createdMap = {};
     for (const r of created) createdMap[r.date] = r.count;
     const publishedMap = {};
@@ -15827,7 +15669,7 @@ var adminRouter = createRouter({
       metadata: activityLog.metadata,
       createdAt: activityLog.createdAt,
       userName: users.name
-    }).from(activityLog).leftJoin(users, eq8(activityLog.userId, users.id)).orderBy(desc6(activityLog.createdAt)).limit(limit);
+    }).from(activityLog).leftJoin(users, eq7(activityLog.userId, users.id)).orderBy(desc6(activityLog.createdAt)).limit(limit);
     return logs;
   }),
   categoryBreakdown: adminQuery.query(async () => {
@@ -15845,25 +15687,25 @@ var adminRouter = createRouter({
 });
 
 // api/blog-router.ts
-import { eq as eq9, desc as desc7 } from "drizzle-orm";
+import { eq as eq8, desc as desc7 } from "drizzle-orm";
 var blogRouter = createRouter({
   list: publicQuery.input(external_exports.object({ publishedOnly: external_exports.boolean().default(true) }).optional()).query(async ({ input }) => {
     const db = getDb();
     const publishedOnly = input?.publishedOnly ?? true;
     let query = db.select().from(blogPosts).orderBy(desc7(blogPosts.createdAt));
     if (publishedOnly) {
-      return db.select().from(blogPosts).where(eq9(blogPosts.published, true)).orderBy(desc7(blogPosts.createdAt));
+      return db.select().from(blogPosts).where(eq8(blogPosts.published, true)).orderBy(desc7(blogPosts.createdAt));
     }
     return query;
   }),
   getBySlug: publicQuery.input(external_exports.object({ slug: external_exports.string() })).query(async ({ input }) => {
     const db = getDb();
-    const result = await db.select().from(blogPosts).where(eq9(blogPosts.slug, input.slug)).limit(1);
+    const result = await db.select().from(blogPosts).where(eq8(blogPosts.slug, input.slug)).limit(1);
     return result[0] || null;
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const db = getDb();
-    const result = await db.select().from(blogPosts).where(eq9(blogPosts.id, input.id)).limit(1);
+    const result = await db.select().from(blogPosts).where(eq8(blogPosts.id, input.id)).limit(1);
     return result[0] || null;
   }),
   create: adminQuery.input(
@@ -15912,37 +15754,37 @@ var blogRouter = createRouter({
   ).mutation(async ({ input }) => {
     const db = getDb();
     const { id, ...data } = input;
-    const result = await db.update(blogPosts).set(data).where(eq9(blogPosts.id, id)).returning();
+    const result = await db.update(blogPosts).set(data).where(eq8(blogPosts.id, id)).returning();
     return result[0];
   }),
   delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     const db = getDb();
-    await db.delete(blogPosts).where(eq9(blogPosts.id, input.id));
+    await db.delete(blogPosts).where(eq8(blogPosts.id, input.id));
     return { success: true };
   }),
   togglePublish: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     const db = getDb();
-    const existing = await db.select().from(blogPosts).where(eq9(blogPosts.id, input.id)).limit(1);
+    const existing = await db.select().from(blogPosts).where(eq8(blogPosts.id, input.id)).limit(1);
     if (!existing[0]) throw new Error("Post not found");
-    const result = await db.update(blogPosts).set({ published: !existing[0].published }).where(eq9(blogPosts.id, input.id)).returning();
+    const result = await db.update(blogPosts).set({ published: !existing[0].published }).where(eq8(blogPosts.id, input.id)).returning();
     return result[0];
   })
 });
 
 // api/podcast-router.ts
-import { eq as eq10, desc as desc8 } from "drizzle-orm";
+import { eq as eq9, desc as desc8 } from "drizzle-orm";
 var podcastRouter = createRouter({
   list: publicQuery.input(external_exports.object({ publishedOnly: external_exports.boolean().default(true) }).optional()).query(async ({ input }) => {
     const db = getDb();
     const publishedOnly = input?.publishedOnly ?? true;
     if (publishedOnly) {
-      return db.select().from(podcasts).where(eq10(podcasts.published, true)).orderBy(desc8(podcasts.createdAt));
+      return db.select().from(podcasts).where(eq9(podcasts.published, true)).orderBy(desc8(podcasts.createdAt));
     }
     return db.select().from(podcasts).orderBy(desc8(podcasts.createdAt));
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const db = getDb();
-    const result = await db.select().from(podcasts).where(eq10(podcasts.id, input.id)).limit(1);
+    const result = await db.select().from(podcasts).where(eq9(podcasts.id, input.id)).limit(1);
     return result[0] || null;
   }),
   create: adminQuery.input(
@@ -15984,26 +15826,26 @@ var podcastRouter = createRouter({
   ).mutation(async ({ input }) => {
     const db = getDb();
     const { id, ...data } = input;
-    const result = await db.update(podcasts).set(data).where(eq10(podcasts.id, id)).returning();
+    const result = await db.update(podcasts).set(data).where(eq9(podcasts.id, id)).returning();
     return result[0];
   }),
   delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     const db = getDb();
-    await db.delete(podcasts).where(eq10(podcasts.id, input.id));
+    await db.delete(podcasts).where(eq9(podcasts.id, input.id));
     return { success: true };
   }),
   togglePublish: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     const db = getDb();
-    const existing = await db.select().from(podcasts).where(eq10(podcasts.id, input.id)).limit(1);
+    const existing = await db.select().from(podcasts).where(eq9(podcasts.id, input.id)).limit(1);
     if (!existing[0]) throw new Error("Podcast not found");
-    const result = await db.update(podcasts).set({ published: !existing[0].published }).where(eq10(podcasts.id, input.id)).returning();
+    const result = await db.update(podcasts).set({ published: !existing[0].published }).where(eq9(podcasts.id, input.id)).returning();
     return result[0];
   }),
   incrementPlays: publicQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     const db = getDb();
-    const existing = await db.select().from(podcasts).where(eq10(podcasts.id, input.id)).limit(1);
+    const existing = await db.select().from(podcasts).where(eq9(podcasts.id, input.id)).limit(1);
     if (!existing[0]) return null;
-    const result = await db.update(podcasts).set({ plays: (existing[0].plays || 0) + 1 }).where(eq10(podcasts.id, input.id)).returning();
+    const result = await db.update(podcasts).set({ plays: (existing[0].plays || 0) + 1 }).where(eq9(podcasts.id, input.id)).returning();
     return result[0];
   })
 });
@@ -16012,7 +15854,6 @@ var podcastRouter = createRouter({
 var appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
   auth: authRouter,
-  kinde: kindeRouter,
   ebook: ebookRouter,
   store: storeRouter,
   purchase: purchaseRouter,
@@ -16025,22 +15866,22 @@ var appRouter = createRouter({
 });
 
 // api/kimi/auth.ts
-import { eq as eq11 } from "drizzle-orm";
+import { eq as eq10 } from "drizzle-orm";
 var sessions = /* @__PURE__ */ new Map();
-function generateSessionId2() {
+function generateSessionId() {
   return crypto.randomUUID();
 }
 function setSessionCookie(resHeaders, sessionId) {
   const options = getSessionCookieOptions(new Headers());
-  let cookie4 = `session_id=${sessionId}; Path=${options.path}; SameSite=${options.sameSite}; Max-Age=${options.maxAge}`;
-  if (options.httpOnly) cookie4 += "; HttpOnly";
-  if (options.secure) cookie4 += "; Secure";
-  resHeaders.append("Set-Cookie", cookie4);
+  let cookie2 = `session_id=${sessionId}; Path=${options.path}; SameSite=${options.sameSite}; Max-Age=${options.maxAge}`;
+  if (options.httpOnly) cookie2 += "; HttpOnly";
+  if (options.secure) cookie2 += "; Secure";
+  resHeaders.append("Set-Cookie", cookie2);
 }
 function getSessionId(headers) {
-  const cookie4 = headers.get("cookie");
-  if (!cookie4) return null;
-  const match = cookie4.match(/session_id=([^;]+)/);
+  const cookie2 = headers.get("cookie");
+  if (!cookie2) return null;
+  const match = cookie2.match(/session_id=([^;]+)/);
   return match ? match[1] : null;
 }
 async function authenticateRequest(headers) {
@@ -16053,7 +15894,7 @@ async function authenticateRequest(headers) {
     return void 0;
   }
   const db = getDb();
-  const rows = await db.select().from(users).where(eq11(users.unionId, session.unionId)).limit(1);
+  const rows = await db.select().from(users).where(eq10(users.unionId, session.unionId)).limit(1);
   return rows[0];
 }
 function createOAuthCallbackHandler() {
@@ -16103,7 +15944,7 @@ function createOAuthCallbackHandler() {
         target: users.unionId,
         set: { name, email: email3, avatar, lastSignInAt: /* @__PURE__ */ new Date() }
       });
-      const sessionId = generateSessionId2();
+      const sessionId = generateSessionId();
       sessions.set(sessionId, { unionId, createdAt: Date.now() });
       setSessionCookie(resHeaders, sessionId);
       const redirectUrl = state ? atob(state) : "/";
@@ -16117,94 +15958,19 @@ function createOAuthCallbackHandler() {
 }
 
 // api/context.ts
-import { eq as eq12 } from "drizzle-orm";
 async function createContext(opts) {
   const ctx = { req: opts.req, resHeaders: opts.resHeaders };
   try {
     ctx.user = await authenticateRequest(opts.req.headers);
   } catch {
   }
-  if (!ctx.user && kindeClient) {
-    try {
-      const sessionId = getSessionIdFromCookie(opts.req.headers);
-      if (sessionId) {
-        const sessionManager = createSessionManager(sessionId);
-        const isAuthenticated = await kindeClient.isAuthenticated(sessionManager);
-        if (isAuthenticated) {
-          const userProfile = await kindeClient.getUserProfile(sessionManager);
-          const db = getDb();
-          const existing = await db.select().from(users).where(eq12(users.unionId, `kinde_${userProfile.id}`)).limit(1);
-          if (existing[0]) {
-            ctx.user = existing[0];
-          }
-        }
-      }
-    } catch {
-    }
-  }
   return ctx;
 }
 
 // api/app.ts
-import { eq as eq13 } from "drizzle-orm";
-import * as cookie3 from "cookie";
-var COOKIE_NAME2 = "kinde_session_id";
-var COOKIE_MAX_AGE2 = 60 * 60 * 24 * 7;
 var app = new Hono();
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 app.get(Paths.oauthCallback, createOAuthCallbackHandler());
-app.get("/api/kinde/callback", async (c) => {
-  if (!kindeClient) {
-    return c.redirect("/login?error=kinde_not_configured");
-  }
-  const code = c.req.query("code");
-  const state = c.req.query("state");
-  if (!code || !state) {
-    return c.redirect("/login?error=missing_params");
-  }
-  try {
-    const sessionManager = createSessionManager(state);
-    await sessionManager.setSessionItem("code", code);
-    await kindeClient.getToken(sessionManager);
-    const userProfile = await kindeClient.getUserProfile(sessionManager);
-    const db = getDb();
-    const email3 = userProfile.email || userProfile.preferred_email || "";
-    const picture = userProfile.picture || "";
-    const givenName = userProfile.given_name || "";
-    const familyName = userProfile.family_name || "";
-    const existing = await db.select().from(users).where(eq13(users.unionId, `kinde_${userProfile.id}`)).limit(1);
-    let user = existing[0];
-    const unionId = `kinde_${userProfile.id}`;
-    const isOwner = unionId === env.ownerUnionId;
-    if (!user) {
-      const result = await db.insert(users).values({
-        unionId,
-        name: `${givenName} ${familyName}`.trim() || email3 || "User",
-        email: email3 || null,
-        avatar: picture || null,
-        role: isOwner ? "admin" : "user"
-      }).returning();
-      user = result[0];
-    } else {
-      await db.update(users).set({
-        lastSignInAt: /* @__PURE__ */ new Date(),
-        role: isOwner ? "admin" : user.role
-      }).where(eq13(users.id, user.id));
-    }
-    const cookieValue = cookie3.serialize(COOKIE_NAME2, state, {
-      httpOnly: true,
-      path: "/",
-      sameSite: "lax",
-      secure: true,
-      maxAge: COOKIE_MAX_AGE2
-    });
-    c.header("set-cookie", cookieValue);
-    return c.redirect("/dashboard");
-  } catch (error48) {
-    console.error("Kinde callback error:", error48);
-    return c.redirect("/login?error=auth_failed");
-  }
-});
 app.use("/api/trpc/*", async (c) => {
   return fetchRequestHandler({
     endpoint: "/api/trpc",
