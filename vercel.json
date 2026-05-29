@@ -4,9 +4,18 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
   "framework": "vite",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     {
-      "source": "/((?!api/|assets/|covers/|images/|robots\\.txt|sitemap\\.xml|site\\.webmanifest|og-image|favicon).*)",
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/((?!assets/|covers/|images/|robots\\.txt|sitemap\\.xml|site\\.webmanifest|og-image|favicon).*)",
       "destination": "/index.html"
     }
   ],
