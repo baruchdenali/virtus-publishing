@@ -1,32 +1,45 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
-import { BookOpen, Sparkles, Globe, Lock, LogIn, UserPlus, AlertTriangle } from 'lucide-react'
+import { BookOpen, Sparkles, Globe, Lock, LogIn, UserPlus } from 'lucide-react'
+import { trpc } from '@/providers/trpc'
 import Logo from '@/components/Logo'
 
-function getOAuthUrl(): string | null {
-  const kimiAuthUrl = import.meta.env.VITE_KIMI_AUTH_URL
-  const appID = import.meta.env.VITE_APP_ID
+export default function Login() {
+  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
 
-  if (!kimiAuthUrl || !appID || appID === 'YOUR_APP_ID_HERE' || appID === 'placeholder') {
-    return null
+  const registerMutation = trpc.localAuth.register.useMutation({
+    onSuccess: () => {
+      window.location.href = '/dashboard'
+    },
+    onError: (err) => setError(err.message),
+  })
+
+  const loginMutation = trpc.localAuth.login.useMutation({
+    onSuccess: () => {
+      window.location.href = '/dashboard'
+    },
+    onError: (err) => setError(err.message),
+  })
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+
+    if (mode === 'register') {
+      if (!name.trim()) { setError('Name is required'); return }
+      if (password.length < 6) { setError('Password must be at least 6 characters'); return }
+      registerMutation.mutate({ name, email, password })
+    } else {
+      loginMutation.mutate({ email, password })
+    }
   }
 
-  const redirectUri = `${window.location.origin}/api/oauth/callback`
-  const state = btoa(redirectUri)
-
-  const url = new URL(`${kimiAuthUrl}/api/oauth/authorize`)
-  url.searchParams.set("client_id", appID)
-  url.searchParams.set("redirect_uri", redirectUri)
-  url.searchParams.set("response_type", "code")
-  url.searchParams.set("scope", "profile")
-  url.searchParams.set("state", state)
-
-  return url.toString()
-}
-
-export default function Login() {
-  const oauthUrl = getOAuthUrl()
-  const isConfigured = oauthUrl !== null
+  const isPending = registerMutation.isPending || loginMutation.isPending
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -86,46 +99,91 @@ export default function Login() {
               <Logo size="md" />
             </div>
 
-            <div className="text-center mb-8">
-              <h2 className="text-[24px] font-semibold mb-2">Welcome to Virtus</h2>
-              <p className="text-[14px] text-[#9B9589]">Sign in or create your account</p>
+            <div className="text-center mb-6">
+              <h2 className="text-[24px] font-semibold mb-1">
+                {mode === 'register' ? 'Create Your Account' : 'Welcome Back'}
+              </h2>
+              <p className="text-[14px] text-[#9B9589]">
+                {mode === 'register' ? 'Join Virtus Publishing today' : 'Sign in to your account'}
+              </p>
             </div>
 
-            {isConfigured ? (
-              <>
-                {/* Sign Up — New users */}
-                <a
-                  href={oauthUrl!}
-                  className="w-full flex items-center justify-center gap-3 btn-gold text-[14px] py-3.5 mb-3"
-                >
-                  <UserPlus className="w-5 h-5" />
-                  Create Account
-                </a>
+            {/* Mode toggle */}
+            <div className="flex gap-1 mb-6 p-1 rounded-lg bg-[rgba(245,240,232,0.04)]">
+              <button
+                onClick={() => { setMode('login'); setError('') }}
+                className={`flex-1 py-2 rounded-md text-[13px] font-medium transition-all ${mode === 'login' ? 'bg-[rgba(200,165,92,0.15)] text-[#C8A55C]' : 'text-[#9B9589] hover:text-[#F5F0E8]'}`}
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => { setMode('register'); setError('') }}
+                className={`flex-1 py-2 rounded-md text-[13px] font-medium transition-all ${mode === 'register' ? 'bg-[rgba(200,165,92,0.15)] text-[#C8A55C]' : 'text-[#9B9589] hover:text-[#F5F0E8]'}`}
+              >
+                New Account
+              </button>
+            </div>
 
-                {/* Sign In — Existing users */}
-                <a
-                  href={oauthUrl!}
-                  className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-lg border border-[rgba(245,240,232,0.14)] text-[14px] font-medium text-[#F5F0E8] hover:bg-[rgba(245,240,232,0.04)] transition-all"
-                >
-                  <LogIn className="w-4 h-4 text-[#9B9589]" />
-                  Sign In
-                </a>
-              </>
-            ) : (
-              /* Configuration Missing */
-              <div className="p-4 rounded-lg bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] mb-4">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-[#EF4444] shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-[14px] font-medium text-[#EF4444] mb-1">Login Not Configured</p>
-                    <p className="text-[12px] text-[#9B9589] leading-relaxed">
-                      The APP_ID and APP_SECRET environment variables are missing or set to placeholder values.
-                      Please add them in your Vercel dashboard under Project Settings → Environment Variables.
-                    </p>
-                  </div>
-                </div>
+            {error && (
+              <div className="mb-4 p-3 rounded-lg bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] text-[13px] text-[#EF4444]">
+                {error}
               </div>
             )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {mode === 'register' && (
+                <div>
+                  <label className="text-[12px] font-medium text-[#9B9589] uppercase tracking-wider mb-1.5 block">Full Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="field text-[14px]"
+                    placeholder="Your name"
+                    required
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="text-[12px] font-medium text-[#9B9589] uppercase tracking-wider mb-1.5 block">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="field text-[14px]"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-[12px] font-medium text-[#9B9589] uppercase tracking-wider mb-1.5 block">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="field text-[14px]"
+                  placeholder={mode === 'register' ? 'Min 6 characters' : 'Your password'}
+                  required
+                  minLength={mode === 'register' ? 6 : undefined}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isPending}
+                className="w-full flex items-center justify-center gap-3 btn-gold text-[14px] py-3.5 disabled:opacity-50"
+              >
+                {isPending ? (
+                  <span className="animate-pulse">Processing...</span>
+                ) : mode === 'register' ? (
+                  <><UserPlus className="w-5 h-5" />Create Account</>
+                ) : (
+                  <><LogIn className="w-5 h-5" />Sign In</>
+                )}
+              </button>
+            </form>
 
             <div className="flex items-center gap-3 my-6">
               <div className="flex-1 h-px bg-[rgba(245,240,232,0.08)]" />
@@ -142,6 +200,11 @@ export default function Login() {
                 Browse the Store
               </Link>
             </div>
+
+            <p className="text-center text-[11px] text-[#9B9589] mt-6 leading-relaxed">
+              By signing in, you agree to our Terms of Service and Privacy Policy.
+              Your data is secured with end-to-end encryption.
+            </p>
           </div>
         </motion.div>
       </div>

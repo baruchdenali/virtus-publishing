@@ -7,12 +7,12 @@ export function useAuth() {
   const {
     data: user,
     isLoading,
-  } = trpc.auth.me.useQuery(undefined, {
+  } = trpc.localAuth.me.useQuery(undefined, {
     staleTime: 1000 * 60 * 5,
     retry: false,
   });
 
-  const logoutMutation = trpc.auth.logout.useMutation({
+  const logoutMutation = trpc.localAuth.logout.useMutation({
     onSuccess: async () => {
       await utils.invalidate();
       window.location.reload();

@@ -1,4 +1,5 @@
 import { authRouter } from "./auth-router";
+import { localAuthRouter } from "./local-auth-router";
 import { ebookRouter } from "./ebook-router";
 import { storeRouter } from "./store-router";
 import { purchaseRouter } from "./purchase-router";
@@ -13,6 +14,7 @@ import { createRouter, publicQuery } from "./middleware";
 export const appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
   auth: authRouter,
+  localAuth: localAuthRouter,
   ebook: ebookRouter,
   store: storeRouter,
   purchase: purchaseRouter,
