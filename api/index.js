@@ -20615,7 +20615,7 @@ var localAuthRouter = createRouter({
     }
     const passwordHash = await bcryptjs_default.hash(input.password, 12);
     const result = await db.insert(users).values({
-      unionId: `local_${crypto.randomUUID()}`,
+      unionId: `local_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`,
       name: input.name.trim(),
       email: input.email.toLowerCase().trim(),
       passwordHash,
