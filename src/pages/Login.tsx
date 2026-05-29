@@ -1,11 +1,16 @@
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
-import { BookOpen, Sparkles, Globe, Lock, Shield, LogIn, UserPlus } from 'lucide-react'
+import { BookOpen, Sparkles, Globe, Lock, LogIn, UserPlus, AlertTriangle } from 'lucide-react'
 import Logo from '@/components/Logo'
 
-function getOAuthUrl() {
+function getOAuthUrl(): string | null {
   const kimiAuthUrl = import.meta.env.VITE_KIMI_AUTH_URL
   const appID = import.meta.env.VITE_APP_ID
+
+  if (!kimiAuthUrl || !appID || appID === 'YOUR_APP_ID_HERE' || appID === 'placeholder') {
+    return null
+  }
+
   const redirectUri = `${window.location.origin}/api/oauth/callback`
   const state = btoa(redirectUri)
 
@@ -21,6 +26,7 @@ function getOAuthUrl() {
 
 export default function Login() {
   const oauthUrl = getOAuthUrl()
+  const isConfigured = oauthUrl !== null
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -85,23 +91,41 @@ export default function Login() {
               <p className="text-[14px] text-[#9B9589]">Sign in or create your account</p>
             </div>
 
-            {/* Sign Up — New users */}
-            <a
-              href={oauthUrl}
-              className="w-full flex items-center justify-center gap-3 btn-gold text-[14px] py-3.5 mb-3"
-            >
-              <UserPlus className="w-5 h-5" />
-              Create Account
-            </a>
+            {isConfigured ? (
+              <>
+                {/* Sign Up — New users */}
+                <a
+                  href={oauthUrl!}
+                  className="w-full flex items-center justify-center gap-3 btn-gold text-[14px] py-3.5 mb-3"
+                >
+                  <UserPlus className="w-5 h-5" />
+                  Create Account
+                </a>
 
-            {/* Sign In — Existing users */}
-            <a
-              href={oauthUrl}
-              className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-lg border border-[rgba(245,240,232,0.14)] text-[14px] font-medium text-[#F5F0E8] hover:bg-[rgba(245,240,232,0.04)] transition-all"
-            >
-              <LogIn className="w-4 h-4 text-[#9B9589]" />
-              Sign In
-            </a>
+                {/* Sign In — Existing users */}
+                <a
+                  href={oauthUrl!}
+                  className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-lg border border-[rgba(245,240,232,0.14)] text-[14px] font-medium text-[#F5F0E8] hover:bg-[rgba(245,240,232,0.04)] transition-all"
+                >
+                  <LogIn className="w-4 h-4 text-[#9B9589]" />
+                  Sign In
+                </a>
+              </>
+            ) : (
+              /* Configuration Missing */
+              <div className="p-4 rounded-lg bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] mb-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-[#EF4444] shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[14px] font-medium text-[#EF4444] mb-1">Login Not Configured</p>
+                    <p className="text-[12px] text-[#9B9589] leading-relaxed">
+                      The APP_ID and APP_SECRET environment variables are missing or set to placeholder values.
+                      Please add them in your Vercel dashboard under Project Settings → Environment Variables.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="flex items-center gap-3 my-6">
               <div className="flex-1 h-px bg-[rgba(245,240,232,0.08)]" />
@@ -118,11 +142,6 @@ export default function Login() {
                 Browse the Store
               </Link>
             </div>
-
-            <p className="text-center text-[11px] text-[#9B9589] mt-6 leading-relaxed">
-              By signing in, you agree to our Terms of Service and Privacy Policy.
-              Your data is secured with end-to-end encryption.
-            </p>
           </div>
         </motion.div>
       </div>
