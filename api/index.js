@@ -18615,16 +18615,19 @@ import "dotenv/config";
 function required2(name) {
   const value = process.env[name];
   if (!value && process.env.NODE_ENV === "production") {
-    throw new Error(`Missing required environment variable: ${name}`);
+    console.error(`[ENV] Missing required environment variable: ${name}`);
   }
   return value ?? "";
 }
+function optional2(name) {
+  return process.env[name] ?? "";
+}
 var env = {
-  appId: required2("APP_ID"),
-  appSecret: required2("APP_SECRET"),
-  kimiAuthUrl: required2("KIMI_AUTH_URL"),
-  kimiOpenUrl: required2("KIMI_OPEN_URL"),
-  ownerUnionId: process.env.OWNER_UNION_ID ?? "",
+  appId: optional2("APP_ID"),
+  appSecret: optional2("APP_SECRET"),
+  kimiAuthUrl: optional2("KIMI_AUTH_URL"),
+  kimiOpenUrl: optional2("KIMI_OPEN_URL"),
+  ownerUnionId: optional2("OWNER_UNION_ID"),
   isProduction: process.env.NODE_ENV === "production",
   databaseUrl: required2("DATABASE_URL")
 };
