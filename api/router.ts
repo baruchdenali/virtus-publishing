@@ -9,6 +9,7 @@ import { userRouter } from "./user-router";
 import { adminRouter } from "./admin-router";
 import { blogRouter } from "./blog-router";
 import { podcastRouter } from "./podcast-router";
+import { paymentRouter } from "./payment-router";
 import { createRouter, publicQuery } from "./middleware";
 
 export const appRouter = createRouter({
@@ -24,6 +25,7 @@ export const appRouter = createRouter({
   admin: adminRouter,
   blog: blogRouter,
   podcast: podcastRouter,
+  payment: paymentRouter,
 });
 
 export type AppRouter = typeof appRouter;

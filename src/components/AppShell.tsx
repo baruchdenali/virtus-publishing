@@ -236,9 +236,10 @@ export default function AppShell() {
             <div>
               <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4">Support</h4>
               <ul className="space-y-2.5">
-                <li><Link to="#" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Help Center</Link></li>
-                <li><Link to="#" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Privacy Policy</Link></li>
-                <li><Link to="#" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Terms of Service</Link></li>
+                <li><Link to="/help" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Help Center</Link></li>
+                <li><Link to="/pricing" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Pricing</Link></li>
+                <li><Link to="/privacy" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="text-[13px] text-[#9B9589] hover:text-[#F5F0E8] transition-colors">Terms of Service</Link></li>
               </ul>
             </div>
 
