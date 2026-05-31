@@ -24,13 +24,27 @@ app.use("/api/trpc/*", async (c) => {
 });
 
 // Health check
-app.get("/api/health", (c) => c.json({
-  ok: true,
-  ts: Date.now(),
-  hasDbUrl: !!process.env.DATABASE_URL,
-  dbUrlPrefix: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 20) + "..." : "NOT SET",
-  nodeEnv: process.env.NODE_ENV || "not set",
-}));
+app.get("/api/health", async (c) => {
+  let dbStatus = "unknown";
+  let columns = "";
+  try {
+    const db = getDb();
+    const result = await (db as any).$client`SELECT column_name FROM information_schema.columns WHERE table_name = 'users' ORDER BY ordinal_position`;
+    columns = result.map((r: any) => r.column_name).join(", ");
+    dbStatus = "connected";
+  } catch (e: any) {
+    dbStatus = `error: ${e.message}`;
+  }
+
+  return c.json({
+    ok: true,
+    ts: Date.now(),
+    dbStatus,
+    columns,
+    hasDbUrl: !!process.env.DATABASE_URL,
+    nodeEnv: process.env.NODE_ENV || "not set",
+  });
+});
 
 // 404 for unmatched API routes
 app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));

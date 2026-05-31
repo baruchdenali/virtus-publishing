@@ -24055,7 +24055,7 @@ var fullSchema = { ...schema_exports, ...relations_exports };
 ce.fetchConnectionCache = true;
 var FALLBACK_DATABASE_URL = "postgresql://neondb_owner:npg_Kbag4d6qjZsk@ep-damp-fog-apq27viw-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require";
 var instance;
-function getDb() {
+function getDb2() {
   if (!instance) {
     const dbUrl = process.env.DATABASE_URL || FALLBACK_DATABASE_URL;
     const sql6 = cs(dbUrl);
@@ -25844,7 +25844,7 @@ var localAuthRouter = createRouter({
       password: external_exports.string().min(6, "Password must be at least 6 characters").max(100)
     })
   ).mutation(async ({ input, ctx }) => {
-    const db = getDb();
+    const db = getDb2();
     let existing;
     try {
       existing = await db.select().from(users).where(eq(users.email, input.email.toLowerCase().trim())).limit(1);
@@ -25897,7 +25897,7 @@ var localAuthRouter = createRouter({
       password: external_exports.string().min(1, "Password is required")
     })
   ).mutation(async ({ input, ctx }) => {
-    const db = getDb();
+    const db = getDb2();
     const result = await db.select().from(users).where(eq(users.email, input.email.toLowerCase().trim())).limit(1);
     const user = result[0];
     if (!user || !user.passwordHash) {
@@ -25938,7 +25938,7 @@ var localAuthRouter = createRouter({
   me: publicQuery.query(async ({ ctx }) => {
     const decoded = getLocalUserFromCookie(ctx.req.headers);
     if (!decoded) return null;
-    const db = getDb();
+    const db = getDb2();
     const result = await db.select().from(users).where(eq(users.id, decoded.userId)).limit(1);
     return result[0] || null;
   }),
@@ -25969,7 +25969,7 @@ var ebookRouter = createRouter({
       limit: external_exports.number().min(1).max(100).default(20)
     }).optional()
   ).query(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const page = input?.page ?? 1;
     const limit = input?.limit ?? 20;
@@ -25992,7 +25992,7 @@ var ebookRouter = createRouter({
     };
   }),
   getById: authedQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const ebook = await db.select().from(ebooks).where(and(eq2(ebooks.id, input.id), eq2(ebooks.userId, userId))).limit(1);
     if (!ebook[0]) {
@@ -26009,7 +26009,7 @@ var ebookRouter = createRouter({
       visibility: external_exports.enum(["public", "private"]).optional()
     })
   ).mutation(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const result = await db.insert(ebooks).values({
       userId,
@@ -26039,7 +26039,7 @@ var ebookRouter = createRouter({
       tags: external_exports.array(external_exports.string()).optional()
     })
   ).mutation(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const { id, ...data } = input;
     const existing = await db.select().from(ebooks).where(and(eq2(ebooks.id, id), eq2(ebooks.userId, userId))).limit(1);
@@ -26063,7 +26063,7 @@ var ebookRouter = createRouter({
     return updated[0];
   }),
   delete: authedQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const existing = await db.select().from(ebooks).where(and(eq2(ebooks.id, input.id), eq2(ebooks.userId, userId))).limit(1);
     if (!existing[0]) {
@@ -26073,7 +26073,7 @@ var ebookRouter = createRouter({
     return { success: true };
   }),
   publish: authedQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const existing = await db.select().from(ebooks).where(and(eq2(ebooks.id, input.id), eq2(ebooks.userId, ctx.user.id))).limit(1);
     if (!existing[0]) {
       throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
@@ -26082,12 +26082,12 @@ var ebookRouter = createRouter({
     return updated[0];
   }),
   updateCover: authedQuery.input(external_exports.object({ id: external_exports.number(), coverImageUrl: external_exports.string() })).mutation(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     await db.update(ebooks).set({ coverImageUrl: input.coverImageUrl }).where(and(eq2(ebooks.id, input.id), eq2(ebooks.userId, ctx.user.id)));
     return { success: true };
   }),
   stats: authedQuery.query(async ({ ctx }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const totalBooks = await db.select({ count: sql`count(*)::int` }).from(ebooks).where(eq2(ebooks.userId, userId));
     const publishedBooks = await db.select({ count: sql`count(*)::int` }).from(ebooks).where(and(eq2(ebooks.userId, userId), eq2(ebooks.status, "published")));
@@ -26101,7 +26101,7 @@ var ebookRouter = createRouter({
     };
   }),
   download: authedQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input, ctx }) => {
-    const db = getDb();
+    const db = getDb2();
     const result = await db.select().from(ebooks).where(eq2(ebooks.id, input.id)).limit(1);
     const book = result[0];
     if (!book) throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
@@ -26130,7 +26130,7 @@ var storeRouter = createRouter({
       limit: external_exports.number().min(1).max(100).default(20)
     }).optional()
   ).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const page = input?.page ?? 1;
     const limit = input?.limit ?? 20;
     const offset = (page - 1) * limit;
@@ -26192,7 +26192,7 @@ var storeRouter = createRouter({
     };
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const ebook = await db.select().from(ebooks).where(and2(eq3(ebooks.id, input.id), eq3(ebooks.status, "published"), eq3(ebooks.visibility, "public"))).limit(1);
     if (!ebook[0]) {
       return null;
@@ -26206,7 +26206,7 @@ var storeRouter = createRouter({
     };
   }),
   categories: publicQuery.query(async () => {
-    const db = getDb();
+    const db = getDb2();
     const categories = await db.select({
       category: ebooks.category,
       count: sql2`count(*)::int`
@@ -26214,7 +26214,7 @@ var storeRouter = createRouter({
     return categories;
   }),
   featured: publicQuery.query(async () => {
-    const db = getDb();
+    const db = getDb2();
     const items = await db.select({
       id: ebooks.id,
       title: ebooks.title,
@@ -26246,13 +26246,13 @@ import { TRPCError as TRPCError4 } from "@trpc/server";
 import { eq as eq4, and as and3, desc as desc3 } from "drizzle-orm";
 var purchaseRouter = createRouter({
   list: authedQuery.query(async ({ ctx }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const items = await db.select().from(purchases).where(eq4(purchases.userId, userId)).orderBy(desc3(purchases.createdAt));
     return items;
   }),
   create: authedQuery.input(external_exports.object({ ebookId: external_exports.number(), amount: external_exports.string(), currency: external_exports.string().default("USD") })).mutation(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const ebook = await db.select().from(ebooks).where(eq4(ebooks.id, input.ebookId)).limit(1);
     if (!ebook[0]) {
@@ -26273,7 +26273,7 @@ var purchaseRouter = createRouter({
     return result[0];
   }),
   checkOwnership: authedQuery.input(external_exports.object({ ebookId: external_exports.number() })).query(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const ebook = await db.select().from(ebooks).where(eq4(ebooks.id, input.ebookId)).limit(1);
     if (ebook[0]?.isFree) {
@@ -26289,7 +26289,7 @@ import { TRPCError as TRPCError5 } from "@trpc/server";
 import { eq as eq5, desc as desc4 } from "drizzle-orm";
 var reviewRouter = createRouter({
   list: publicQuery.input(external_exports.object({ ebookId: external_exports.number() })).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const items = await db.select({
       id: reviews.id,
       ebookId: reviews.ebookId,
@@ -26309,7 +26309,7 @@ var reviewRouter = createRouter({
       comment: external_exports.string().optional()
     })
   ).mutation(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const existing = await db.select().from(reviews).where(eq5(reviews.ebookId, input.ebookId)).limit(1);
     if (existing.length > 0) {
@@ -26325,7 +26325,7 @@ var reviewRouter = createRouter({
     return result[0];
   }),
   delete: authedQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const existing = await db.select().from(reviews).where(eq5(reviews.id, input.id)).limit(1);
     if (!existing[0]) {
@@ -26343,13 +26343,13 @@ var reviewRouter = createRouter({
 import { eq as eq6, desc as desc5 } from "drizzle-orm";
 var aiRouter = createRouter({
   listConversations: authedQuery.query(async ({ ctx }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const conversations = await db.select().from(aiConversations).where(eq6(aiConversations.userId, userId)).orderBy(desc5(aiConversations.createdAt));
     return conversations;
   }),
   createConversation: authedQuery.input(external_exports.object({ title: external_exports.string().optional(), ebookId: external_exports.number().optional() })).mutation(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const result = await db.insert(aiConversations).values({
       userId,
@@ -26359,7 +26359,7 @@ var aiRouter = createRouter({
     return result[0];
   }),
   listMessages: authedQuery.input(external_exports.object({ conversationId: external_exports.number() })).query(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const conversation = await db.select().from(aiConversations).where(eq6(aiConversations.id, input.conversationId)).limit(1);
     if (!conversation[0] || conversation[0].userId !== userId) {
@@ -26369,7 +26369,7 @@ var aiRouter = createRouter({
     return messages;
   }),
   sendMessage: authedQuery.input(external_exports.object({ conversationId: external_exports.number(), content: external_exports.string() })).mutation(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const conversation = await db.select().from(aiConversations).where(eq6(aiConversations.id, input.conversationId)).limit(1);
     if (!conversation[0] || conversation[0].userId !== userId) {
@@ -26413,7 +26413,7 @@ var aiRouter = createRouter({
     return { success: true, response: responseText };
   }),
   generateOutline: authedQuery.input(external_exports.object({ prompt: external_exports.string(), ebookId: external_exports.number().optional() })).mutation(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const result = await db.insert(aiConversations).values({
       userId,
@@ -26493,7 +26493,7 @@ import { TRPCError as TRPCError6 } from "@trpc/server";
 import { eq as eq7, and as and4, sql as sql3 } from "drizzle-orm";
 var userRouter = createRouter({
   profile: authedQuery.query(async ({ ctx }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const user = await db.select({
       id: users.id,
@@ -26518,7 +26518,7 @@ var userRouter = createRouter({
       avatar: external_exports.string().url().optional()
     })
   ).mutation(async ({ ctx, input }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const updateData = {};
     if (input.name !== void 0) updateData.name = input.name;
@@ -26529,7 +26529,7 @@ var userRouter = createRouter({
     return updated[0];
   }),
   stats: authedQuery.query(async ({ ctx }) => {
-    const db = getDb();
+    const db = getDb2();
     const userId = ctx.user.id;
     const totalBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(eq7(ebooks.userId, userId));
     const publishedBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and4(eq7(ebooks.userId, userId), eq7(ebooks.status, "published")));
@@ -26554,7 +26554,7 @@ var userRouter = createRouter({
 import { eq as eq8, and as and5, desc as desc6, sql as sql4, gte } from "drizzle-orm";
 var adminRouter = createRouter({
   overview: adminQuery.query(async () => {
-    const db = getDb();
+    const db = getDb2();
     const totalUsers = await db.select({ count: sql4`count(*)::int` }).from(users);
     const totalEbooks = await db.select({ count: sql4`count(*)::int` }).from(ebooks);
     const publishedEbooks = await db.select({ count: sql4`count(*)::int` }).from(ebooks).where(eq8(ebooks.status, "published"));
@@ -26582,7 +26582,7 @@ var adminRouter = createRouter({
     };
   }),
   revenueByDay: adminQuery.input(external_exports.object({ days: external_exports.number().min(1).max(90).default(30) }).optional()).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const days = input?.days ?? 30;
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1e3);
     const rows = await db.select({
@@ -26607,7 +26607,7 @@ var adminRouter = createRouter({
     return filled;
   }),
   userGrowth: adminQuery.input(external_exports.object({ days: external_exports.number().min(1).max(90).default(30) }).optional()).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const days = input?.days ?? 30;
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1e3);
     const rows = await db.select({
@@ -26630,7 +26630,7 @@ var adminRouter = createRouter({
     return filled;
   }),
   ebookActivity: adminQuery.input(external_exports.object({ days: external_exports.number().min(1).max(90).default(30) }).optional()).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const days = input?.days ?? 30;
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1e3);
     const created = await db.select({
@@ -26658,7 +26658,7 @@ var adminRouter = createRouter({
     return filled;
   }),
   topBooks: adminQuery.input(external_exports.object({ limit: external_exports.number().min(1).max(50).default(10) }).optional()).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const limit = input?.limit ?? 10;
     const books = await db.select({
       id: ebooks.id,
@@ -26684,7 +26684,7 @@ var adminRouter = createRouter({
     }));
   }),
   usersList: adminQuery.input(external_exports.object({ page: external_exports.number().min(1).default(1), limit: external_exports.number().min(1).max(100).default(20) }).optional()).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const page = input?.page ?? 1;
     const limit = input?.limit ?? 20;
     const offset = (page - 1) * limit;
@@ -26711,7 +26711,7 @@ var adminRouter = createRouter({
     };
   }),
   recentActivity: adminQuery.input(external_exports.object({ limit: external_exports.number().min(1).max(100).default(20) }).optional()).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const limit = input?.limit ?? 20;
     const logs = await db.select({
       id: activityLog.id,
@@ -26726,7 +26726,7 @@ var adminRouter = createRouter({
     return logs;
   }),
   categoryBreakdown: adminQuery.query(async () => {
-    const db = getDb();
+    const db = getDb2();
     const byCategory = await db.select({
       category: ebooks.category,
       count: sql4`count(*)::int`
@@ -26743,7 +26743,7 @@ var adminRouter = createRouter({
 import { eq as eq9, desc as desc7 } from "drizzle-orm";
 var blogRouter = createRouter({
   list: publicQuery.input(external_exports.object({ publishedOnly: external_exports.boolean().default(true) }).optional()).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const publishedOnly = input?.publishedOnly ?? true;
     let query = db.select().from(blogPosts).orderBy(desc7(blogPosts.createdAt));
     if (publishedOnly) {
@@ -26752,12 +26752,12 @@ var blogRouter = createRouter({
     return query;
   }),
   getBySlug: publicQuery.input(external_exports.object({ slug: external_exports.string() })).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const result = await db.select().from(blogPosts).where(eq9(blogPosts.slug, input.slug)).limit(1);
     return result[0] || null;
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const result = await db.select().from(blogPosts).where(eq9(blogPosts.id, input.id)).limit(1);
     return result[0] || null;
   }),
@@ -26775,7 +26775,7 @@ var blogRouter = createRouter({
       readTime: external_exports.string().optional()
     })
   ).mutation(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const result = await db.insert(blogPosts).values({
       title: input.title,
       slug: input.slug,
@@ -26805,18 +26805,18 @@ var blogRouter = createRouter({
       readTime: external_exports.string().optional()
     })
   ).mutation(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const { id, ...data } = input;
     const result = await db.update(blogPosts).set(data).where(eq9(blogPosts.id, id)).returning();
     return result[0];
   }),
   delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     await db.delete(blogPosts).where(eq9(blogPosts.id, input.id));
     return { success: true };
   }),
   togglePublish: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const existing = await db.select().from(blogPosts).where(eq9(blogPosts.id, input.id)).limit(1);
     if (!existing[0]) throw new Error("Post not found");
     const result = await db.update(blogPosts).set({ published: !existing[0].published }).where(eq9(blogPosts.id, input.id)).returning();
@@ -26828,7 +26828,7 @@ var blogRouter = createRouter({
 import { eq as eq10, desc as desc8 } from "drizzle-orm";
 var podcastRouter = createRouter({
   list: publicQuery.input(external_exports.object({ publishedOnly: external_exports.boolean().default(true) }).optional()).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const publishedOnly = input?.publishedOnly ?? true;
     if (publishedOnly) {
       return db.select().from(podcasts).where(eq10(podcasts.published, true)).orderBy(desc8(podcasts.createdAt));
@@ -26836,7 +26836,7 @@ var podcastRouter = createRouter({
     return db.select().from(podcasts).orderBy(desc8(podcasts.createdAt));
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const result = await db.select().from(podcasts).where(eq10(podcasts.id, input.id)).limit(1);
     return result[0] || null;
   }),
@@ -26856,7 +26856,7 @@ var podcastRouter = createRouter({
       published: external_exports.boolean().default(false)
     })
   ).mutation(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const result = await db.insert(podcasts).values(input).returning();
     return result[0];
   }),
@@ -26877,25 +26877,25 @@ var podcastRouter = createRouter({
       published: external_exports.boolean().optional()
     })
   ).mutation(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const { id, ...data } = input;
     const result = await db.update(podcasts).set(data).where(eq10(podcasts.id, id)).returning();
     return result[0];
   }),
   delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     await db.delete(podcasts).where(eq10(podcasts.id, input.id));
     return { success: true };
   }),
   togglePublish: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const existing = await db.select().from(podcasts).where(eq10(podcasts.id, input.id)).limit(1);
     if (!existing[0]) throw new Error("Podcast not found");
     const result = await db.update(podcasts).set({ published: !existing[0].published }).where(eq10(podcasts.id, input.id)).returning();
     return result[0];
   }),
   incrementPlays: publicQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
-    const db = getDb();
+    const db = getDb2();
     const existing = await db.select().from(podcasts).where(eq10(podcasts.id, input.id)).limit(1);
     if (!existing[0]) return null;
     const result = await db.update(podcasts).set({ plays: (existing[0].plays || 0) + 1 }).where(eq10(podcasts.id, input.id)).returning();
@@ -26947,7 +26947,7 @@ async function authenticateRequest(headers) {
     sessions.delete(sessionId);
     return void 0;
   }
-  const db = getDb();
+  const db = getDb2();
   const rows = await db.select().from(users).where(eq11(users.unionId, session.unionId)).limit(1);
   return rows[0];
 }
@@ -26987,7 +26987,7 @@ function createOAuthCallbackHandler() {
       const name = userData.name || userData.nickname || "User";
       const email3 = userData.email || null;
       const avatar = userData.avatar || null;
-      const db = getDb();
+      const db = getDb2();
       await db.insert(users).values({
         unionId,
         name,
@@ -27023,7 +27023,7 @@ async function createContext(opts) {
     try {
       const decoded = getLocalUserFromCookie(opts.req.headers);
       if (decoded) {
-        const db = getDb();
+        const db = getDb2();
         const result = await db.select().from(users).where(eq12(users.id, decoded.userId)).limit(1);
         ctx.user = result[0];
       }
@@ -27045,13 +27045,26 @@ app.use("/api/trpc/*", async (c) => {
     createContext
   });
 });
-app.get("/api/health", (c) => c.json({
-  ok: true,
-  ts: Date.now(),
-  hasDbUrl: !!process.env.DATABASE_URL,
-  dbUrlPrefix: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 20) + "..." : "NOT SET",
-  nodeEnv: process.env.NODE_ENV || "not set"
-}));
+app.get("/api/health", async (c) => {
+  let dbStatus = "unknown";
+  let columns = "";
+  try {
+    const db = getDb();
+    const result = await db.$client`SELECT column_name FROM information_schema.columns WHERE table_name = 'users' ORDER BY ordinal_position`;
+    columns = result.map((r) => r.column_name).join(", ");
+    dbStatus = "connected";
+  } catch (e) {
+    dbStatus = `error: ${e.message}`;
+  }
+  return c.json({
+    ok: true,
+    ts: Date.now(),
+    dbStatus,
+    columns,
+    hasDbUrl: !!process.env.DATABASE_URL,
+    nodeEnv: process.env.NODE_ENV || "not set"
+  });
+});
 app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));
 var app_default = app;
 export {
