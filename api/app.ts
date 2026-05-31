@@ -22,11 +22,13 @@ app.get("/api/dbtest", async (c) => {
       connectionString: process.env.DATABASE_URL || "postgresql://neondb_owner:npg_Kbag4d6qjZsk@ep-damp-fog-apq27viw-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require",
       ssl: { rejectUnauthorized: false },
     });
-    const result = await pool.query("SELECT column_name FROM information_schema.columns WHERE table_name = 'users' ORDER BY ordinal_position");
+    const tables = await pool.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name");
+    const usersCols = await pool.query("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'users' ORDER BY ordinal_position");
     await pool.end();
     return c.json({
       ok: true,
-      columns: result.rows.map((r: any) => r.column_name),
+      tables: tables.rows.map((r: any) => r.table_name),
+      usersColumns: usersCols.rows.map((r: any) => `${r.column_name}(${r.data_type})`),
     });
   } catch (e: any) {
     return c.json({ ok: false, error: e.message, code: e.code }, 500);
