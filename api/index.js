@@ -18844,7 +18844,13 @@ var fullSchema = { ...schema_exports, ...relations_exports };
 var instance;
 function getDb() {
   if (!instance) {
-    const pool = new Pool({ connectionString: env.databaseUrl });
+    const pool = new Pool({
+      connectionString: env.databaseUrl,
+      ssl: env.isProduction ? { rejectUnauthorized: false } : false,
+      max: 10,
+      idleTimeoutMillis: 3e4,
+      connectionTimeoutMillis: 5e3
+    });
     instance = drizzle(pool, { schema: fullSchema });
   }
   return instance;

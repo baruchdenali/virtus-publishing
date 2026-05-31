@@ -10,7 +10,13 @@ let instance: ReturnType<typeof drizzle<typeof fullSchema>>;
 
 export function getDb() {
   if (!instance) {
-    const pool = new Pool({ connectionString: env.databaseUrl });
+    const pool = new Pool({
+      connectionString: env.databaseUrl,
+      ssl: env.isProduction ? { rejectUnauthorized: false } : false,
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    });
     instance = drizzle(pool, { schema: fullSchema });
   }
   return instance;
