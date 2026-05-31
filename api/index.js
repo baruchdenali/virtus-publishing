@@ -23844,28 +23844,6 @@ var export_escapeIdentifier = ct.escapeIdentifier;
 var export_escapeLiteral = ct.escapeLiteral;
 var export_types = ct.types;
 
-// api/lib/env.ts
-import "dotenv/config";
-function required2(name) {
-  const value = process.env[name];
-  if (!value && process.env.NODE_ENV === "production") {
-    console.error(`[ENV] Missing required environment variable: ${name}`);
-  }
-  return value ?? "";
-}
-function optional2(name) {
-  return process.env[name] ?? "";
-}
-var env = {
-  appId: optional2("APP_ID"),
-  appSecret: optional2("APP_SECRET"),
-  kimiAuthUrl: optional2("KIMI_AUTH_URL"),
-  kimiOpenUrl: optional2("KIMI_OPEN_URL"),
-  ownerUnionId: optional2("OWNER_UNION_ID"),
-  isProduction: process.env.NODE_ENV === "production",
-  databaseUrl: required2("DATABASE_URL")
-};
-
 // db/schema.ts
 var schema_exports = {};
 __export(schema_exports, {
@@ -24078,7 +24056,15 @@ var fullSchema = { ...schema_exports, ...relations_exports };
 var instance;
 function getDb() {
   if (!instance) {
-    const pool = new Mn({ connectionString: env.databaseUrl });
+    const dbUrl = process.env.DATABASE_URL || "";
+    if (!dbUrl) {
+      console.error("[CRITICAL] DATABASE_URL is empty or undefined!");
+      console.error("[CRITICAL] Available env keys:", Object.keys(process.env).filter((k) => !k.includes("SECRET") && !k.includes("KEY") && !k.includes("PASS")));
+      throw new Error("DATABASE_URL environment variable is not set. Please add it in Vercel Settings > Environment Variables.");
+    }
+    console.log("[DB] Connecting with DATABASE_URL length:", dbUrl.length);
+    console.log("[DB] DATABASE_URL starts with:", dbUrl.substring(0, 30) + "...");
+    const pool = new Mn({ connectionString: dbUrl });
     instance = drizzle(pool, { schema: fullSchema });
   }
   return instance;
@@ -24086,6 +24072,28 @@ function getDb() {
 
 // api/local-auth-router.ts
 import { eq } from "drizzle-orm";
+
+// api/lib/env.ts
+import "dotenv/config";
+function required2(name) {
+  const value = process.env[name];
+  if (!value && process.env.NODE_ENV === "production") {
+    console.error(`[ENV] Missing required environment variable: ${name}`);
+  }
+  return value ?? "";
+}
+function optional2(name) {
+  return process.env[name] ?? "";
+}
+var env = {
+  appId: optional2("APP_ID"),
+  appSecret: optional2("APP_SECRET"),
+  kimiAuthUrl: optional2("KIMI_AUTH_URL"),
+  kimiOpenUrl: optional2("KIMI_OPEN_URL"),
+  ownerUnionId: optional2("OWNER_UNION_ID"),
+  isProduction: process.env.NODE_ENV === "production",
+  databaseUrl: required2("DATABASE_URL")
+};
 
 // node_modules/bcryptjs/index.js
 import nodeCrypto from "crypto";
