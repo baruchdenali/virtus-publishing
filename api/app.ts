@@ -24,7 +24,13 @@ app.use("/api/trpc/*", async (c) => {
 });
 
 // Health check
-app.get("/api/health", (c) => c.json({ ok: true, ts: Date.now() }));
+app.get("/api/health", (c) => c.json({
+  ok: true,
+  ts: Date.now(),
+  hasDbUrl: !!process.env.DATABASE_URL,
+  dbUrlPrefix: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 20) + "..." : "NOT SET",
+  nodeEnv: process.env.NODE_ENV || "not set",
+}));
 
 // 404 for unmatched API routes
 app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));

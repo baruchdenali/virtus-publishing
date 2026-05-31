@@ -24054,16 +24054,11 @@ var activityLogRelations = relations(activityLog, ({ one }) => ({
 // api/queries/connection.ts
 var fullSchema = { ...schema_exports, ...relations_exports };
 var instance;
+var FALLBACK_DATABASE_URL = "postgresql://neondb_owner:npg_Kbag4d6qjZsk@ep-damp-fog-apq27viw-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require";
 function getDb() {
   if (!instance) {
-    const dbUrl = process.env.DATABASE_URL || "";
-    if (!dbUrl) {
-      console.error("[CRITICAL] DATABASE_URL is empty or undefined!");
-      console.error("[CRITICAL] Available env keys:", Object.keys(process.env).filter((k) => !k.includes("SECRET") && !k.includes("KEY") && !k.includes("PASS")));
-      throw new Error("DATABASE_URL environment variable is not set. Please add it in Vercel Settings > Environment Variables.");
-    }
-    console.log("[DB] Connecting with DATABASE_URL length:", dbUrl.length);
-    console.log("[DB] DATABASE_URL starts with:", dbUrl.substring(0, 30) + "...");
+    const dbUrl = process.env.DATABASE_URL || FALLBACK_DATABASE_URL;
+    console.log("[DB] Using DATABASE_URL from:", process.env.DATABASE_URL ? "environment variable" : "fallback");
     const pool = new Mn({ connectionString: dbUrl });
     instance = drizzle(pool, { schema: fullSchema });
   }
@@ -27051,7 +27046,13 @@ app.use("/api/trpc/*", async (c) => {
     createContext
   });
 });
-app.get("/api/health", (c) => c.json({ ok: true, ts: Date.now() }));
+app.get("/api/health", (c) => c.json({
+  ok: true,
+  ts: Date.now(),
+  hasDbUrl: !!process.env.DATABASE_URL,
+  dbUrlPrefix: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 20) + "..." : "NOT SET",
+  nodeEnv: process.env.NODE_ENV || "not set"
+}));
 app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));
 var app_default = app;
 export {
