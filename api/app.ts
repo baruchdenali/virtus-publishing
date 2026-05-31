@@ -14,12 +14,20 @@ app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 // Kimi OAuth callback — creates account + assigns admin role
 app.get(Paths.oauthCallback, createOAuthCallbackHandler());
 
-// Direct DB test
+// Direct DB test using pg Pool
 app.get("/api/dbtest", async (c) => {
   try {
-    const db = getDb();
-    const result = await (db as any).$client`SELECT 1 as test`;
-    return c.json({ ok: true, result });
+    const { Pool } = require("pg");
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL || "postgresql://neondb_owner:npg_Kbag4d6qjZsk@ep-damp-fog-apq27viw-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require",
+      ssl: { rejectUnauthorized: false },
+    });
+    const result = await pool.query("SELECT column_name FROM information_schema.columns WHERE table_name = 'users' ORDER BY ordinal_position");
+    await pool.end();
+    return c.json({
+      ok: true,
+      columns: result.rows.map((r: any) => r.column_name),
+    });
   } catch (e: any) {
     return c.json({ ok: false, error: e.message, code: e.code }, 500);
   }
@@ -37,23 +45,12 @@ app.use("/api/trpc/*", async (c) => {
 
 // Health check
 app.get("/api/health", async (c) => {
-  let dbStatus = "unknown";
-  let columns = "";
-  try {
-    const db = getDb();
-    const result = await (db as any).$client`SELECT column_name FROM information_schema.columns WHERE table_name = 'users' ORDER BY ordinal_position`;
-    columns = result.map((r: any) => r.column_name).join(", ");
-    dbStatus = "connected";
-  } catch (e: any) {
-    dbStatus = `error: ${e.message}`;
-  }
-
+  const dbUrl = process.env.DATABASE_URL || "fallback";
   return c.json({
     ok: true,
     ts: Date.now(),
-    dbStatus,
-    columns,
-    hasDbUrl: !!process.env.DATABASE_URL,
+    hasDbUrl: dbUrl.length > 10,
+    dbUrlPrefix: dbUrl.substring(0, 25) + "...",
     nodeEnv: process.env.NODE_ENV || "not set",
   });
 });

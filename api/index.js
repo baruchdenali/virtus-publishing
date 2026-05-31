@@ -27039,9 +27039,17 @@ app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 app.get(Paths.oauthCallback, createOAuthCallbackHandler());
 app.get("/api/dbtest", async (c) => {
   try {
-    const db = getDb();
-    const result = await db.$client`SELECT 1 as test`;
-    return c.json({ ok: true, result });
+    const { Pool } = __require("pg");
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL || "postgresql://neondb_owner:npg_Kbag4d6qjZsk@ep-damp-fog-apq27viw-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require",
+      ssl: { rejectUnauthorized: false }
+    });
+    const result = await pool.query("SELECT column_name FROM information_schema.columns WHERE table_name = 'users' ORDER BY ordinal_position");
+    await pool.end();
+    return c.json({
+      ok: true,
+      columns: result.rows.map((r) => r.column_name)
+    });
   } catch (e) {
     return c.json({ ok: false, error: e.message, code: e.code }, 500);
   }
@@ -27055,22 +27063,12 @@ app.use("/api/trpc/*", async (c) => {
   });
 });
 app.get("/api/health", async (c) => {
-  let dbStatus = "unknown";
-  let columns = "";
-  try {
-    const db = getDb();
-    const result = await db.$client`SELECT column_name FROM information_schema.columns WHERE table_name = 'users' ORDER BY ordinal_position`;
-    columns = result.map((r) => r.column_name).join(", ");
-    dbStatus = "connected";
-  } catch (e) {
-    dbStatus = `error: ${e.message}`;
-  }
+  const dbUrl = process.env.DATABASE_URL || "fallback";
   return c.json({
     ok: true,
     ts: Date.now(),
-    dbStatus,
-    columns,
-    hasDbUrl: !!process.env.DATABASE_URL,
+    hasDbUrl: dbUrl.length > 10,
+    dbUrlPrefix: dbUrl.substring(0, 25) + "...",
     nodeEnv: process.env.NODE_ENV || "not set"
   });
 });
