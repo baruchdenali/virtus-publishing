@@ -14,7 +14,7 @@ app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 // Kimi OAuth callback — creates account + assigns admin role
 app.get(Paths.oauthCallback, createOAuthCallbackHandler());
 
-// Direct DB test using pg Pool
+// Direct DB test and schema setup
 app.get("/api/dbtest", async (c) => {
   try {
     const { Pool } = require("pg");
@@ -22,13 +22,120 @@ app.get("/api/dbtest", async (c) => {
       connectionString: process.env.DATABASE_URL || "postgresql://neondb_owner:npg_Kbag4d6qjZsk@ep-damp-fog-apq27viw-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require",
       ssl: { rejectUnauthorized: false },
     });
+
+    // Create tables if they don't exist
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS "users" (
+        "id" SERIAL PRIMARY KEY,
+        "unionId" VARCHAR(255) NOT NULL UNIQUE,
+        "name" VARCHAR(255),
+        "email" VARCHAR(320),
+        "passwordHash" VARCHAR(255),
+        "avatar" TEXT,
+        "bio" TEXT,
+        "website" VARCHAR(255),
+        "role" VARCHAR(10) NOT NULL DEFAULT 'user',
+        "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+        "lastSignInAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS "ebooks" (
+        "id" SERIAL PRIMARY KEY,
+        "userId" INTEGER NOT NULL DEFAULT 1,
+        "title" VARCHAR(255) NOT NULL,
+        "authorName" VARCHAR(255),
+        "description" TEXT,
+        "category" VARCHAR(50) DEFAULT 'other',
+        "coverImageUrl" TEXT,
+        "price" NUMERIC(10,2) DEFAULT 0,
+        "isFree" BOOLEAN DEFAULT FALSE,
+        "content" TEXT,
+        "status" VARCHAR(20) DEFAULT 'draft',
+        "visibility" VARCHAR(20) DEFAULT 'private',
+        "publishedAt" TIMESTAMP,
+        "pageCount" INTEGER DEFAULT 0,
+        "language" VARCHAR(10) DEFAULT 'en',
+        "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS "purchases" (
+        "id" SERIAL PRIMARY KEY,
+        "userId" INTEGER NOT NULL,
+        "ebookId" INTEGER NOT NULL,
+        "amount" NUMERIC(10,2) NOT NULL DEFAULT 0,
+        "status" VARCHAR(20) DEFAULT 'completed',
+        "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS "reviews" (
+        "id" SERIAL PRIMARY KEY,
+        "ebookId" INTEGER NOT NULL,
+        "userId" INTEGER NOT NULL,
+        "rating" INTEGER NOT NULL DEFAULT 5,
+        "comment" TEXT,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS "blog_posts" (
+        "id" SERIAL PRIMARY KEY,
+        "title" VARCHAR(255) NOT NULL,
+        "slug" VARCHAR(255) NOT NULL UNIQUE,
+        "excerpt" TEXT,
+        "content" TEXT NOT NULL,
+        "author" VARCHAR(255) DEFAULT 'Virtus Editorial',
+        "category" VARCHAR(50) DEFAULT 'General',
+        "image" TEXT,
+        "published" BOOLEAN DEFAULT FALSE,
+        "featured" BOOLEAN DEFAULT FALSE,
+        "readTime" VARCHAR(20) DEFAULT '5 min read',
+        "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS "podcasts" (
+        "id" SERIAL PRIMARY KEY,
+        "title" VARCHAR(255) NOT NULL,
+        "description" TEXT,
+        "guest" VARCHAR(255),
+        "guestTitle" VARCHAR(255),
+        "embedUrl" TEXT,
+        "audioUrl" TEXT,
+        "duration" VARCHAR(20) DEFAULT '30 min',
+        "episodeNumber" INTEGER,
+        "date" VARCHAR(50),
+        "plays" INTEGER DEFAULT 0,
+        "featured" BOOLEAN DEFAULT FALSE,
+        "published" BOOLEAN DEFAULT FALSE,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    // Seed admin user
+    await pool.query(`
+      INSERT INTO "users" ("unionId", "name", "email", "role", "createdAt", "updatedAt", "lastSignInAt")
+      VALUES ('admin_owner', 'Baruch Denali', 'baruch.denali@gmail.com', 'admin', NOW(), NOW(), NOW())
+      ON CONFLICT ("unionId") DO NOTHING
+    `);
+
     const tables = await pool.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name");
-    const usersCols = await pool.query("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'users' ORDER BY ordinal_position");
     await pool.end();
+
     return c.json({
       ok: true,
       tables: tables.rows.map((r: any) => r.table_name),
-      usersColumns: usersCols.rows.map((r: any) => `${r.column_name}(${r.data_type})`),
+      message: "Schema created successfully",
     });
   } catch (e: any) {
     return c.json({ ok: false, error: e.message, code: e.code }, 500);
