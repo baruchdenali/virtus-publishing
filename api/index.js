@@ -25849,10 +25849,10 @@ var localAuthRouter = createRouter({
     try {
       existing = await db.select().from(users).where(eq(users.email, input.email.toLowerCase().trim())).limit(1);
     } catch (dbErr) {
-      console.error("[localAuth.register] DB query failed:", dbErr.message);
+      console.error("[localAuth.register] DB query failed:", dbErr.message, dbErr.stack);
       throw new TRPCError2({
         code: "INTERNAL_SERVER_ERROR",
-        message: `Database connection failed. Please check DATABASE_URL is set correctly in Vercel. Error: ${dbErr.message}`
+        message: `DB ERROR: ${dbErr.message} | CODE: ${dbErr.code || "unknown"}`
       });
     }
     if (existing.length > 0) {
