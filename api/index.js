@@ -23835,7 +23835,6 @@ var Un = class Un2 extends go.Pool {
   }
 };
 a(Un, "NeonPool");
-var Mn = Un;
 Fe();
 var ct = Se(ot());
 var export_DatabaseError = ct.DatabaseError;
@@ -24053,14 +24052,14 @@ var activityLogRelations = relations(activityLog, ({ one }) => ({
 
 // api/queries/connection.ts
 var fullSchema = { ...schema_exports, ...relations_exports };
-var instance;
+ce.fetchConnectionCache = true;
 var FALLBACK_DATABASE_URL = "postgresql://neondb_owner:npg_Kbag4d6qjZsk@ep-damp-fog-apq27viw-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require";
+var instance;
 function getDb() {
   if (!instance) {
     const dbUrl = process.env.DATABASE_URL || FALLBACK_DATABASE_URL;
-    console.log("[DB] Using DATABASE_URL from:", process.env.DATABASE_URL ? "environment variable" : "fallback");
-    const pool = new Mn({ connectionString: dbUrl });
-    instance = drizzle(pool, { schema: fullSchema });
+    const sql6 = cs(dbUrl);
+    instance = drizzle(sql6, { schema: fullSchema });
   }
   return instance;
 }
