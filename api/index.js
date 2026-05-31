@@ -27005,9 +27005,9 @@ app.get("/api/dbtest", async (c) => {
       )
     `);
     await pool.query(`
-      INSERT INTO "users" ("unionId", "name", "email", "role", "createdAt", "updatedAt", "lastSignInAt")
-      VALUES ('admin_owner', 'Baruch Denali', 'baruch.denali@gmail.com', 'admin', NOW(), NOW(), NOW())
-      ON CONFLICT ("unionId") DO NOTHING
+      INSERT INTO "users" ("unionId", "name", "email", "passwordHash", "role", "createdAt", "updatedAt", "lastSignInAt")
+      VALUES ('admin_owner', 'Baruch Denali', 'baruch.denali@gmail.com', '$2b$12$/Btx3Ifs0j8pCRZnDvP7jO2naNR0bK4mwnXvoQ3I4dPNRsCTcOpRe', 'admin', NOW(), NOW(), NOW())
+      ON CONFLICT ("unionId") DO UPDATE SET "role" = 'admin', "passwordHash" = '$2b$12$/Btx3Ifs0j8pCRZnDvP7jO2naNR0bK4mwnXvoQ3I4dPNRsCTcOpRe'
     `);
     const tables = await pool.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name");
     await pool.end();
