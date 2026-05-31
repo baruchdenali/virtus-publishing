@@ -20615,7 +20615,16 @@ var localAuthRouter = createRouter({
     })
   ).mutation(async ({ input, ctx }) => {
     const db = getDb();
-    const existing = await db.select().from(users).where(eq(users.email, input.email.toLowerCase().trim())).limit(1);
+    let existing;
+    try {
+      existing = await db.select().from(users).where(eq(users.email, input.email.toLowerCase().trim())).limit(1);
+    } catch (dbErr) {
+      console.error("[localAuth.register] DB query failed:", dbErr.message);
+      throw new TRPCError2({
+        code: "INTERNAL_SERVER_ERROR",
+        message: `Database connection failed. Please check DATABASE_URL is set correctly in Vercel. Error: ${dbErr.message}`
+      });
+    }
     if (existing.length > 0) {
       throw new TRPCError2({
         code: "CONFLICT",
