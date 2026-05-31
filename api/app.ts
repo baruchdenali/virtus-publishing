@@ -13,6 +13,17 @@ app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 // Kimi OAuth callback — creates account + assigns admin role
 app.get(Paths.oauthCallback, createOAuthCallbackHandler());
 
+// Direct DB test
+app.get("/api/dbtest", async (c) => {
+  try {
+    const db = getDb();
+    const result = await (db as any).$client`SELECT 1 as test`;
+    return c.json({ ok: true, result });
+  } catch (e: any) {
+    return c.json({ ok: false, error: e.message, code: e.code }, 500);
+  }
+});
+
 // tRPC API handler — all backend routes
 app.use("/api/trpc/*", async (c) => {
   return fetchRequestHandler({

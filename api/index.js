@@ -27037,6 +27037,15 @@ async function createContext(opts) {
 var app = new Hono();
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 app.get(Paths.oauthCallback, createOAuthCallbackHandler());
+app.get("/api/dbtest", async (c) => {
+  try {
+    const db = getDb();
+    const result = await db.$client`SELECT 1 as test`;
+    return c.json({ ok: true, result });
+  } catch (e) {
+    return c.json({ ok: false, error: e.message, code: e.code }, 500);
+  }
+});
 app.use("/api/trpc/*", async (c) => {
   return fetchRequestHandler({
     endpoint: "/api/trpc",
