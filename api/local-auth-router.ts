@@ -69,6 +69,15 @@ export const localAuthRouter = createRouter({
         });
       }
 
+      // Determine role from company email
+      const email = input.email.toLowerCase().trim();
+      let assignedRole: "user" | "author" | "sales" | "operations" | "admin" = "user";
+      if (email.endsWith("@virtuspublishing.us") || email.endsWith("@virtus-edu.net")) {
+        if (email.includes("ops.")) assignedRole = "operations";
+        else if (email.includes("admin")) assignedRole = "admin";
+        else assignedRole = "sales";
+      }
+
       // Hash password
       const passwordHash = await bcrypt.hash(input.password, 12);
 
@@ -78,9 +87,9 @@ export const localAuthRouter = createRouter({
         .values({
           unionId: `local_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`,
           name: input.name.trim(),
-          email: input.email.toLowerCase().trim(),
+          email,
           passwordHash,
-          role: "user",
+          role: assignedRole,
         })
         .returning();
 

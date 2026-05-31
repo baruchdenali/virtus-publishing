@@ -1,69 +1,103 @@
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
-import { Check, CreditCard, Shield, Zap, BookOpen, BarChart3, Globe, Lock } from 'lucide-react'
+import { Check, CreditCard, Shield, Lock, BookOpen, BarChart3, Globe, Zap, Sparkles, Users, Star, Crown, Building2 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
 const tiers = [
   {
-    id: 'starter',
-    name: 'Virtus Starter',
-    price: 9.99,
+    id: 'creator',
+    name: 'Virtus Creator',
+    price: 29,
     period: '/month',
-    description: 'Perfect for new authors getting started with digital publishing.',
+    description: 'Perfect for independent authors building their catalog.',
+    icon: Sparkles,
     features: [
-      'Create up to 3 eBooks',
-      'AI Writing Assistant',
+      'AI-Powered eBook Creation',
       'Basic Analytics Dashboard',
-      'Community Access',
-      'Standard Support',
+      'Standard Distribution',
+      'Community Forum Access',
+      'Email Support',
+      'Up to 10 eBooks',
       'EPUB & PDF Export',
+      'Cover Design Templates',
     ],
-    cta: 'Get Started',
+    cta: 'Start Creating',
     popular: false,
   },
   {
     id: 'professional',
     name: 'Virtus Professional',
-    price: 29.99,
+    price: 49,
     period: '/month',
-    description: 'For serious authors who want unlimited publishing power.',
+    description: 'For serious authors ready to scale their publishing business.',
+    icon: Star,
     features: [
+      'Everything in Creator',
+      'Advanced AI Writing Assistant',
+      'Comprehensive Analytics Suite',
+      'Priority Distribution Network',
+      'Featured Placement Eligibility',
       'Unlimited eBooks',
-      'Advanced AI Assistant',
-      'Full Analytics Suite',
-      'Priority Support',
-      'Marketing Tools',
-      'Custom Cover Design',
-      'Audiobook Generation',
-      'Multi-language Publishing',
+      'Marketing Toolkit',
+      'Audiobook Conversion',
+      'Priority Support (24h)',
+      'Custom Branding',
     ],
     cta: 'Go Professional',
     popular: true,
   },
   {
-    id: 'enterprise',
-    name: 'Virtus Enterprise',
-    price: 99.99,
+    id: 'publisher',
+    name: 'Virtus Publisher',
+    price: 149,
     period: '/month',
-    description: 'For institutions, publishers, and teams demanding the best.',
+    description: 'The complete publishing powerhouse for maximum reach.',
+    icon: Crown,
     features: [
       'Everything in Professional',
-      'Custom Branding',
+      'Premium AI Suite',
+      'Full Marketing Automation',
+      'Advanced Analytics + Reports',
+      'Guaranteed Featured Placement',
       'API Access',
-      'Team Collaboration (up to 10)',
+      'Bulk eBook Management',
+      'White-Label Distribution',
       'Dedicated Account Manager',
-      'White-label Options',
-      'Advanced Security Controls',
+      'Team Collaboration (5 seats)',
       'Custom Integrations',
+    ],
+    cta: 'Become a Publisher',
+    popular: false,
+  },
+  {
+    id: 'enterprise',
+    name: 'Virtus Enterprise',
+    price: 0,
+    period: '/custom',
+    description: 'For institutions, publishers, and large teams. Contact us for pricing.',
+    icon: Building2,
+    features: [
+      'Everything in Publisher',
+      'Custom Deployment Options',
+      'SSO Integration',
+      'Unlimited Team Seats',
+      'SLA Guarantee (99.9%)',
+      'On-Premise Option',
+      'Advanced Security Controls',
+      'Custom AI Training',
+      'White-Label Platform',
+      'Executive Reporting',
+      '24/7 Phone Support',
     ],
     cta: 'Contact Sales',
     popular: false,
+    custom: true,
   },
 ]
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.15, duration: 0.5 } }),
+  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }),
 }
 
 export default function Pricing() {
@@ -78,33 +112,30 @@ export default function Pricing() {
           <span className="shimmer-text text-[11px] font-medium tracking-[0.12em] uppercase">Pricing</span>
         </div>
         <h1 className="text-[40px] md:text-[56px] font-semibold leading-[1.1] tracking-[-0.03em] mb-4">
-          Invest in Your <span className="text-gradient-gold">Publishing</span>
+          Choose Your <span className="text-gradient-gold">Publishing Path</span>
         </h1>
-        <p className="text-[16px] md:text-[18px] text-[#9B9589] max-w-xl mx-auto">
-          Choose the plan that fits your publishing ambitions. All plans include our core AI-powered writing tools.
+        <p className="text-[16px] md:text-[18px] text-[#9B9589] max-w-2xl mx-auto">
+          From your first manuscript to a global publishing empire. Every plan includes our core AI-powered writing tools, military-grade encryption, and 24/7 platform access.
         </p>
       </motion.section>
 
-      {/* Payment badges */}
+      {/* Security badges */}
       <div className="flex flex-wrap items-center justify-center gap-4">
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg glass-surface">
-          <Shield className="w-4 h-4 text-[#4ADE80]" />
-          <span className="text-[12px] text-[#9B9589]">PCI DSS Level 1</span>
-        </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg glass-surface">
-          <Lock className="w-4 h-4 text-[#4ADE80]" />
-          <span className="text-[12px] text-[#9B9589]">256-bit SSL</span>
-        </div>
-        <div className="px-4 py-2 rounded-lg glass-surface flex items-center gap-1.5 text-[12px] text-[#9B9589]">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-3 opacity-60" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-3 opacity-60" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg" alt="AmEx" className="h-3 opacity-60" />
-          <span>Accepted</span>
-        </div>
+        {[
+          { icon: Shield, text: 'PCI DSS Level 1 Compliant' },
+          { icon: Lock, text: '256-bit SSL Encryption' },
+          { icon: CreditCard, text: 'Visa / Mastercard / AmEx / Discover' },
+          { icon: Zap, text: 'Instant Account Activation' },
+        ].map((badge) => (
+          <div key={badge.text} className="flex items-center gap-2 px-4 py-2 rounded-lg glass-surface">
+            <badge.icon className="w-4 h-4 text-[#4ADE80]" />
+            <span className="text-[11px] text-[#9B9589]">{badge.text}</span>
+          </div>
+        ))}
       </div>
 
       {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
         {tiers.map((tier, i) => (
           <motion.div
             key={tier.id}
@@ -113,7 +144,7 @@ export default function Pricing() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeInUp}
-            className={`glass-surface p-6 md:p-8 flex flex-col relative ${tier.popular ? 'border border-[rgba(200,165,92,0.3)]' : ''}`}
+            className={`glass-surface p-6 flex flex-col relative ${tier.popular ? 'border border-[rgba(200,165,92,0.3)]' : ''}`}
             style={tier.popular ? { boxShadow: '0 0 30px rgba(200,165,92,0.1)' } : {}}
           >
             {tier.popular && (
@@ -122,26 +153,35 @@ export default function Pricing() {
               </div>
             )}
 
-            <h3 className="text-[20px] font-semibold mb-1">{tier.name}</h3>
-            <p className="text-[13px] text-[#9B9589] mb-4">{tier.description}</p>
+            <div className="flex items-center gap-2 mb-3">
+              <tier.icon className="w-5 h-5 text-[#C8A55C]" />
+              <h3 className="text-[16px] font-semibold">{tier.name}</h3>
+            </div>
+            <p className="text-[12px] text-[#9B9589] mb-4 min-h-[36px]">{tier.description}</p>
 
-            <div className="mb-6">
-              <span className="text-[36px] font-semibold tracking-[-0.02em]">${tier.price}</span>
-              <span className="text-[14px] text-[#9B9589]">{tier.period}</span>
+            <div className="mb-5">
+              {tier.custom ? (
+                <span className="text-[32px] font-semibold">Custom</span>
+              ) : (
+                <>
+                  <span className="text-[32px] font-semibold tracking-[-0.02em]">${tier.price}</span>
+                  <span className="text-[13px] text-[#9B9589]">{tier.period}</span>
+                </>
+              )}
             </div>
 
-            <ul className="space-y-2.5 mb-8 flex-1">
+            <ul className="space-y-2 mb-6 flex-1">
               {tier.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-2 text-[13px] text-[#F5F0E8]">
-                  <Check className="w-4 h-4 text-[#C8A55C] shrink-0 mt-0.5" />
+                <li key={feature} className="flex items-start gap-2 text-[12px] text-[#F5F0E8]">
+                  <Check className="w-3.5 h-3.5 text-[#C8A55C] shrink-0 mt-0.5" />
                   {feature}
                 </li>
               ))}
             </ul>
 
             <Link
-              to={isAuthenticated ? '/dashboard' : '/login'}
-              className={`w-full py-3 rounded-lg text-center text-[14px] font-medium transition-all ${
+              to={tier.custom ? '/help' : isAuthenticated ? '/dashboard' : '/login'}
+              className={`w-full py-2.5 rounded-lg text-center text-[13px] font-medium transition-all ${
                 tier.popular
                   ? 'btn-gold'
                   : 'border border-[rgba(245,240,232,0.14)] hover:bg-[rgba(245,240,232,0.04)]'
@@ -153,46 +193,50 @@ export default function Pricing() {
         ))}
       </div>
 
-      {/* Features Grid */}
+      {/* Revenue Streams */}
       <section>
-        <h2 className="text-[24px] font-semibold text-center mb-8">All Plans Include</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <h2 className="text-[24px] font-semibold text-center mb-8">Additional Revenue Opportunities</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
           {[
-            { icon: BookOpen, label: 'eBook Publishing', desc: 'Professional formatting' },
-            { icon: Zap, label: 'AI Assistant', desc: 'Powered writing tools' },
-            { icon: BarChart3, label: 'Analytics', desc: 'Track your success' },
-            { icon: Globe, label: 'Global Reach', desc: '86 countries served' },
-            { icon: Lock, label: 'Encryption', desc: 'Military-grade security' },
-            { icon: Shield, label: 'SSL Protection', desc: 'Secure data transfer' },
-            { icon: CreditCard, label: 'Stripe Payments', desc: 'PCI compliant' },
-            { icon: BookOpen, label: 'Multi-format', desc: 'EPUB, PDF, Markdown' },
+            { icon: BookOpen, title: 'Direct eBook Sales', desc: 'Sell your eBooks directly through our integrated storefront. You keep 80% of every sale. Set your own prices starting from $0.99.', highlight: '80% Author Share' },
+            { icon: Zap, title: 'Premium AI Services', desc: 'AI-powered cover generation ($10), chapter writing ($25), professional editing ($50), ISBN registration ($15), and marketing toolkits ($30).', highlight: 'A La Carte Services' },
+            { icon: BarChart3, title: 'Featured Placement', desc: 'Boost visibility with featured placement on our homepage ($50/week) or category banners ($100/week). Reach our global audience.', highlight: '50K+ Monthly Readers' },
           ].map((item, i) => (
             <motion.div
-              key={item.label}
+              key={item.title}
               custom={i}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={fadeInUp}
-              className="glass-surface p-4 text-center card-hover"
+              className="glass-surface p-5 card-hover"
             >
-              <item.icon className="w-6 h-6 text-[#C8A55C] mx-auto mb-2" />
-              <div className="text-[13px] font-medium">{item.label}</div>
-              <div className="text-[11px] text-[#9B9589]">{item.desc}</div>
+              <div className="flex items-center gap-2 mb-3">
+                <item.icon className="w-5 h-5 text-[#C8A55C]" />
+                <h3 className="text-[15px] font-semibold">{item.title}</h3>
+              </div>
+              <p className="text-[12px] text-[#9B9589] mb-3 leading-relaxed">{item.desc}</p>
+              <span className="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-[rgba(200,165,92,0.12)] text-[#C8A55C]">{item.highlight}</span>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* CTA */}
+      {/* Enterprise CTA */}
       <section className="glass-surface p-8 md:p-12 text-center border border-[rgba(200,165,92,0.15)]" style={{ boxShadow: '0 0 30px rgba(200,165,92,0.08)' }}>
-        <h2 className="text-[24px] md:text-[32px] font-semibold mb-3">Not Sure Which Plan?</h2>
-        <p className="text-[14px] text-[#9B9589] max-w-md mx-auto mb-6">
-          Start with the Starter plan and upgrade anytime. No long-term contracts. Cancel whenever you want.
+        <Building2 className="w-8 h-8 text-[#C8A55C] mx-auto mb-4" />
+        <h2 className="text-[24px] md:text-[32px] font-semibold mb-3">Enterprise & Institutional Licensing</h2>
+        <p className="text-[14px] text-[#9B9589] max-w-lg mx-auto mb-6">
+          Custom solutions for universities, publishing houses, libraries, and corporations. Pricing from $5,000/year. Full white-label options available.
         </p>
-        <Link to="/help" className="inline-flex items-center gap-2 btn-gold text-[14px]">
-          <Zap className="w-4 h-4" />Contact Support
-        </Link>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link to="/help" className="btn-gold text-[14px] flex items-center gap-2">
+            <Users className="w-4 h-4" />Contact Sales Team
+          </Link>
+          <Link to="/packages" className="px-5 py-2.5 rounded-lg border border-[rgba(245,240,232,0.14)] text-[14px] font-medium hover:bg-[rgba(245,240,232,0.04)] transition-all">
+            View Custom Packages
+          </Link>
+        </div>
       </section>
     </div>
   )

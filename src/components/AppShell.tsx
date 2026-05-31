@@ -1,7 +1,7 @@
 import { Outlet, useLocation, Link } from 'react-router'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { Search, Menu, X, Sparkles, BookOpen, Store, LayoutDashboard, Settings, LogOut, BarChart3, Globe, ChevronDown, Calendar, Newspaper, Mic, Mail, Phone, MapPin } from 'lucide-react'
+import { Search, Menu, X, Sparkles, BookOpen, Store, LayoutDashboard, Settings, LogOut, BarChart3, Globe, ChevronDown, Calendar, Newspaper, Mic, Mail, Phone, MapPin, Shield, DollarSign } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import Logo from '@/components/Logo'
 
@@ -14,6 +14,9 @@ export default function AppShell() {
   const [langOpen, setLangOpen] = useState(false)
 
   const isAdmin = user?.role === 'admin'
+  const isOperations = user?.role === 'operations'
+  const isSales = user?.role === 'sales'
+  const hasAdminAccess = isAdmin || isOperations || isSales
   const isRtl = lang === 'he' || lang === 'ar'
 
   const navLinks = [
@@ -27,6 +30,12 @@ export default function AppShell() {
     ] : []),
     ...(isAdmin ? [
       { path: '/admin', label: 'Admin', icon: BarChart3 },
+    ] : []),
+    ...(isOperations ? [
+      { path: '/admin/operations', label: 'Operations', icon: Shield },
+    ] : []),
+    ...(isSales ? [
+      { path: '/admin/sales', label: 'Sales', icon: DollarSign },
     ] : []),
   ]
 

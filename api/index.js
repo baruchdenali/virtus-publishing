@@ -23717,6 +23717,8 @@ __export(schema_exports, {
   aiConversations: () => aiConversations,
   aiMessages: () => aiMessages,
   blogPosts: () => blogPosts,
+  campaignStatusEnum: () => campaignStatusEnum,
+  campaigns: () => campaigns,
   categoryEnum: () => categoryEnum,
   ebooks: () => ebooks,
   messageRoleEnum: () => messageRoleEnum,
@@ -23725,7 +23727,12 @@ __export(schema_exports, {
   purchases: () => purchases,
   reviews: () => reviews,
   roleEnum: () => roleEnum,
+  salesLeads: () => salesLeads,
+  services: () => services,
   statusEnum: () => statusEnum,
+  subscriptionStatusEnum: () => subscriptionStatusEnum,
+  subscriptionTierEnum: () => subscriptionTierEnum,
+  subscriptions: () => subscriptions,
   users: () => users,
   visibilityEnum: () => visibilityEnum
 });
@@ -23741,7 +23748,10 @@ import {
   jsonb,
   boolean as boolean4
 } from "drizzle-orm/pg-core";
-var roleEnum = pgEnum("role", ["user", "admin"]);
+var roleEnum = pgEnum("role", ["user", "author", "sales", "operations", "admin"]);
+var subscriptionTierEnum = pgEnum("subscription_tier", ["creator", "professional", "publisher", "enterprise"]);
+var subscriptionStatusEnum = pgEnum("subscription_status", ["active", "cancelled", "expired", "trial"]);
+var campaignStatusEnum = pgEnum("campaign_status", ["draft", "scheduled", "running", "paused", "completed"]);
 var categoryEnum = pgEnum("category", [
   "fiction",
   "non-fiction",
@@ -23872,6 +23882,61 @@ var podcasts = pgTable("podcasts", {
   featured: boolean4("featured").default(false),
   published: boolean4("published").default(false),
   createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
+});
+var subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer2("userId").notNull(),
+  tier: subscriptionTierEnum("tier").notNull().default("creator"),
+  status: subscriptionStatusEnum("status").notNull().default("trial"),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }),
+  currentPeriodStart: timestamp("currentPeriodStart", { mode: "date" }),
+  currentPeriodEnd: timestamp("currentPeriodEnd", { mode: "date" }),
+  cancelAtPeriodEnd: boolean4("cancelAtPeriodEnd").default(false),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull()
+});
+var services = pgTable("services", {
+  id: serial("id").primaryKey(),
+  userId: integer2("userId").notNull(),
+  serviceType: varchar("serviceType", { length: 50 }).notNull(),
+  ebookId: integer2("ebookId"),
+  quantity: integer2("quantity").default(1),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  status: varchar("status", { length: 20 }).default("completed"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
+});
+var campaigns = pgTable("campaigns", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  channel: varchar("channel", { length: 50 }).notNull(),
+  status: campaignStatusEnum("status").notNull().default("draft"),
+  content: text("content"),
+  scheduledAt: timestamp("scheduledAt", { mode: "date" }),
+  publishedAt: timestamp("publishedAt", { mode: "date" }),
+  metrics: jsonb("metrics"),
+  engagement: integer2("engagement").default(0),
+  reach: integer2("reach").default(0),
+  conversions: integer2("conversions").default(0),
+  confidenceScore: decimal("confidenceScore", { precision: 5, scale: 2 }).default("0"),
+  createdBy: integer2("createdBy"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull()
+});
+var salesLeads = pgTable("sales_leads", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  company: varchar("company", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  source: varchar("source", { length: 50 }).default("website"),
+  tier: subscriptionTierEnum("tier"),
+  notes: text("notes"),
+  assignedTo: integer2("assignedTo"),
+  status: varchar("status", { length: 20 }).default("new"),
+  value: decimal("value", { precision: 10, scale: 2 }).default("0"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull()
 });
 
 // db/relations.ts
@@ -25729,13 +25794,20 @@ var localAuthRouter = createRouter({
         message: "An account with this email already exists. Please sign in instead."
       });
     }
+    const email3 = input.email.toLowerCase().trim();
+    let assignedRole = "user";
+    if (email3.endsWith("@virtuspublishing.us") || email3.endsWith("@virtus-edu.net")) {
+      if (email3.includes("ops.")) assignedRole = "operations";
+      else if (email3.includes("admin")) assignedRole = "admin";
+      else assignedRole = "sales";
+    }
     const passwordHash = await bcryptjs_default.hash(input.password, 12);
     const result = await db.insert(users).values({
       unionId: `local_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`,
       name: input.name.trim(),
-      email: input.email.toLowerCase().trim(),
+      email: email3,
       passwordHash,
-      role: "user"
+      role: assignedRole
     }).returning();
     const user = result[0];
     const token = signToken(user.id);

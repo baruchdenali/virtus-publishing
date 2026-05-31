@@ -14,9 +14,14 @@ import Podcast from './pages/Podcast'
 import BlogEditor from './pages/BlogEditor'
 import PodcastManager from './pages/PodcastManager'
 import Pricing from './pages/Pricing'
+import Packages from './pages/Packages'
 import HelpCenter from './pages/HelpCenter'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
+import SocialMediaAgent from './pages/SocialMediaAgent'
+import MarketingAgent from './pages/MarketingAgent'
+import SalesDashboard from './pages/SalesDashboard'
+import OperationsDashboard from './pages/OperationsDashboard'
 import NotFound from './pages/NotFound'
 import AppShell from './components/AppShell'
 
@@ -37,11 +42,16 @@ export default function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/podcast" element={<Podcast />} />
         <Route path="/pricing" element={<Pricing />} />
+        <Route path="/packages" element={<Packages />} />
         <Route path="/help" element={<HelpCenter />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/admin/blog" element={<BlogEditor />} />
         <Route path="/admin/podcast" element={<PodcastManager />} />
+        <Route path="/admin/social-agent" element={<SocialMediaAgent />} />
+        <Route path="/admin/marketing-agent" element={<MarketingAgent />} />
+        <Route path="/admin/sales" element={<SalesDashboard />} />
+        <Route path="/admin/operations" element={<OperationsDashboard />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

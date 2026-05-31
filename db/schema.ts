@@ -11,7 +11,10 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 
-export const roleEnum = pgEnum("role", ["user", "admin"]);
+export const roleEnum = pgEnum("role", ["user", "author", "sales", "operations", "admin"]);
+export const subscriptionTierEnum = pgEnum("subscription_tier", ["creator", "professional", "publisher", "enterprise"]);
+export const subscriptionStatusEnum = pgEnum("subscription_status", ["active", "cancelled", "expired", "trial"]);
+export const campaignStatusEnum = pgEnum("campaign_status", ["draft", "scheduled", "running", "paused", "completed"]);
 export const categoryEnum = pgEnum("category", [
   "fiction",
   "non-fiction",
@@ -159,6 +162,65 @@ export const podcasts = pgTable("podcasts", {
   createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
 });
 
+export const subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull(),
+  tier: subscriptionTierEnum("tier").notNull().default("creator"),
+  status: subscriptionStatusEnum("status").notNull().default("trial"),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }),
+  currentPeriodStart: timestamp("currentPeriodStart", { mode: "date" }),
+  currentPeriodEnd: timestamp("currentPeriodEnd", { mode: "date" }),
+  cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").default(false),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const services = pgTable("services", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull(),
+  serviceType: varchar("serviceType", { length: 50 }).notNull(),
+  ebookId: integer("ebookId"),
+  quantity: integer("quantity").default(1),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  status: varchar("status", { length: 20 }).default("completed"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const campaigns = pgTable("campaigns", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  channel: varchar("channel", { length: 50 }).notNull(),
+  status: campaignStatusEnum("status").notNull().default("draft"),
+  content: text("content"),
+  scheduledAt: timestamp("scheduledAt", { mode: "date" }),
+  publishedAt: timestamp("publishedAt", { mode: "date" }),
+  metrics: jsonb("metrics"),
+  engagement: integer("engagement").default(0),
+  reach: integer("reach").default(0),
+  conversions: integer("conversions").default(0),
+  confidenceScore: decimal("confidenceScore", { precision: 5, scale: 2 }).default("0"),
+  createdBy: integer("createdBy"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const salesLeads = pgTable("sales_leads", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  company: varchar("company", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  source: varchar("source", { length: 50 }).default("website"),
+  tier: subscriptionTierEnum("tier"),
+  notes: text("notes"),
+  assignedTo: integer("assignedTo"),
+  status: varchar("status", { length: 20 }).default("new"),
+  value: decimal("value", { precision: 10, scale: 2 }).default("0"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Ebook = typeof ebooks.$inferSelect;
@@ -170,3 +232,7 @@ export type AiMessage = typeof aiMessages.$inferSelect;
 export type ActivityLog = typeof activityLog.$inferSelect;
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type Podcast = typeof podcasts.$inferSelect;
+export type Subscription = typeof subscriptions.$inferSelect;
+export type Service = typeof services.$inferSelect;
+export type Campaign = typeof campaigns.$inferSelect;
+export type SalesLead = typeof salesLeads.$inferSelect;

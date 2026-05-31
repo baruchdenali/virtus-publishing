@@ -10,7 +10,8 @@ import {
 import {
   Users, BookOpen, ShoppingCart, DollarSign, Star, MessageSquare,
   TrendingUp, TrendingDown, Activity, ChevronLeft,
-  ChevronRight, Shield, BarChart3, Tag, Eye, Newspaper, Mic, Download, FileText
+  ChevronRight, Shield, BarChart3, Tag, Eye, Newspaper, Mic, Download, FileText,
+  Share2, Megaphone, Target, Settings
 } from 'lucide-react'
 
 const COLORS = ['#C8A55C', '#7AAE7A', '#6B9BD1', '#C27070', '#9B9589', '#D9BC7A']
@@ -171,6 +172,35 @@ export default function Admin() {
             <div className="text-[12px] text-[#9B9589] mt-0.5">{item.desc}</div>
           </motion.button>
         ))}
+      </div>
+
+      {/* Team & Agent Dashboards */}
+      <div>
+        <h3 className="text-[14px] font-semibold uppercase tracking-wider text-[#9B9589] mb-4">Team & Agent Dashboards</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: 'Operations Command', desc: 'Supervise teams & agents', icon: Settings, path: '/admin/operations', color: '#C8A55C', badge: 'Ops' },
+            { label: 'Sales Dashboard', desc: 'Pipeline & lead management', icon: Target, path: '/admin/sales', color: '#6B9BD1', badge: 'Sales' },
+            { label: 'Social Media Agent', desc: 'Campaigns & social accounts', icon: Share2, path: '/admin/social-agent', color: '#7AAE7A', badge: 'Agent' },
+            { label: 'Marketing Agent', desc: 'Client satisfaction & emails', icon: Megaphone, path: '/admin/marketing-agent', color: '#A882DC', badge: 'Agent' },
+          ].map((item, i) => (
+            <motion.button
+              key={item.label}
+              custom={i}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeIn}
+              onClick={() => navigate(item.path)}
+              className="glass-surface p-5 text-left card-hover group relative"
+            >
+              <span className="absolute top-3 right-3 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-[rgba(245,240,232,0.06)] text-[#9B9589]">{item.badge}</span>
+              <item.icon className="w-6 h-6 mb-3" style={{ color: item.color }} />
+              <div className="text-[15px] font-semibold">{item.label}</div>
+              <div className="text-[12px] text-[#9B9589] mt-0.5">{item.desc}</div>
+            </motion.button>
+          ))}
+        </div>
       </div>
 
       {/* Charts Row */}
