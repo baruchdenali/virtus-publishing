@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && npm run build:api",
-    "vercel-build": "vite build",
-    "build:api": "esbuild api/app.ts --platform=node --bundle --format=esm --outfile=api/index.js --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\" --external:hono --external:@trpc/server --external:drizzle-orm --external:dotenv --external:@kinde-oss/kinde-typescript-sdk --external:cookie --external:@hono/node-server",
+    "vercel-build": "vite build && npm run build:api",
+    "build:api": "esbuild api/app.ts --platform=node --bundle --format=esm --outfile=api/index.js --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\" --external:hono --external:@trpc/server --external:drizzle-orm --external:dotenv --external:@kinde-oss/kinde-typescript-sdk --external:cookie --external:@hono/node-server --external:pg --external:pdf-lib",
     "build:local": "vite build && esbuild api/boot.ts --platform=node --bundle --format=esm --outdir=dist --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\" --external:@hono/node-server",
     "lint": "eslint .",
     "preview": "vite preview",
