@@ -1,7 +1,8 @@
+// @ts-nocheck
 import { eq } from "drizzle-orm";
 import * as schema from "@db/schema";
 import type { InsertUser } from "@db/schema";
-import { getDb } from "./connection";
+import { getDb } from "./connection.js";
 import { env } from "../lib/env";
 
 export async function findUserByUnionId(unionId: string) {

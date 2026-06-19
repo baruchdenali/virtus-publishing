@@ -22,8 +22,12 @@ import SocialMediaAgent from './pages/SocialMediaAgent'
 import MarketingAgent from './pages/MarketingAgent'
 import SalesDashboard from './pages/SalesDashboard'
 import OperationsDashboard from './pages/OperationsDashboard'
+import KnowledgeBase from './pages/KnowledgeBase'
+import KBArticle from './pages/KBArticle'
+import AdGPTDashboard from './pages/AdGPTDashboard'
 import NotFound from './pages/NotFound'
 import AppShell from './components/AppShell'
+import ErrorBoundary from './components/ErrorBoundary'
 
 export default function App() {
   return (
@@ -52,6 +56,9 @@ export default function App() {
         <Route path="/admin/marketing-agent" element={<MarketingAgent />} />
         <Route path="/admin/sales" element={<SalesDashboard />} />
         <Route path="/admin/operations" element={<OperationsDashboard />} />
+        <Route path="/admin/adgpt" element={<AdGPTDashboard />} />
+        <Route path="/kb" element={<KnowledgeBase />} />
+        <Route path="/kb/:slug" element={<KBArticle />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

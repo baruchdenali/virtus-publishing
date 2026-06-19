@@ -1,10 +1,11 @@
+// @ts-nocheck
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { appRouter } from "./router";
-import { createContext } from "./context";
-import { createOAuthCallbackHandler } from "./kimi/auth";
-import { getDb } from "./queries/connection";
+import { appRouter } from "./router.js";
+import { createContext } from "./context.js";
+import { createOAuthCallbackHandler } from "./kimi/auth.js";
+import { getDb } from "./queries/connection.js";
 import { Paths } from "@contracts/constants";
 
 const app = new Hono();

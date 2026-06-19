@@ -54,6 +54,24 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Storefront Banner — Upper Third */}
+      <section>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="rounded-2xl overflow-hidden border border-[rgba(200,165,92,0.12)] shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+        >
+          <img
+            src="/images/virtus-storefront.jpg"
+            alt="Virtus Publishing & Bookstore Group — Virtus Academy & Consulting"
+            className="w-full h-auto object-cover"
+            style={{ maxHeight: '420px' }}
+          />
+        </motion.div>
+      </section>
+
       {/* Stats Section */}
       <section>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

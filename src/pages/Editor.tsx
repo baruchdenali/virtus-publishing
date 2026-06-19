@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router'
 import { motion } from 'framer-motion'
 import { trpc } from '@/providers/trpc'
 import { useAuth } from '@/hooks/useAuth'
+import { useSubscription } from '@/hooks/useSubscription'
+import SubscribePrompt from '@/components/SubscribePrompt'
 import {
   Sparkles, Send, Save, Eye, ArrowLeft, Bold, Italic, Heading,
   List, ListOrdered, Link, Image, BookOpen, Loader2,
@@ -13,24 +15,24 @@ export default function Editor() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
+  const { hasActiveSubscription, isLoading: subLoading } = useSubscription()
   const ebookId = Number(id)
   const [content, setContent] = useState('')
   const [aiPrompt, setAiPrompt] = useState('')
   const [showPreview, setShowPreview] = useState(false)
   const [showAiPanel, setShowAiPanel] = useState(true)
   const [localTitle, setLocalTitle] = useState('')
+  const [activeConversationId, setActiveConversationId] = useState<number | null>(null)
   const aiMessagesEndRef = useRef<HTMLDivElement>(null)
 
   const { data: ebook, isLoading } = trpc.ebook.getById.useQuery(
     { id: ebookId },
-    { enabled: isAuthenticated && !!ebookId }
+    { enabled: isAuthenticated && !!ebookId && hasActiveSubscription }
   )
-
-  const [activeConversationId, setActiveConversationId] = useState<number | null>(null)
 
   const { data: messages } = trpc.ai.listMessages.useQuery(
     { conversationId: activeConversationId ?? 0 },
-    { enabled: !!activeConversationId }
+    { enabled: !!activeConversationId && hasActiveSubscription }
   )
 
   const utils = trpc.useUtils()
@@ -128,6 +130,19 @@ export default function Editor() {
         <button onClick={() => navigate('/dashboard')} className="btn-gold text-[13px]">Back to Dashboard</button>
       </div>
     )
+  }
+
+  // Subscription gate (all hooks already called above)
+  if (subLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 text-[#C8A55C] animate-spin" />
+      </div>
+    )
+  }
+
+  if (!hasActiveSubscription) {
+    return <SubscribePrompt title="Editor Access Requires a Plan" description="Subscribe to edit and publish your eBooks with AI assistance." />
   }
 
   return (

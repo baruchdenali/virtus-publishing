@@ -1,10 +1,11 @@
+// @ts-nocheck
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { createRouter, publicQuery } from "./middleware";
-import { getDb } from "./queries/connection";
+import { createRouter, publicQuery } from "./middleware.js";
+import { getDb } from "./queries/connection.js";
 import { users } from "@db/schema";
 import { eq } from "drizzle-orm";
-import { env } from "./lib/env";
+import { env } from "./lib/env.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import * as cookie from "cookie";

@@ -3,9 +3,10 @@ import { Link, useNavigate } from 'react-router'
 import { motion } from 'framer-motion'
 import { trpc } from '@/providers/trpc'
 import { useAuth } from '@/hooks/useAuth'
+import { useSubscription } from '@/hooks/useSubscription'
 import {
   BookOpen, TrendingUp, Download, DollarSign, Plus, FileText,
-  Sparkles, Clock, Globe, ChevronRight, BarChart3, Star
+  Sparkles, Clock, Globe, ChevronRight, BarChart3, Star, Lock
 } from 'lucide-react'
 
 const fadeInUp = {
@@ -23,6 +24,7 @@ const statusColors: Record<string, { dot: string; bg: string; text: string }> = 
 export default function Dashboard() {
   const navigate = useNavigate()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const { hasActiveSubscription } = useSubscription()
   const [activeTab, setActiveTab] = useState<'all' | 'draft' | 'in_progress' | 'published'>('all')
 
   const { data: stats } = trpc.user.stats.useQuery(undefined, { enabled: isAuthenticated })
@@ -64,10 +66,17 @@ export default function Dashboard() {
           <h1 className="text-[32px] font-semibold tracking-[-0.01em]">Dashboard</h1>
           <p className="text-[14px] text-[#9B9589] mt-1">Manage your eBooks and track performance</p>
         </div>
-        <Link to="/create" className="inline-flex items-center gap-2 btn-gold text-[13px] self-start">
-          <Plus className="w-4 h-4" />
-          Create New eBook
-        </Link>
+        {hasActiveSubscription ? (
+          <Link to="/create" className="inline-flex items-center gap-2 btn-gold text-[13px] self-start">
+            <Plus className="w-4 h-4" />
+            Create New eBook
+          </Link>
+        ) : (
+          <Link to="/pricing" className="inline-flex items-center gap-2 btn-gold text-[13px] self-start">
+            <Lock className="w-4 h-4" />
+            Subscribe to Publish
+          </Link>
+        )}
       </div>
 
       {/* Stats Row */}
@@ -142,10 +151,17 @@ export default function Dashboard() {
           <FileText className="w-12 h-12 text-[#9B9589] mx-auto mb-4" />
           <h3 className="text-[18px] font-semibold mb-2">No eBooks yet</h3>
           <p className="text-[14px] text-[#9B9589] mb-6">Start your publishing journey by creating your first eBook.</p>
-          <Link to="/create" className="inline-flex items-center gap-2 btn-gold text-[13px]">
-            <Sparkles className="w-4 h-4" />
-            Create eBook
-          </Link>
+          {hasActiveSubscription ? (
+            <Link to="/create" className="inline-flex items-center gap-2 btn-gold text-[13px]">
+              <Sparkles className="w-4 h-4" />
+              Create eBook
+            </Link>
+          ) : (
+            <Link to="/pricing" className="inline-flex items-center gap-2 btn-gold text-[13px]">
+              <Lock className="w-4 h-4" />
+              Subscribe to Publish
+            </Link>
+          )}
         </motion.div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

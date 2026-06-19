@@ -18,11 +18,11 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from, except, desc9) => {
+var __copyProps = (to, from, except, desc14) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc9 = __getOwnPropDesc(from, key)) || desc9.enumerable });
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc14 = __getOwnPropDesc(from, key)) || desc14.enumerable });
   }
   return to;
 };
@@ -1188,7 +1188,7 @@ var require_utils2 = __commonJS({
     var nodeCrypto2 = __require("crypto");
     module.exports = {
       postgresMd5PasswordHash,
-      randomBytes: randomBytes2,
+      randomBytes: randomBytes3,
       deriveKey,
       sha256,
       hashByName,
@@ -1198,7 +1198,7 @@ var require_utils2 = __commonJS({
     var webCrypto = nodeCrypto2.webcrypto || globalThis.crypto;
     var subtleCrypto = webCrypto.subtle;
     var textEncoder = new TextEncoder();
-    function randomBytes2(length) {
+    function randomBytes3(length) {
       return webCrypto.getRandomValues(Buffer.alloc(length));
     }
     async function md5(string4) {
@@ -1968,12 +1968,12 @@ var require_result = __commonJS({
         }
         const row = /* @__PURE__ */ Object.create(null);
         for (let i = 0; i < fieldDescriptions.length; i++) {
-          const desc9 = fieldDescriptions[i];
-          row[desc9.name] = null;
+          const desc14 = fieldDescriptions[i];
+          row[desc14.name] = null;
           if (this._types) {
-            this._parsers[i] = this._types.getTypeParser(desc9.dataTypeID, desc9.format || "text");
+            this._parsers[i] = this._types.getTypeParser(desc14.dataTypeID, desc14.format || "text");
           } else {
-            this._parsers[i] = types2.getTypeParser(desc9.dataTypeID, desc9.format || "text");
+            this._parsers[i] = types2.getTypeParser(desc14.dataTypeID, desc14.format || "text");
           }
         }
         this._prebuiltEmptyResultObject = { ...row };
@@ -6805,8 +6805,8 @@ var require_eq = __commonJS({
   "node_modules/jsonwebtoken/node_modules/semver/functions/eq.js"(exports, module) {
     "use strict";
     var compare2 = require_compare();
-    var eq13 = (a, b, loose) => compare2(a, b, loose) === 0;
-    module.exports = eq13;
+    var eq19 = (a, b, loose) => compare2(a, b, loose) === 0;
+    module.exports = eq19;
   }
 });
 
@@ -6825,8 +6825,8 @@ var require_gte = __commonJS({
   "node_modules/jsonwebtoken/node_modules/semver/functions/gte.js"(exports, module) {
     "use strict";
     var compare2 = require_compare();
-    var gte2 = (a, b, loose) => compare2(a, b, loose) >= 0;
-    module.exports = gte2;
+    var gte3 = (a, b, loose) => compare2(a, b, loose) >= 0;
+    module.exports = gte3;
   }
 });
 
@@ -6844,10 +6844,10 @@ var require_lte = __commonJS({
 var require_cmp = __commonJS({
   "node_modules/jsonwebtoken/node_modules/semver/functions/cmp.js"(exports, module) {
     "use strict";
-    var eq13 = require_eq();
+    var eq19 = require_eq();
     var neq = require_neq();
     var gt = require_gt();
-    var gte2 = require_gte();
+    var gte3 = require_gte();
     var lt = require_lt();
     var lte = require_lte();
     var cmp = (a, op, b, loose) => {
@@ -6871,13 +6871,13 @@ var require_cmp = __commonJS({
         case "":
         case "=":
         case "==":
-          return eq13(a, b, loose);
+          return eq19(a, b, loose);
         case "!=":
           return neq(a, b, loose);
         case ">":
           return gt(a, b, loose);
         case ">=":
-          return gte2(a, b, loose);
+          return gte3(a, b, loose);
         case "<":
           return lt(a, b, loose);
         case "<=":
@@ -7680,7 +7680,7 @@ var require_outside = __commonJS({
     var gt = require_gt();
     var lt = require_lt();
     var lte = require_lte();
-    var gte2 = require_gte();
+    var gte3 = require_gte();
     var outside = (version2, range, hilo, options) => {
       version2 = new SemVer(version2, options);
       range = new Range(range, options);
@@ -7695,7 +7695,7 @@ var require_outside = __commonJS({
           break;
         case "<":
           gtfn = lt;
-          ltefn = gte2;
+          ltefn = gte3;
           ltfn = gt;
           comp = "<";
           ecomp = "<=";
@@ -7896,15 +7896,15 @@ var require_subset = __commonJS({
           return null;
         }
       }
-      for (const eq13 of eqSet) {
-        if (gt && !satisfies(eq13, String(gt), options)) {
+      for (const eq19 of eqSet) {
+        if (gt && !satisfies(eq19, String(gt), options)) {
           return null;
         }
-        if (lt && !satisfies(eq13, String(lt), options)) {
+        if (lt && !satisfies(eq19, String(lt), options)) {
           return null;
         }
         for (const c of dom) {
-          if (!satisfies(eq13, String(c), options)) {
+          if (!satisfies(eq19, String(c), options)) {
             return false;
           }
         }
@@ -8008,9 +8008,9 @@ var require_semver2 = __commonJS({
     var rsort = require_rsort();
     var gt = require_gt();
     var lt = require_lt();
-    var eq13 = require_eq();
+    var eq19 = require_eq();
     var neq = require_neq();
-    var gte2 = require_gte();
+    var gte3 = require_gte();
     var lte = require_lte();
     var cmp = require_cmp();
     var coerce = require_coerce();
@@ -8047,9 +8047,9 @@ var require_semver2 = __commonJS({
       rsort,
       gt,
       lt,
-      eq: eq13,
+      eq: eq19,
       neq,
-      gte: gte2,
+      gte: gte3,
       lte,
       cmp,
       coerce,
@@ -9872,7 +9872,343 @@ var registerCustom = SuperJSON.registerCustom;
 var registerSymbol = SuperJSON.registerSymbol;
 var allowErrorProps = SuperJSON.allowErrorProps;
 
+// api/queries/connection.ts
+import { drizzle } from "drizzle-orm/node-postgres";
+
+// node_modules/pg/esm/index.mjs
+var import_lib = __toESM(require_lib2(), 1);
+var Client = import_lib.default.Client;
+var Pool = import_lib.default.Pool;
+var Connection = import_lib.default.Connection;
+var types = import_lib.default.types;
+var Query = import_lib.default.Query;
+var DatabaseError = import_lib.default.DatabaseError;
+var escapeIdentifier = import_lib.default.escapeIdentifier;
+var escapeLiteral = import_lib.default.escapeLiteral;
+var Result = import_lib.default.Result;
+var TypeOverrides = import_lib.default.TypeOverrides;
+var defaults = import_lib.default.defaults;
+
+// db/schema.ts
+var schema_exports = {};
+__export(schema_exports, {
+  activityLog: () => activityLog,
+  aiConversations: () => aiConversations,
+  aiMessages: () => aiMessages,
+  blogPosts: () => blogPosts,
+  campaignStatusEnum: () => campaignStatusEnum,
+  campaigns: () => campaigns,
+  categoryEnum: () => categoryEnum,
+  ebooks: () => ebooks,
+  messageRoleEnum: () => messageRoleEnum,
+  podcasts: () => podcasts,
+  purchaseStatusEnum: () => purchaseStatusEnum,
+  purchases: () => purchases,
+  reviews: () => reviews,
+  roleEnum: () => roleEnum,
+  salesLeads: () => salesLeads,
+  services: () => services,
+  statusEnum: () => statusEnum,
+  subscriptionStatusEnum: () => subscriptionStatusEnum,
+  subscriptionTierEnum: () => subscriptionTierEnum,
+  subscriptions: () => subscriptions,
+  users: () => users,
+  virtusAiCampaigns: () => virtusAiCampaigns,
+  virtusClientLedgers: () => virtusClientLedgers,
+  virtusStaffIntegrations: () => virtusStaffIntegrations,
+  visibilityEnum: () => visibilityEnum
+});
+import {
+  pgTable,
+  pgEnum,
+  serial,
+  varchar,
+  text,
+  timestamp,
+  decimal,
+  integer,
+  jsonb,
+  uuid,
+  boolean
+} from "drizzle-orm/pg-core";
+var roleEnum = pgEnum("role", ["user", "author", "sales", "operations", "admin"]);
+var subscriptionTierEnum = pgEnum("subscription_tier", ["creator", "professional", "publisher", "enterprise"]);
+var subscriptionStatusEnum = pgEnum("subscription_status", ["active", "cancelled", "expired", "trial"]);
+var campaignStatusEnum = pgEnum("campaign_status", ["draft", "scheduled", "running", "paused", "completed"]);
+var categoryEnum = pgEnum("category", [
+  "fiction",
+  "non-fiction",
+  "business",
+  "technology",
+  "self-help",
+  "academic",
+  "other"
+]);
+var statusEnum = pgEnum("status", ["draft", "in_progress", "published", "archived"]);
+var visibilityEnum = pgEnum("visibility", ["public", "private"]);
+var purchaseStatusEnum = pgEnum("purchase_status", [
+  "pending",
+  "completed",
+  "failed",
+  "refunded"
+]);
+var messageRoleEnum = pgEnum("message_role", ["user", "assistant", "system"]);
+var users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  unionId: varchar("unionId", { length: 255 }).notNull().unique(),
+  name: varchar("name", { length: 255 }),
+  email: varchar("email", { length: 320 }),
+  passwordHash: varchar("passwordHash", { length: 255 }),
+  avatar: text("avatar"),
+  bio: text("bio"),
+  website: varchar("website", { length: 255 }),
+  role: roleEnum("role").default("user").notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date()),
+  lastSignInAt: timestamp("lastSignInAt", { mode: "date" }).defaultNow().notNull()
+});
+var ebooks = pgTable("ebooks", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  authorName: varchar("authorName", { length: 255 }),
+  description: text("description"),
+  category: categoryEnum("category").default("other"),
+  status: statusEnum("status").default("draft"),
+  visibility: visibilityEnum("visibility").default("private"),
+  content: text("content"),
+  coverImageUrl: text("coverImageUrl"),
+  price: decimal("price", { precision: 10, scale: 2 }).default("0.00"),
+  currency: varchar("currency", { length: 3 }).default("USD"),
+  isFree: boolean("isFree").default(false),
+  isbn: varchar("isbn", { length: 20 }),
+  language: varchar("language", { length: 10 }).default("en"),
+  pageCount: integer("pageCount"),
+  tags: jsonb("tags").$type(),
+  publishedAt: timestamp("publishedAt", { mode: "date" }),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
+});
+var purchases = pgTable("purchases", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId"),
+  ebookId: integer("ebookId").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("USD"),
+  status: purchaseStatusEnum("status").default("pending"),
+  paymentMethod: varchar("paymentMethod", { length: 50 }),
+  transactionId: varchar("transactionId", { length: 255 }),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
+});
+var reviews = pgTable("reviews", {
+  id: serial("id").primaryKey(),
+  ebookId: integer("ebookId").notNull(),
+  userId: integer("userId").notNull(),
+  rating: integer("rating").notNull(),
+  comment: text("comment"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
+});
+var aiConversations = pgTable("ai_conversations", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull(),
+  ebookId: integer("ebookId"),
+  title: varchar("title", { length: 255 }),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
+});
+var aiMessages = pgTable("ai_messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversationId").notNull(),
+  role: messageRoleEnum("role").notNull(),
+  content: text("content").notNull(),
+  model: varchar("model", { length: 50 }),
+  tokensUsed: integer("tokensUsed"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
+});
+var activityLog = pgTable("activity_log", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull(),
+  action: varchar("action", { length: 50 }).notNull(),
+  resourceType: varchar("resourceType", { length: 50 }),
+  resourceId: integer("resourceId"),
+  metadata: jsonb("metadata"),
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
+});
+var blogPosts = pgTable("blog_posts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  excerpt: text("excerpt"),
+  content: text("content").notNull(),
+  author: varchar("author", { length: 255 }).default("Virtus Editorial"),
+  category: varchar("category", { length: 50 }).default("General"),
+  image: text("image"),
+  published: boolean("published").default(false),
+  featured: boolean("featured").default(false),
+  readTime: varchar("readTime", { length: 20 }).default("5 min read"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
+});
+var podcasts = pgTable("podcasts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  guest: varchar("guest", { length: 255 }),
+  guestTitle: varchar("guestTitle", { length: 255 }),
+  embedUrl: text("embedUrl"),
+  audioUrl: text("audioUrl"),
+  duration: varchar("duration", { length: 20 }).default("30 min"),
+  episodeNumber: integer("episodeNumber"),
+  date: varchar("date", { length: 50 }),
+  plays: integer("plays").default(0),
+  featured: boolean("featured").default(false),
+  published: boolean("published").default(false),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
+});
+var subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull(),
+  tier: subscriptionTierEnum("tier").notNull().default("creator"),
+  status: subscriptionStatusEnum("status").notNull().default("trial"),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }),
+  currentPeriodStart: timestamp("currentPeriodStart", { mode: "date" }),
+  currentPeriodEnd: timestamp("currentPeriodEnd", { mode: "date" }),
+  cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").default(false),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull()
+});
+var services = pgTable("services", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull(),
+  serviceType: varchar("serviceType", { length: 50 }).notNull(),
+  ebookId: integer("ebookId"),
+  quantity: integer("quantity").default(1),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  status: varchar("status", { length: 20 }).default("completed"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
+});
+var campaigns = pgTable("campaigns", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  channel: varchar("channel", { length: 50 }).notNull(),
+  status: campaignStatusEnum("status").notNull().default("draft"),
+  content: text("content"),
+  scheduledAt: timestamp("scheduledAt", { mode: "date" }),
+  publishedAt: timestamp("publishedAt", { mode: "date" }),
+  metrics: jsonb("metrics"),
+  engagement: integer("engagement").default(0),
+  reach: integer("reach").default(0),
+  conversions: integer("conversions").default(0),
+  confidenceScore: decimal("confidenceScore", { precision: 5, scale: 2 }).default("0"),
+  createdBy: integer("createdBy"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull()
+});
+var salesLeads = pgTable("sales_leads", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  company: varchar("company", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  source: varchar("source", { length: 50 }).default("website"),
+  tier: subscriptionTierEnum("tier"),
+  notes: text("notes"),
+  assignedTo: integer("assignedTo"),
+  status: varchar("status", { length: 20 }).default("new"),
+  value: decimal("value", { precision: 10, scale: 2 }).default("0"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull()
+});
+var virtusAiCampaigns = pgTable("virtus_ai_campaigns", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  associatedUrl: text("associated_url").notNull(),
+  generatedAt: timestamp("generated_at", { mode: "date" }).defaultNow().notNull(),
+  bookTitle: text("book_title").notNull(),
+  bookAuthor: text("book_author"),
+  bookCoverUrl: text("book_cover_url"),
+  encryptedPayload: text("encrypted_payload").notNull(),
+  iv: varchar("iv", { length: 64 }).notNull(),
+  authTag: varchar("auth_tag", { length: 64 }).notNull(),
+  createdBy: integer("created_by").notNull(),
+  campaignStatus: varchar("campaign_status", { length: 32 }).default("draft").notNull()
+});
+var virtusClientLedgers = pgTable("virtus_client_ledgers", {
+  clientId: varchar("client_id", { length: 64 }).primaryKey(),
+  marketingCredits: integer("marketing_credits").default(0).notNull(),
+  subscriptionTier: varchar("subscription_tier", { length: 32 }).default("creator").notNull(),
+  lastDebitTimestamp: timestamp("last_debit_timestamp", { mode: "date" })
+});
+var virtusStaffIntegrations = pgTable("virtus_staff_integrations", {
+  staffId: varchar("staff_id", { length: 64 }).primaryKey(),
+  platform: varchar("platform", { length: 32 }).notNull(),
+  linkedAt: timestamp("linked_at", { mode: "date" }).defaultNow().notNull(),
+  encryptedCredentials: text("encrypted_credentials").notNull(),
+  iv: varchar("iv", { length: 64 }).notNull(),
+  authTag: varchar("auth_tag", { length: 64 }).notNull()
+});
+
+// db/relations.ts
+var relations_exports = {};
+__export(relations_exports, {
+  activityLogRelations: () => activityLogRelations,
+  aiConversationsRelations: () => aiConversationsRelations,
+  aiMessagesRelations: () => aiMessagesRelations,
+  ebooksRelations: () => ebooksRelations,
+  purchasesRelations: () => purchasesRelations,
+  reviewsRelations: () => reviewsRelations,
+  usersRelations: () => usersRelations
+});
+import { relations } from "drizzle-orm";
+var usersRelations = relations(users, ({ many }) => ({
+  ebooks: many(ebooks),
+  purchases: many(purchases),
+  reviews: many(reviews),
+  aiConversations: many(aiConversations)
+}));
+var ebooksRelations = relations(ebooks, ({ one, many }) => ({
+  user: one(users, { fields: [ebooks.userId], references: [users.id] }),
+  purchases: many(purchases),
+  reviews: many(reviews)
+}));
+var purchasesRelations = relations(purchases, ({ one }) => ({
+  user: one(users, { fields: [purchases.userId], references: [users.id] }),
+  ebook: one(ebooks, { fields: [purchases.ebookId], references: [ebooks.id] })
+}));
+var reviewsRelations = relations(reviews, ({ one }) => ({
+  user: one(users, { fields: [reviews.userId], references: [users.id] }),
+  ebook: one(ebooks, { fields: [reviews.ebookId], references: [ebooks.id] })
+}));
+var aiConversationsRelations = relations(aiConversations, ({ one, many }) => ({
+  user: one(users, { fields: [aiConversations.userId], references: [users.id] }),
+  ebook: one(ebooks, { fields: [aiConversations.ebookId], references: [ebooks.id] }),
+  messages: many(aiMessages)
+}));
+var aiMessagesRelations = relations(aiMessages, ({ one }) => ({
+  conversation: one(aiConversations, { fields: [aiMessages.conversationId], references: [aiConversations.id] })
+}));
+var activityLogRelations = relations(activityLog, ({ one }) => ({
+  user: one(users, { fields: [activityLog.userId], references: [users.id] })
+}));
+
+// api/queries/connection.ts
+var fullSchema = { ...schema_exports, ...relations_exports };
+var FALLBACK_DATABASE_URL = "postgresql://neondb_owner:npg_Kbag4d6qjZsk@ep-damp-fog-apq27viw-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require";
+var instance;
+function getDb() {
+  if (!instance) {
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL || FALLBACK_DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    });
+    instance = drizzle(pool, { schema: fullSchema });
+  }
+  return instance;
+}
+
 // api/middleware.ts
+import { eq } from "drizzle-orm";
 var t = initTRPC.context().create({
   transformer: dist_default
 });
@@ -9902,6 +10238,41 @@ function requireRole(role) {
 }
 var authedQuery = t.procedure.use(requireAuth);
 var adminQuery = authedQuery.use(requireRole("admin"));
+var requireOperations = t.middleware(async (opts) => {
+  const { ctx, next } = opts;
+  if (!ctx.user || ctx.user.role !== "admin" && ctx.user.role !== "operations") {
+    throw new TRPCError({ code: "FORBIDDEN", message: ErrorMessages.insufficientRole });
+  }
+  return next({ ctx: { ...ctx, user: ctx.user } });
+});
+var operationsQuery = authedQuery.use(requireOperations);
+var requireSales = t.middleware(async (opts) => {
+  const { ctx, next } = opts;
+  if (!ctx.user || ctx.user.role !== "admin" && ctx.user.role !== "operations" && ctx.user.role !== "sales") {
+    throw new TRPCError({ code: "FORBIDDEN", message: ErrorMessages.insufficientRole });
+  }
+  return next({ ctx: { ...ctx, user: ctx.user } });
+});
+var salesQuery = authedQuery.use(requireSales);
+var requireSubscription = t.middleware(async (opts) => {
+  const { ctx, next } = opts;
+  if (!ctx.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: ErrorMessages.unauthenticated });
+  }
+  if (ctx.user.role === "admin" || ctx.user.role === "operations") {
+    return next({ ctx: { ...ctx, user: ctx.user } });
+  }
+  const db = getDb();
+  const sub = await db.select().from(subscriptions).where(eq(subscriptions.userId, ctx.user.id)).limit(1);
+  if (!sub[0] || sub[0].status !== "active" && sub[0].status !== "trial") {
+    throw new TRPCError({ code: "FORBIDDEN", message: "subscription_required" });
+  }
+  if (sub[0].currentPeriodEnd && new Date(sub[0].currentPeriodEnd) < /* @__PURE__ */ new Date()) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "subscription_expired" });
+  }
+  return next({ ctx: { ...ctx, user: ctx.user } });
+});
+var subscribedQuery = authedQuery.use(requireSubscription);
 
 // api/auth-router.ts
 var authRouter = createRouter({
@@ -10014,7 +10385,7 @@ __export(external_exports, {
   base64: () => base642,
   base64url: () => base64url2,
   bigint: () => bigint2,
-  boolean: () => boolean2,
+  boolean: () => boolean3,
   catch: () => _catch2,
   check: () => check,
   cidrv4: () => cidrv42,
@@ -10154,7 +10525,7 @@ __export(external_exports, {
   uppercase: () => _uppercase,
   url: () => url,
   util: () => util_exports,
-  uuid: () => uuid2,
+  uuid: () => uuid3,
   uuidv4: () => uuidv4,
   uuidv6: () => uuidv6,
   uuidv7: () => uuidv7,
@@ -11425,7 +11796,7 @@ __export(regexes_exports, {
   base64: () => base64,
   base64url: () => base64url,
   bigint: () => bigint,
-  boolean: () => boolean,
+  boolean: () => boolean2,
   browserEmail: () => browserEmail,
   cidrv4: () => cidrv4,
   cidrv6: () => cidrv6,
@@ -11444,7 +11815,7 @@ __export(regexes_exports, {
   hostname: () => hostname,
   html5Email: () => html5Email,
   idnEmail: () => idnEmail,
-  integer: () => integer,
+  integer: () => integer2,
   ipv4: () => ipv4,
   ipv6: () => ipv6,
   ksuid: () => ksuid,
@@ -11475,7 +11846,7 @@ __export(regexes_exports, {
   undefined: () => _undefined,
   unicodeEmail: () => unicodeEmail,
   uppercase: () => uppercase,
-  uuid: () => uuid,
+  uuid: () => uuid2,
   uuid4: () => uuid4,
   uuid6: () => uuid6,
   uuid7: () => uuid7,
@@ -11490,14 +11861,14 @@ var nanoid = /^[a-zA-Z0-9_-]{21}$/;
 var duration = /^P(?:(\d+W)|(?!.*W)(?=\d|T\d)(\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+([.,]\d+)?S)?)?)$/;
 var extendedDuration = /^[-+]?P(?!$)(?:(?:[-+]?\d+Y)|(?:[-+]?\d+[.,]\d+Y$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:(?:[-+]?\d+W)|(?:[-+]?\d+[.,]\d+W$))?(?:(?:[-+]?\d+D)|(?:[-+]?\d+[.,]\d+D$))?(?:T(?=[\d+-])(?:(?:[-+]?\d+H)|(?:[-+]?\d+[.,]\d+H$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/;
 var guid = /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/;
-var uuid = (version2) => {
+var uuid2 = (version2) => {
   if (!version2)
     return /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/;
   return new RegExp(`^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-${version2}[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`);
 };
-var uuid4 = /* @__PURE__ */ uuid(4);
-var uuid6 = /* @__PURE__ */ uuid(6);
-var uuid7 = /* @__PURE__ */ uuid(7);
+var uuid4 = /* @__PURE__ */ uuid2(4);
+var uuid6 = /* @__PURE__ */ uuid2(6);
+var uuid7 = /* @__PURE__ */ uuid2(7);
 var email = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/;
 var html5Email = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 var rfc5322Email = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -11546,9 +11917,9 @@ var string = (params) => {
   return new RegExp(`^${regex}$`);
 };
 var bigint = /^-?\d+n?$/;
-var integer = /^-?\d+$/;
+var integer2 = /^-?\d+$/;
 var number = /^-?\d+(?:\.\d+)?$/;
-var boolean = /^(?:true|false)$/i;
+var boolean2 = /^(?:true|false)$/i;
 var _null = /^null$/i;
 var _undefined = /^undefined$/i;
 var lowercase = /^[^A-Z]*$/;
@@ -11678,7 +12049,7 @@ var $ZodCheckNumberFormat = /* @__PURE__ */ $constructor("$ZodCheckNumberFormat"
     bag.minimum = minimum;
     bag.maximum = maximum;
     if (isInt)
-      bag.pattern = integer;
+      bag.pattern = integer2;
   });
   inst._zod.check = (payload) => {
     const input = payload.value;
@@ -12320,9 +12691,9 @@ var $ZodUUID = /* @__PURE__ */ $constructor("$ZodUUID", (inst, def) => {
     const v = versionMap[def.version];
     if (v === void 0)
       throw new Error(`Invalid UUID version: "${def.version}"`);
-    def.pattern ?? (def.pattern = uuid(v));
+    def.pattern ?? (def.pattern = uuid2(v));
   } else
-    def.pattern ?? (def.pattern = uuid());
+    def.pattern ?? (def.pattern = uuid2());
   $ZodStringFormat.init(inst, def);
 });
 var $ZodEmail = /* @__PURE__ */ $constructor("$ZodEmail", (inst, def) => {
@@ -12617,7 +12988,7 @@ var $ZodNumberFormat = /* @__PURE__ */ $constructor("$ZodNumberFormat", (inst, d
 });
 var $ZodBoolean = /* @__PURE__ */ $constructor("$ZodBoolean", (inst, def) => {
   $ZodType.init(inst, def);
-  inst._zod.pattern = boolean;
+  inst._zod.pattern = boolean2;
   inst._zod.parse = (payload, _ctx) => {
     if (def.coerce)
       try {
@@ -12876,8 +13247,8 @@ function handleCatchall(proms, input, payload, ctx, def, inst) {
 }
 var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
   $ZodType.init(inst, def);
-  const desc9 = Object.getOwnPropertyDescriptor(def, "shape");
-  if (!desc9?.get) {
+  const desc14 = Object.getOwnPropertyDescriptor(def, "shape");
+  if (!desc14?.get) {
     const sh = def.shape;
     Object.defineProperty(def, "shape", {
       get: () => {
@@ -21864,7 +22235,7 @@ __export(schemas_exports2, {
   base64: () => base642,
   base64url: () => base64url2,
   bigint: () => bigint2,
-  boolean: () => boolean2,
+  boolean: () => boolean3,
   catch: () => _catch2,
   check: () => check,
   cidrv4: () => cidrv42,
@@ -21945,7 +22316,7 @@ __export(schemas_exports2, {
   union: () => union,
   unknown: () => unknown,
   url: () => url,
-  uuid: () => uuid2,
+  uuid: () => uuid3,
   uuidv4: () => uuidv4,
   uuidv6: () => uuidv6,
   uuidv7: () => uuidv7,
@@ -22247,7 +22618,7 @@ var ZodUUID = /* @__PURE__ */ $constructor("ZodUUID", (inst, def) => {
   $ZodUUID.init(inst, def);
   ZodStringFormat.init(inst, def);
 });
-function uuid2(params) {
+function uuid3(params) {
   return _uuid(ZodUUID, params);
 }
 function uuidv4(params) {
@@ -22459,7 +22830,7 @@ var ZodBoolean = /* @__PURE__ */ $constructor("ZodBoolean", (inst, def) => {
   ZodType.init(inst, def);
   inst._zod.processJSONSchema = (ctx, json2, params) => booleanProcessor(inst, ctx, json2, params);
 });
-function boolean2(params) {
+function boolean3(params) {
   return _boolean(ZodBoolean, params);
 }
 var ZodBigInt = /* @__PURE__ */ $constructor("ZodBigInt", (inst, def) => {
@@ -23154,7 +23525,7 @@ var stringbool = (...args) => _stringbool({
 }, ...args);
 function json(params) {
   const jsonSchema = lazy(() => {
-    return union([string2(params), number2(), boolean2(), _null3(), array(jsonSchema), record(string2(), jsonSchema)]);
+    return union([string2(params), number2(), boolean3(), _null3(), array(jsonSchema), record(string2(), jsonSchema)]);
   });
   return jsonSchema;
 }
@@ -23666,7 +24037,7 @@ function fromJSONSchema(schema, params) {
 var coerce_exports = {};
 __export(coerce_exports, {
   bigint: () => bigint3,
-  boolean: () => boolean3,
+  boolean: () => boolean4,
   date: () => date4,
   number: () => number3,
   string: () => string3
@@ -23677,7 +24048,7 @@ function string3(params) {
 function number3(params) {
   return _coercedNumber(ZodNumber, params);
 }
-function boolean3(params) {
+function boolean4(params) {
   return _coercedBoolean(ZodBoolean, params);
 }
 function bigint3(params) {
@@ -23692,313 +24063,7 @@ config(en_default());
 
 // api/local-auth-router.ts
 import { TRPCError as TRPCError2 } from "@trpc/server";
-
-// api/queries/connection.ts
-import { drizzle } from "drizzle-orm/node-postgres";
-
-// node_modules/pg/esm/index.mjs
-var import_lib = __toESM(require_lib2(), 1);
-var Client = import_lib.default.Client;
-var Pool = import_lib.default.Pool;
-var Connection = import_lib.default.Connection;
-var types = import_lib.default.types;
-var Query = import_lib.default.Query;
-var DatabaseError = import_lib.default.DatabaseError;
-var escapeIdentifier = import_lib.default.escapeIdentifier;
-var escapeLiteral = import_lib.default.escapeLiteral;
-var Result = import_lib.default.Result;
-var TypeOverrides = import_lib.default.TypeOverrides;
-var defaults = import_lib.default.defaults;
-
-// db/schema.ts
-var schema_exports = {};
-__export(schema_exports, {
-  activityLog: () => activityLog,
-  aiConversations: () => aiConversations,
-  aiMessages: () => aiMessages,
-  blogPosts: () => blogPosts,
-  campaignStatusEnum: () => campaignStatusEnum,
-  campaigns: () => campaigns,
-  categoryEnum: () => categoryEnum,
-  ebooks: () => ebooks,
-  messageRoleEnum: () => messageRoleEnum,
-  podcasts: () => podcasts,
-  purchaseStatusEnum: () => purchaseStatusEnum,
-  purchases: () => purchases,
-  reviews: () => reviews,
-  roleEnum: () => roleEnum,
-  salesLeads: () => salesLeads,
-  services: () => services,
-  statusEnum: () => statusEnum,
-  subscriptionStatusEnum: () => subscriptionStatusEnum,
-  subscriptionTierEnum: () => subscriptionTierEnum,
-  subscriptions: () => subscriptions,
-  users: () => users,
-  visibilityEnum: () => visibilityEnum
-});
-import {
-  pgTable,
-  pgEnum,
-  serial,
-  varchar,
-  text,
-  timestamp,
-  decimal,
-  integer as integer2,
-  jsonb,
-  boolean as boolean4
-} from "drizzle-orm/pg-core";
-var roleEnum = pgEnum("role", ["user", "author", "sales", "operations", "admin"]);
-var subscriptionTierEnum = pgEnum("subscription_tier", ["creator", "professional", "publisher", "enterprise"]);
-var subscriptionStatusEnum = pgEnum("subscription_status", ["active", "cancelled", "expired", "trial"]);
-var campaignStatusEnum = pgEnum("campaign_status", ["draft", "scheduled", "running", "paused", "completed"]);
-var categoryEnum = pgEnum("category", [
-  "fiction",
-  "non-fiction",
-  "business",
-  "technology",
-  "self-help",
-  "academic",
-  "other"
-]);
-var statusEnum = pgEnum("status", ["draft", "in_progress", "published", "archived"]);
-var visibilityEnum = pgEnum("visibility", ["public", "private"]);
-var purchaseStatusEnum = pgEnum("purchase_status", [
-  "pending",
-  "completed",
-  "failed",
-  "refunded"
-]);
-var messageRoleEnum = pgEnum("message_role", ["user", "assistant", "system"]);
-var users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  unionId: varchar("unionId", { length: 255 }).notNull().unique(),
-  name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 320 }),
-  passwordHash: varchar("passwordHash", { length: 255 }),
-  avatar: text("avatar"),
-  bio: text("bio"),
-  website: varchar("website", { length: 255 }),
-  role: roleEnum("role").default("user").notNull(),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date()),
-  lastSignInAt: timestamp("lastSignInAt", { mode: "date" }).defaultNow().notNull()
-});
-var ebooks = pgTable("ebooks", {
-  id: serial("id").primaryKey(),
-  userId: integer2("userId").notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
-  authorName: varchar("authorName", { length: 255 }),
-  description: text("description"),
-  category: categoryEnum("category").default("other"),
-  status: statusEnum("status").default("draft"),
-  visibility: visibilityEnum("visibility").default("private"),
-  content: text("content"),
-  coverImageUrl: text("coverImageUrl"),
-  price: decimal("price", { precision: 10, scale: 2 }).default("0.00"),
-  currency: varchar("currency", { length: 3 }).default("USD"),
-  isFree: boolean4("isFree").default(false),
-  isbn: varchar("isbn", { length: 20 }),
-  language: varchar("language", { length: 10 }).default("en"),
-  pageCount: integer2("pageCount"),
-  tags: jsonb("tags").$type(),
-  publishedAt: timestamp("publishedAt", { mode: "date" }),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
-});
-var purchases = pgTable("purchases", {
-  id: serial("id").primaryKey(),
-  userId: integer2("userId"),
-  ebookId: integer2("ebookId").notNull(),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  currency: varchar("currency", { length: 3 }).default("USD"),
-  status: purchaseStatusEnum("status").default("pending"),
-  paymentMethod: varchar("paymentMethod", { length: 50 }),
-  transactionId: varchar("transactionId", { length: 255 }),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
-});
-var reviews = pgTable("reviews", {
-  id: serial("id").primaryKey(),
-  ebookId: integer2("ebookId").notNull(),
-  userId: integer2("userId").notNull(),
-  rating: integer2("rating").notNull(),
-  comment: text("comment"),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
-});
-var aiConversations = pgTable("ai_conversations", {
-  id: serial("id").primaryKey(),
-  userId: integer2("userId").notNull(),
-  ebookId: integer2("ebookId"),
-  title: varchar("title", { length: 255 }),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
-});
-var aiMessages = pgTable("ai_messages", {
-  id: serial("id").primaryKey(),
-  conversationId: integer2("conversationId").notNull(),
-  role: messageRoleEnum("role").notNull(),
-  content: text("content").notNull(),
-  model: varchar("model", { length: 50 }),
-  tokensUsed: integer2("tokensUsed"),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
-});
-var activityLog = pgTable("activity_log", {
-  id: serial("id").primaryKey(),
-  userId: integer2("userId").notNull(),
-  action: varchar("action", { length: 50 }).notNull(),
-  resourceType: varchar("resourceType", { length: 50 }),
-  resourceId: integer2("resourceId"),
-  metadata: jsonb("metadata"),
-  ipAddress: varchar("ipAddress", { length: 45 }),
-  userAgent: text("userAgent"),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
-});
-var blogPosts = pgTable("blog_posts", {
-  id: serial("id").primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
-  slug: varchar("slug", { length: 255 }).notNull().unique(),
-  excerpt: text("excerpt"),
-  content: text("content").notNull(),
-  author: varchar("author", { length: 255 }).default("Virtus Editorial"),
-  category: varchar("category", { length: 50 }).default("General"),
-  image: text("image"),
-  published: boolean4("published").default(false),
-  featured: boolean4("featured").default(false),
-  readTime: varchar("readTime", { length: 20 }).default("5 min read"),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
-});
-var podcasts = pgTable("podcasts", {
-  id: serial("id").primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
-  description: text("description"),
-  guest: varchar("guest", { length: 255 }),
-  guestTitle: varchar("guestTitle", { length: 255 }),
-  embedUrl: text("embedUrl"),
-  audioUrl: text("audioUrl"),
-  duration: varchar("duration", { length: 20 }).default("30 min"),
-  episodeNumber: integer2("episodeNumber"),
-  date: varchar("date", { length: 50 }),
-  plays: integer2("plays").default(0),
-  featured: boolean4("featured").default(false),
-  published: boolean4("published").default(false),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
-});
-var subscriptions = pgTable("subscriptions", {
-  id: serial("id").primaryKey(),
-  userId: integer2("userId").notNull(),
-  tier: subscriptionTierEnum("tier").notNull().default("creator"),
-  status: subscriptionStatusEnum("status").notNull().default("trial"),
-  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }),
-  currentPeriodStart: timestamp("currentPeriodStart", { mode: "date" }),
-  currentPeriodEnd: timestamp("currentPeriodEnd", { mode: "date" }),
-  cancelAtPeriodEnd: boolean4("cancelAtPeriodEnd").default(false),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull()
-});
-var services = pgTable("services", {
-  id: serial("id").primaryKey(),
-  userId: integer2("userId").notNull(),
-  serviceType: varchar("serviceType", { length: 50 }).notNull(),
-  ebookId: integer2("ebookId"),
-  quantity: integer2("quantity").default(1),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  status: varchar("status", { length: 20 }).default("completed"),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull()
-});
-var campaigns = pgTable("campaigns", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  description: text("description"),
-  channel: varchar("channel", { length: 50 }).notNull(),
-  status: campaignStatusEnum("status").notNull().default("draft"),
-  content: text("content"),
-  scheduledAt: timestamp("scheduledAt", { mode: "date" }),
-  publishedAt: timestamp("publishedAt", { mode: "date" }),
-  metrics: jsonb("metrics"),
-  engagement: integer2("engagement").default(0),
-  reach: integer2("reach").default(0),
-  conversions: integer2("conversions").default(0),
-  confidenceScore: decimal("confidenceScore", { precision: 5, scale: 2 }).default("0"),
-  createdBy: integer2("createdBy"),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull()
-});
-var salesLeads = pgTable("sales_leads", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 320 }).notNull(),
-  company: varchar("company", { length: 255 }),
-  phone: varchar("phone", { length: 50 }),
-  source: varchar("source", { length: 50 }).default("website"),
-  tier: subscriptionTierEnum("tier"),
-  notes: text("notes"),
-  assignedTo: integer2("assignedTo"),
-  status: varchar("status", { length: 20 }).default("new"),
-  value: decimal("value", { precision: 10, scale: 2 }).default("0"),
-  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull()
-});
-
-// db/relations.ts
-var relations_exports = {};
-__export(relations_exports, {
-  activityLogRelations: () => activityLogRelations,
-  aiConversationsRelations: () => aiConversationsRelations,
-  aiMessagesRelations: () => aiMessagesRelations,
-  ebooksRelations: () => ebooksRelations,
-  purchasesRelations: () => purchasesRelations,
-  reviewsRelations: () => reviewsRelations,
-  usersRelations: () => usersRelations
-});
-import { relations } from "drizzle-orm";
-var usersRelations = relations(users, ({ many }) => ({
-  ebooks: many(ebooks),
-  purchases: many(purchases),
-  reviews: many(reviews),
-  aiConversations: many(aiConversations)
-}));
-var ebooksRelations = relations(ebooks, ({ one, many }) => ({
-  user: one(users, { fields: [ebooks.userId], references: [users.id] }),
-  purchases: many(purchases),
-  reviews: many(reviews)
-}));
-var purchasesRelations = relations(purchases, ({ one }) => ({
-  user: one(users, { fields: [purchases.userId], references: [users.id] }),
-  ebook: one(ebooks, { fields: [purchases.ebookId], references: [ebooks.id] })
-}));
-var reviewsRelations = relations(reviews, ({ one }) => ({
-  user: one(users, { fields: [reviews.userId], references: [users.id] }),
-  ebook: one(ebooks, { fields: [reviews.ebookId], references: [ebooks.id] })
-}));
-var aiConversationsRelations = relations(aiConversations, ({ one, many }) => ({
-  user: one(users, { fields: [aiConversations.userId], references: [users.id] }),
-  ebook: one(ebooks, { fields: [aiConversations.ebookId], references: [ebooks.id] }),
-  messages: many(aiMessages)
-}));
-var aiMessagesRelations = relations(aiMessages, ({ one }) => ({
-  conversation: one(aiConversations, { fields: [aiMessages.conversationId], references: [aiConversations.id] })
-}));
-var activityLogRelations = relations(activityLog, ({ one }) => ({
-  user: one(users, { fields: [activityLog.userId], references: [users.id] })
-}));
-
-// api/queries/connection.ts
-var fullSchema = { ...schema_exports, ...relations_exports };
-var FALLBACK_DATABASE_URL = "postgresql://neondb_owner:npg_Kbag4d6qjZsk@ep-damp-fog-apq27viw-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require";
-var instance;
-function getDb() {
-  if (!instance) {
-    const pool = new Pool({
-      connectionString: process.env.DATABASE_URL || FALLBACK_DATABASE_URL,
-      ssl: { rejectUnauthorized: false }
-    });
-    instance = drizzle(pool, { schema: fullSchema });
-  }
-  return instance;
-}
-
-// api/local-auth-router.ts
-import { eq } from "drizzle-orm";
+import { eq as eq2 } from "drizzle-orm";
 
 // api/lib/env.ts
 import "dotenv/config";
@@ -25780,7 +25845,7 @@ var localAuthRouter = createRouter({
     const db = getDb();
     let existing;
     try {
-      existing = await db.select().from(users).where(eq(users.email, input.email.toLowerCase().trim())).limit(1);
+      existing = await db.select().from(users).where(eq2(users.email, input.email.toLowerCase().trim())).limit(1);
     } catch (dbErr) {
       console.error("[localAuth.register] DB query failed:", dbErr.message, dbErr.stack);
       throw new TRPCError2({
@@ -25838,7 +25903,7 @@ var localAuthRouter = createRouter({
     })
   ).mutation(async ({ input, ctx }) => {
     const db = getDb();
-    const result = await db.select().from(users).where(eq(users.email, input.email.toLowerCase().trim())).limit(1);
+    const result = await db.select().from(users).where(eq2(users.email, input.email.toLowerCase().trim())).limit(1);
     const user = result[0];
     if (!user || !user.passwordHash) {
       throw new TRPCError2({
@@ -25853,7 +25918,7 @@ var localAuthRouter = createRouter({
         message: "Invalid email or password."
       });
     }
-    await db.update(users).set({ lastSignInAt: /* @__PURE__ */ new Date() }).where(eq(users.id, user.id));
+    await db.update(users).set({ lastSignInAt: /* @__PURE__ */ new Date() }).where(eq2(users.id, user.id));
     const token = signToken(user.id);
     ctx.resHeaders.append(
       "set-cookie",
@@ -25879,7 +25944,7 @@ var localAuthRouter = createRouter({
     const decoded = getLocalUserFromCookie(ctx.req.headers);
     if (!decoded) return null;
     const db = getDb();
-    const result = await db.select().from(users).where(eq(users.id, decoded.userId)).limit(1);
+    const result = await db.select().from(users).where(eq2(users.id, decoded.userId)).limit(1);
     return result[0] || null;
   }),
   logout: publicQuery.mutation(({ ctx }) => {
@@ -25899,7 +25964,7 @@ var localAuthRouter = createRouter({
 
 // api/ebook-router.ts
 import { TRPCError as TRPCError3 } from "@trpc/server";
-import { eq as eq2, and, desc, like, sql } from "drizzle-orm";
+import { eq as eq3, and as and2, desc, like, sql } from "drizzle-orm";
 var ebookRouter = createRouter({
   list: authedQuery.input(
     external_exports.object({
@@ -25914,14 +25979,14 @@ var ebookRouter = createRouter({
     const page = input?.page ?? 1;
     const limit = input?.limit ?? 20;
     const offset = (page - 1) * limit;
-    const conditions = [eq2(ebooks.userId, userId)];
+    const conditions = [eq3(ebooks.userId, userId)];
     if (input?.status) {
-      conditions.push(eq2(ebooks.status, input.status));
+      conditions.push(eq3(ebooks.status, input.status));
     }
     if (input?.search) {
       conditions.push(like(ebooks.title, `%${input.search}%`));
     }
-    const where = conditions.length > 1 ? and(...conditions) : conditions[0];
+    const where = conditions.length > 1 ? and2(...conditions) : conditions[0];
     const items = await db.select().from(ebooks).where(where).orderBy(desc(ebooks.updatedAt)).limit(limit).offset(offset);
     const countResult = await db.select({ count: sql`count(*)::int` }).from(ebooks).where(where);
     return {
@@ -25934,13 +25999,13 @@ var ebookRouter = createRouter({
   getById: authedQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const ebook = await db.select().from(ebooks).where(and(eq2(ebooks.id, input.id), eq2(ebooks.userId, userId))).limit(1);
+    const ebook = await db.select().from(ebooks).where(and2(eq3(ebooks.id, input.id), eq3(ebooks.userId, userId))).limit(1);
     if (!ebook[0]) {
       throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
     }
     return ebook[0];
   }),
-  create: authedQuery.input(
+  create: subscribedQuery.input(
     external_exports.object({
       title: external_exports.string().min(1).max(255),
       authorName: external_exports.string().optional(),
@@ -25982,7 +26047,7 @@ var ebookRouter = createRouter({
     const db = getDb();
     const userId = ctx.user.id;
     const { id, ...data } = input;
-    const existing = await db.select().from(ebooks).where(and(eq2(ebooks.id, id), eq2(ebooks.userId, userId))).limit(1);
+    const existing = await db.select().from(ebooks).where(and2(eq3(ebooks.id, id), eq3(ebooks.userId, userId))).limit(1);
     if (!existing[0]) {
       throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
     }
@@ -25999,40 +26064,40 @@ var ebookRouter = createRouter({
     if (data.isbn !== void 0) updateData.isbn = data.isbn;
     if (data.language !== void 0) updateData.language = data.language;
     if (data.tags !== void 0) updateData.tags = data.tags;
-    const updated = await db.update(ebooks).set(updateData).where(eq2(ebooks.id, id)).returning();
+    const updated = await db.update(ebooks).set(updateData).where(eq3(ebooks.id, id)).returning();
     return updated[0];
   }),
   delete: authedQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const existing = await db.select().from(ebooks).where(and(eq2(ebooks.id, input.id), eq2(ebooks.userId, userId))).limit(1);
+    const existing = await db.select().from(ebooks).where(and2(eq3(ebooks.id, input.id), eq3(ebooks.userId, userId))).limit(1);
     if (!existing[0]) {
       throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
     }
-    await db.delete(ebooks).where(eq2(ebooks.id, input.id));
+    await db.delete(ebooks).where(eq3(ebooks.id, input.id));
     return { success: true };
   }),
   publish: authedQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ ctx, input }) => {
     const db = getDb();
-    const existing = await db.select().from(ebooks).where(and(eq2(ebooks.id, input.id), eq2(ebooks.userId, ctx.user.id))).limit(1);
+    const existing = await db.select().from(ebooks).where(and2(eq3(ebooks.id, input.id), eq3(ebooks.userId, ctx.user.id))).limit(1);
     if (!existing[0]) {
       throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
     }
-    const updated = await db.update(ebooks).set({ status: "published", publishedAt: /* @__PURE__ */ new Date() }).where(eq2(ebooks.id, input.id)).returning();
+    const updated = await db.update(ebooks).set({ status: "published", publishedAt: /* @__PURE__ */ new Date() }).where(eq3(ebooks.id, input.id)).returning();
     return updated[0];
   }),
   updateCover: authedQuery.input(external_exports.object({ id: external_exports.number(), coverImageUrl: external_exports.string() })).mutation(async ({ ctx, input }) => {
     const db = getDb();
-    await db.update(ebooks).set({ coverImageUrl: input.coverImageUrl }).where(and(eq2(ebooks.id, input.id), eq2(ebooks.userId, ctx.user.id)));
+    await db.update(ebooks).set({ coverImageUrl: input.coverImageUrl }).where(and2(eq3(ebooks.id, input.id), eq3(ebooks.userId, ctx.user.id)));
     return { success: true };
   }),
   stats: authedQuery.query(async ({ ctx }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const totalBooks = await db.select({ count: sql`count(*)::int` }).from(ebooks).where(eq2(ebooks.userId, userId));
-    const publishedBooks = await db.select({ count: sql`count(*)::int` }).from(ebooks).where(and(eq2(ebooks.userId, userId), eq2(ebooks.status, "published")));
-    const totalPurchases = await db.select({ count: sql`count(*)::int` }).from(purchases).innerJoin(ebooks, eq2(purchases.ebookId, ebooks.id)).where(and(eq2(ebooks.userId, userId), eq2(purchases.status, "completed")));
-    const revenue = await db.select({ total: sql`COALESCE(sum(purchases.amount), 0)::numeric` }).from(purchases).innerJoin(ebooks, eq2(purchases.ebookId, ebooks.id)).where(and(eq2(ebooks.userId, userId), eq2(purchases.status, "completed")));
+    const totalBooks = await db.select({ count: sql`count(*)::int` }).from(ebooks).where(eq3(ebooks.userId, userId));
+    const publishedBooks = await db.select({ count: sql`count(*)::int` }).from(ebooks).where(and2(eq3(ebooks.userId, userId), eq3(ebooks.status, "published")));
+    const totalPurchases = await db.select({ count: sql`count(*)::int` }).from(purchases).innerJoin(ebooks, eq3(purchases.ebookId, ebooks.id)).where(and2(eq3(ebooks.userId, userId), eq3(purchases.status, "completed")));
+    const revenue = await db.select({ total: sql`COALESCE(sum(purchases.amount), 0)::numeric` }).from(purchases).innerJoin(ebooks, eq3(purchases.ebookId, ebooks.id)).where(and2(eq3(ebooks.userId, userId), eq3(purchases.status, "completed")));
     return {
       totalBooks: totalBooks[0]?.count ?? 0,
       publishedBooks: publishedBooks[0]?.count ?? 0,
@@ -26042,7 +26107,7 @@ var ebookRouter = createRouter({
   }),
   download: authedQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input, ctx }) => {
     const db = getDb();
-    const result = await db.select().from(ebooks).where(eq2(ebooks.id, input.id)).limit(1);
+    const result = await db.select().from(ebooks).where(eq3(ebooks.id, input.id)).limit(1);
     const book = result[0];
     if (!book) throw new TRPCError3({ code: "NOT_FOUND", message: "eBook not found" });
     const isOwner = book.userId === ctx.user.id;
@@ -26059,7 +26124,7 @@ var ebookRouter = createRouter({
 });
 
 // api/store-router.ts
-import { eq as eq3, and as and2, desc as desc2, like as like2, sql as sql2 } from "drizzle-orm";
+import { eq as eq4, and as and3, desc as desc2, like as like2, sql as sql2 } from "drizzle-orm";
 var storeRouter = createRouter({
   list: publicQuery.input(
     external_exports.object({
@@ -26075,16 +26140,16 @@ var storeRouter = createRouter({
     const limit = input?.limit ?? 20;
     const offset = (page - 1) * limit;
     const conditions = [
-      eq3(ebooks.status, "published"),
-      eq3(ebooks.visibility, "public")
+      eq4(ebooks.status, "published"),
+      eq4(ebooks.visibility, "public")
     ];
     if (input?.category) {
-      conditions.push(eq3(ebooks.category, input.category));
+      conditions.push(eq4(ebooks.category, input.category));
     }
     if (input?.search) {
       conditions.push(like2(ebooks.title, `%${input.search}%`));
     }
-    const where = and2(...conditions);
+    const where = and3(...conditions);
     let orderBy;
     switch (input?.sort) {
       case "popular":
@@ -26114,8 +26179,8 @@ var storeRouter = createRouter({
     }).from(ebooks).where(where).orderBy(orderBy).limit(limit).offset(offset);
     const itemsWithRatings = await Promise.all(
       items.map(async (item) => {
-        const avgRating = await db.select({ avg: sql2`COALESCE(avg(rating), 0)::numeric` }).from(reviews).where(eq3(reviews.ebookId, item.id));
-        const reviewCount = await db.select({ count: sql2`count(*)::int` }).from(reviews).where(eq3(reviews.ebookId, item.id));
+        const avgRating = await db.select({ avg: sql2`COALESCE(avg(rating), 0)::numeric` }).from(reviews).where(eq4(reviews.ebookId, item.id));
+        const reviewCount = await db.select({ count: sql2`count(*)::int` }).from(reviews).where(eq4(reviews.ebookId, item.id));
         return {
           ...item,
           rating: Number(avgRating[0]?.avg ?? 0),
@@ -26133,12 +26198,12 @@ var storeRouter = createRouter({
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const db = getDb();
-    const ebook = await db.select().from(ebooks).where(and2(eq3(ebooks.id, input.id), eq3(ebooks.status, "published"), eq3(ebooks.visibility, "public"))).limit(1);
+    const ebook = await db.select().from(ebooks).where(and3(eq4(ebooks.id, input.id), eq4(ebooks.status, "published"), eq4(ebooks.visibility, "public"))).limit(1);
     if (!ebook[0]) {
       return null;
     }
-    const avgRating = await db.select({ avg: sql2`COALESCE(avg(rating), 0)::numeric` }).from(reviews).where(eq3(reviews.ebookId, input.id));
-    const reviewCount = await db.select({ count: sql2`count(*)::int` }).from(reviews).where(eq3(reviews.ebookId, input.id));
+    const avgRating = await db.select({ avg: sql2`COALESCE(avg(rating), 0)::numeric` }).from(reviews).where(eq4(reviews.ebookId, input.id));
+    const reviewCount = await db.select({ count: sql2`count(*)::int` }).from(reviews).where(eq4(reviews.ebookId, input.id));
     return {
       ...ebook[0],
       rating: Number(avgRating[0]?.avg ?? 0),
@@ -26150,7 +26215,7 @@ var storeRouter = createRouter({
     const categories = await db.select({
       category: ebooks.category,
       count: sql2`count(*)::int`
-    }).from(ebooks).where(and2(eq3(ebooks.status, "published"), eq3(ebooks.visibility, "public"))).groupBy(ebooks.category);
+    }).from(ebooks).where(and3(eq4(ebooks.status, "published"), eq4(ebooks.visibility, "public"))).groupBy(ebooks.category);
     return categories;
   }),
   featured: publicQuery.query(async () => {
@@ -26165,11 +26230,11 @@ var storeRouter = createRouter({
       price: ebooks.price,
       isFree: ebooks.isFree,
       publishedAt: ebooks.publishedAt
-    }).from(ebooks).where(and2(eq3(ebooks.status, "published"), eq3(ebooks.visibility, "public"))).orderBy(desc2(ebooks.publishedAt)).limit(6);
+    }).from(ebooks).where(and3(eq4(ebooks.status, "published"), eq4(ebooks.visibility, "public"))).orderBy(desc2(ebooks.publishedAt)).limit(6);
     const itemsWithRatings = await Promise.all(
       items.map(async (item) => {
-        const avgRating = await db.select({ avg: sql2`COALESCE(avg(rating), 0)::numeric` }).from(reviews).where(eq3(reviews.ebookId, item.id));
-        const reviewCount = await db.select({ count: sql2`count(*)::int` }).from(reviews).where(eq3(reviews.ebookId, item.id));
+        const avgRating = await db.select({ avg: sql2`COALESCE(avg(rating), 0)::numeric` }).from(reviews).where(eq4(reviews.ebookId, item.id));
+        const reviewCount = await db.select({ count: sql2`count(*)::int` }).from(reviews).where(eq4(reviews.ebookId, item.id));
         return {
           ...item,
           rating: Number(avgRating[0]?.avg ?? 0),
@@ -26183,22 +26248,22 @@ var storeRouter = createRouter({
 
 // api/purchase-router.ts
 import { TRPCError as TRPCError4 } from "@trpc/server";
-import { eq as eq4, and as and3, desc as desc3 } from "drizzle-orm";
+import { eq as eq5, and as and4, desc as desc3 } from "drizzle-orm";
 var purchaseRouter = createRouter({
   list: authedQuery.query(async ({ ctx }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const items = await db.select().from(purchases).where(eq4(purchases.userId, userId)).orderBy(desc3(purchases.createdAt));
+    const items = await db.select().from(purchases).where(eq5(purchases.userId, userId)).orderBy(desc3(purchases.createdAt));
     return items;
   }),
   create: authedQuery.input(external_exports.object({ ebookId: external_exports.number(), amount: external_exports.string(), currency: external_exports.string().default("USD") })).mutation(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const ebook = await db.select().from(ebooks).where(eq4(ebooks.id, input.ebookId)).limit(1);
+    const ebook = await db.select().from(ebooks).where(eq5(ebooks.id, input.ebookId)).limit(1);
     if (!ebook[0]) {
       throw new TRPCError4({ code: "NOT_FOUND", message: "eBook not found" });
     }
-    const existingPurchase = await db.select().from(purchases).where(and3(eq4(purchases.userId, userId), eq4(purchases.ebookId, input.ebookId), eq4(purchases.status, "completed"))).limit(1);
+    const existingPurchase = await db.select().from(purchases).where(and4(eq5(purchases.userId, userId), eq5(purchases.ebookId, input.ebookId), eq5(purchases.status, "completed"))).limit(1);
     if (existingPurchase[0]) {
       throw new TRPCError4({ code: "CONFLICT", message: "You already own this eBook" });
     }
@@ -26215,18 +26280,18 @@ var purchaseRouter = createRouter({
   checkOwnership: authedQuery.input(external_exports.object({ ebookId: external_exports.number() })).query(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const ebook = await db.select().from(ebooks).where(eq4(ebooks.id, input.ebookId)).limit(1);
+    const ebook = await db.select().from(ebooks).where(eq5(ebooks.id, input.ebookId)).limit(1);
     if (ebook[0]?.isFree) {
       return { owned: true, isFree: true };
     }
-    const purchase = await db.select().from(purchases).where(and3(eq4(purchases.userId, userId), eq4(purchases.ebookId, input.ebookId), eq4(purchases.status, "completed"))).limit(1);
+    const purchase = await db.select().from(purchases).where(and4(eq5(purchases.userId, userId), eq5(purchases.ebookId, input.ebookId), eq5(purchases.status, "completed"))).limit(1);
     return { owned: !!purchase[0], isFree: false };
   })
 });
 
 // api/review-router.ts
 import { TRPCError as TRPCError5 } from "@trpc/server";
-import { eq as eq5, desc as desc4 } from "drizzle-orm";
+import { eq as eq6, desc as desc4 } from "drizzle-orm";
 var reviewRouter = createRouter({
   list: publicQuery.input(external_exports.object({ ebookId: external_exports.number() })).query(async ({ input }) => {
     const db = getDb();
@@ -26239,7 +26304,7 @@ var reviewRouter = createRouter({
       createdAt: reviews.createdAt,
       userName: users.name,
       userAvatar: users.avatar
-    }).from(reviews).where(eq5(reviews.ebookId, input.ebookId)).leftJoin(users, eq5(reviews.userId, users.id)).orderBy(desc4(reviews.createdAt));
+    }).from(reviews).where(eq6(reviews.ebookId, input.ebookId)).leftJoin(users, eq6(reviews.userId, users.id)).orderBy(desc4(reviews.createdAt));
     return items;
   }),
   create: authedQuery.input(
@@ -26251,9 +26316,9 @@ var reviewRouter = createRouter({
   ).mutation(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const existing = await db.select().from(reviews).where(eq5(reviews.ebookId, input.ebookId)).limit(1);
+    const existing = await db.select().from(reviews).where(eq6(reviews.ebookId, input.ebookId)).limit(1);
     if (existing.length > 0) {
-      const updated = await db.update(reviews).set({ rating: input.rating, comment: input.comment }).where(eq5(reviews.id, existing[0].id)).returning();
+      const updated = await db.update(reviews).set({ rating: input.rating, comment: input.comment }).where(eq6(reviews.id, existing[0].id)).returning();
       return updated[0];
     }
     const result = await db.insert(reviews).values({
@@ -26267,32 +26332,465 @@ var reviewRouter = createRouter({
   delete: authedQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const existing = await db.select().from(reviews).where(eq5(reviews.id, input.id)).limit(1);
+    const existing = await db.select().from(reviews).where(eq6(reviews.id, input.id)).limit(1);
     if (!existing[0]) {
       throw new TRPCError5({ code: "NOT_FOUND", message: "Review not found" });
     }
     if (existing[0].userId !== userId) {
       throw new TRPCError5({ code: "FORBIDDEN", message: "Cannot delete another user's review" });
     }
-    await db.delete(reviews).where(eq5(reviews.id, input.id));
+    await db.delete(reviews).where(eq6(reviews.id, input.id));
     return { success: true };
   })
 });
 
 // api/ai-router.ts
-import { eq as eq6, desc as desc5 } from "drizzle-orm";
+import { eq as eq7, desc as desc5 } from "drizzle-orm";
+
+// api/lib/vram-config.ts
+var VRAM_TIERS = {
+  "4gb": {
+    label: "4 GB",
+    maxVramGB: 4,
+    defaultContextWindow: 2048,
+    maxGpuLayers: 16,
+    batchSize: 256,
+    threads: 2,
+    models: [
+      {
+        name: "phi3:mini",
+        parameterSize: "3.8B",
+        quantization: "Q4_0",
+        contextWindow: 2048,
+        temperature: 0.7,
+        topP: 0.9,
+        topK: 40,
+        repeatPenalty: 1.1,
+        maxTokens: 1024,
+        description: "Microsoft Phi-3 Mini \u2014 best quality for 4GB VRAM"
+      },
+      {
+        name: "tinyllama",
+        parameterSize: "1.1B",
+        quantization: "Q4_0",
+        contextWindow: 2048,
+        temperature: 0.8,
+        topP: 0.92,
+        topK: 50,
+        repeatPenalty: 1.15,
+        maxTokens: 1024,
+        description: "TinyLlama \u2014 fastest inference for 4GB VRAM"
+      }
+    ]
+  },
+  "8gb": {
+    label: "8 GB",
+    maxVramGB: 8,
+    defaultContextWindow: 4096,
+    maxGpuLayers: 32,
+    batchSize: 512,
+    threads: 4,
+    models: [
+      {
+        name: "llama3.1:8b",
+        parameterSize: "8B",
+        quantization: "Q4_0",
+        contextWindow: 4096,
+        temperature: 0.7,
+        topP: 0.9,
+        topK: 40,
+        repeatPenalty: 1.1,
+        maxTokens: 2048,
+        description: "Llama 3.1 8B \u2014 Meta's best open model for 8GB VRAM"
+      },
+      {
+        name: "mistral:7b",
+        parameterSize: "7B",
+        quantization: "Q4_0",
+        contextWindow: 4096,
+        temperature: 0.75,
+        topP: 0.92,
+        topK: 45,
+        repeatPenalty: 1.12,
+        maxTokens: 2048,
+        description: "Mistral 7B \u2014 excellent reasoning for 8GB VRAM"
+      }
+    ]
+  },
+  "12gb": {
+    label: "12 GB",
+    maxVramGB: 12,
+    defaultContextWindow: 8192,
+    maxGpuLayers: 40,
+    batchSize: 1024,
+    threads: 6,
+    models: [
+      {
+        name: "llama3.1:8b",
+        parameterSize: "8B",
+        quantization: "Q5_0",
+        contextWindow: 8192,
+        temperature: 0.7,
+        topP: 0.9,
+        topK: 40,
+        repeatPenalty: 1.1,
+        maxTokens: 4096,
+        description: "Llama 3.1 8B at higher precision \u2014 12GB sweet spot"
+      },
+      {
+        name: "qwen2.5:7b",
+        parameterSize: "7B",
+        quantization: "Q5_0",
+        contextWindow: 8192,
+        temperature: 0.65,
+        topP: 0.88,
+        topK: 35,
+        repeatPenalty: 1.08,
+        maxTokens: 4096,
+        description: "Qwen 2.5 \u2014 superior multilingual support"
+      }
+    ]
+  },
+  "16gb": {
+    label: "16 GB",
+    maxVramGB: 16,
+    defaultContextWindow: 16384,
+    maxGpuLayers: 48,
+    batchSize: 2048,
+    threads: 8,
+    models: [
+      {
+        name: "llama3.1:8b",
+        parameterSize: "8B",
+        quantization: "Q8_0",
+        contextWindow: 16384,
+        temperature: 0.7,
+        topP: 0.9,
+        topK: 40,
+        repeatPenalty: 1.1,
+        maxTokens: 8192,
+        description: "Llama 3.1 8B at Q8 precision \u2014 near-lossless quality"
+      },
+      {
+        name: "mistral-nemo:12b",
+        parameterSize: "12B",
+        quantization: "Q4_0",
+        contextWindow: 16384,
+        temperature: 0.72,
+        topP: 0.9,
+        topK: 40,
+        repeatPenalty: 1.1,
+        maxTokens: 8192,
+        description: "Mistral Nemo 12B \u2014 largest model for 16GB VRAM"
+      }
+    ]
+  },
+  "24gb": {
+    label: "24 GB",
+    maxVramGB: 24,
+    defaultContextWindow: 32768,
+    maxGpuLayers: 64,
+    batchSize: 4096,
+    threads: 12,
+    models: [
+      {
+        name: "llama3.1:70b",
+        parameterSize: "70B",
+        quantization: "Q4_K_M",
+        contextWindow: 32768,
+        temperature: 0.65,
+        topP: 0.88,
+        topK: 35,
+        repeatPenalty: 1.05,
+        maxTokens: 16384,
+        description: "Llama 3.1 70B \u2014 maximum quality local inference"
+      },
+      {
+        name: "mixtral:8x7b",
+        parameterSize: "47B MoE",
+        quantization: "Q4_K_M",
+        contextWindow: 32768,
+        temperature: 0.7,
+        topP: 0.9,
+        topK: 40,
+        repeatPenalty: 1.08,
+        maxTokens: 16384,
+        description: "Mixtral 8x7B MoE \u2014 best reasoning local model"
+      }
+    ]
+  }
+};
+function detectVramTier2() {
+  const envVram = process.env.VRAM_CEILING_GB;
+  if (envVram) {
+    const gb = parseInt(envVram, 10);
+    if (gb >= 24) return "24gb";
+    if (gb >= 16) return "16gb";
+    if (gb >= 12) return "12gb";
+    if (gb >= 8) return "8gb";
+  }
+  return "8gb";
+}
+function getVramConfig() {
+  const tier = detectVramTier2();
+  return VRAM_TIERS[tier] || VRAM_TIERS["8gb"];
+}
+function getBestModel(preferred) {
+  const config2 = getVramConfig();
+  if (preferred) {
+    const match = config2.models.find((m) => m.name.includes(preferred));
+    if (match) return match;
+  }
+  return config2.models[0];
+}
+function throttleParams(baseConfig, throttleLevel) {
+  return {
+    ...baseConfig,
+    contextWindow: Math.floor(baseConfig.contextWindow / Math.max(throttleLevel, 1)),
+    maxTokens: Math.floor(baseConfig.maxTokens / Math.max(throttleLevel, 1)),
+    batchSize: Math.floor(512 / Math.max(throttleLevel, 1)),
+    temperature: Math.max(0.3, baseConfig.temperature - throttleLevel * 0.1)
+  };
+}
+
+// api/lib/ollama.ts
+var OLLAMA_HOST = process.env.OLLAMA_HOST || "http://localhost:11434";
+var throttleTracker = {};
+var SYSTEM_PROMPTS = {
+  outline: `You are Virtus AI, an expert eBook outlining assistant for Virtus Publishing. Create detailed, well-structured chapter outlines with clear titles, sections, and bullet points. Be practical and actionable.`,
+  chapter: `You are Virtus AI, an expert eBook writing assistant. Write engaging, professional prose with clear paragraph structure. Aim for 800-1200 words. Use varied sentence structure. Hook the reader early.`,
+  enhance: `You are Virtus AI, a senior editor. Enhance text for clarity, impact, and professionalism while preserving the author's voice. Remove filler. Strengthen weak phrases. Maintain original meaning.`,
+  title: `You are Virtus AI, a creative consultant. Suggest compelling, marketable eBook titles with brief explanations of why each works. Consider SEO, genre conventions, and emotional appeal.`,
+  general: `You are Virtus AI, the in-house publishing assistant at Virtus Publishing. Help authors create, refine, and publish professional eBooks. Be concise, practical, encouraging. Provide actionable advice.`,
+  cover: `You are Virtus AI, a book cover design consultant. Describe compelling cover concepts based on the book's theme, genre, and target audience. Suggest color palettes, imagery, typography.`,
+  marketing: `You are Virtus AI, a book marketing strategist. Provide practical marketing advice for eBook promotion, including social media, email campaigns, and store optimization.`
+};
+function detectIntent(content) {
+  const lower = content.toLowerCase();
+  if (lower.includes("outline") || lower.includes("structure") || lower.includes("chapters") || lower.includes("table of contents")) return "outline";
+  if (lower.includes("write") || lower.includes("chapter") || lower.includes("content") || lower.includes("draft") || lower.includes("prose")) return "chapter";
+  if (lower.includes("edit") || lower.includes("improve") || lower.includes("enhance") || lower.includes("refine") || lower.includes("rewrite")) return "enhance";
+  if (lower.includes("title") || lower.includes("name") || lower.includes("headline")) return "title";
+  if (lower.includes("cover") || lower.includes("design") || lower.includes("artwork")) return "cover";
+  if (lower.includes("market") || lower.includes("promote") || lower.includes("sell") || lower.includes("audience")) return "marketing";
+  return "general";
+}
+function getMockResponse(intent, prompt) {
+  const responses = {
+    outline: `## eBook Outline: ${prompt.slice(0, 60)}
+
+### Chapter 1: Introduction \u2014 Hooking Your Reader
+- Open with a compelling story, statistic, or question
+- Present the problem your book solves
+- Preview the journey and promise transformation
+
+### Chapter 2: Foundations \u2014 Building Context
+- Historical background and why it matters now
+- Key terminology and core concepts defined
+- Common misconceptions addressed
+
+### Chapter 3: Core Principles \u2014 The Heart of Your Message
+- Principle 1: The foundational idea with evidence
+- Principle 2: Practical application with examples
+- Principle 3: Advanced techniques for mastery
+
+### Chapter 4: Case Studies \u2014 Real-World Proof
+- Success story: how [person/company] applied these ideas
+- Failure analysis: lessons from what did not work
+- Comparative study: before and after scenarios
+
+### Chapter 5: Implementation \u2014 Actionable Steps
+- Step-by-step process with milestones
+- Tools, resources, and templates
+- Troubleshooting common obstacles
+
+### Chapter 6: Conclusion \u2014 Lasting Impact
+- Key takeaways synthesized
+- Call to action with clear next steps
+- Final empowering message that resonates`,
+    chapter: `The journey of creating something remarkable begins with a single, deliberate step forward. In an age where information flows endlessly and attention has become the scarcest resource, the ability to craft compelling narratives has never been more valuable.
+
+Consider the landscape of modern publishing. What once required navigating layers of gatekeepers \u2014 agents, editors, and traditional publishing houses \u2014 can now be accomplished with vision, dedication, and the right tools. This democratization has opened doors for voices that might otherwise have remained unheard, allowing stories to reach global audiences with unprecedented speed.
+
+The essence of great writing lies not merely in the transmission of information, but in the creation of genuine connection. When a reader picks up your book, they are inviting you into their mind, their time, and their trust. Honor that invitation with clarity, authenticity, and purpose.
+
+As we explore the principles that separate exceptional books from forgettable ones, remember that every bestselling author started exactly where you are now \u2014 with an idea and the courage to pursue it. The difference between a dream and a published book is simply the decision to begin.`,
+    enhance: `The publishing landscape has undergone a remarkable transformation. Where authors once faced insurmountable barriers to entry, today's creators enjoy unprecedented access to global audiences.
+
+This shift represents far more than technological progress \u2014 it embodies a fundamental reimagining of how knowledge and stories flow through society. The modern author stands at the intersection of creativity and technology, equipped with tools that amplify their voice across borders, languages, and cultures.
+
+Success in this new paradigm requires both artistic vision and strategic thinking. The writers who thrive are those who embrace the full spectrum of modern publishing \u2014 from AI-assisted drafting to data-driven marketing. Your book deserves to be read. Let's make sure it is.`,
+    title: `Here are compelling title options for your eBook:
+
+1. **The Art of Digital Publishing** \u2014 Clean, authoritative. Appeals to craft-focused readers seeking mastery.
+
+2. **Words Unbound: The New Publishing Revolution** \u2014 Energetic and aspirational. Suggests liberation and transformative change.
+
+3. **From Manuscript to Masterpiece** \u2014 Promises transformation. Appeals to ambitious authors ready to elevate their work.
+
+4. **The Author's Digital Canvas** \u2014 Creative metaphor that positions writing as artistry. Appeals to creative professionals.
+
+5. **Crafting Tomorrow's Classics** \u2014 Aspirational with lasting impact. Suggests timeless quality in a modern format.
+
+6. **Publish Without Permission** \u2014 Bold, empowering. Speaks to independent authors breaking free from gatekeepers.
+
+7. **The Complete Author's Blueprint** \u2014 Practical, comprehensive. Promises a step-by-step system that works.`,
+    cover: `## Cover Design Concept
+
+**Visual Direction:** A split-composition showing a traditional quill pen dissolving into digital particles/pixels, symbolizing the bridge between classical writing and modern publishing.
+
+**Color Palette:**
+- Primary: Deep navy (#1B2A4A) \u2014 trust, authority
+- Accent: Warm gold (#C8A55C) \u2014 premium quality
+- Highlight: Soft cream (#F5F0E8) \u2014 readability
+
+**Typography:**
+- Title: Serif font (like Playfair Display) \u2014 elegance and tradition
+- Subtitle: Clean sans-serif (like Inter) \u2014 modern accessibility
+
+**Layout:**
+- Title centered, large, commanding presence
+- Subtle geometric pattern in background for texture
+- Author name at bottom in gold accent
+- Minimalist approach \u2014 let the concept breathe
+
+**Genre Signals:** Professional, premium, transformative \u2014 appeals to serious authors.`,
+    marketing: `## eBook Marketing Strategy
+
+**Phase 1: Pre-Launch (2 weeks before)**
+- Tease excerpts on social media (Twitter threads, LinkedIn posts)
+- Build email list with a free chapter giveaway
+- Create a landing page with countdown timer
+
+**Phase 2: Launch Week**
+- Email blast to your list with exclusive launch pricing
+- Coordinate social posts across all platforms
+- Reach out to 10 micro-influencers in your niche
+- Post in relevant subreddits, Facebook groups, forums
+
+**Phase 3: Sustained Growth**
+- Weekly blog posts related to your book's topic
+- Guest podcast appearances (aim for 5 in first month)
+- Amazon/Goodreads review campaign with ARC readers
+- Run a limited-time promotional pricing cycle
+
+**Free Promotion Channels:**
+- Virtus Publishing featured placement
+- Reddit r/selfpublish, r/writing
+- Twitter #WritingCommunity
+- LinkedIn articles for non-fiction
+- Free Book Promotions (if doing a free run)`,
+    general: `I'm Virtus AI, your open-source publishing assistant. I run entirely on your local machine \u2014 no API keys, no cloud costs, no data leaving your system.
+
+Here's what I can help you with:
+
+**Writing & Creation**
+- **Outlining** \u2014 Detailed chapter structures and book blueprints
+- **Drafting** \u2014 Full chapter content with professional prose
+- **Editing** \u2014 Enhance clarity, tone, and impact of existing text
+- **Titling** \u2014 Generate compelling, marketable book titles
+
+**Production**
+- **Cover concepts** \u2014 Visual direction and design briefs
+- **Formatting** \u2014 Structure and layout recommendations
+- **Metadata** \u2014 Optimize descriptions, tags, categorization
+
+**Marketing**
+- **Launch strategy** \u2014 Pre-launch, launch, and sustain phases
+- **Promotion** \u2014 Social media, email, and community strategies
+- **Positioning** \u2014 Genre analysis and competitive differentiation
+
+What would you like to work on today?`
+  };
+  return responses[intent] || responses.general;
+}
+async function generateWithOllama(options) {
+  const { prompt, system, model: preferredModel } = options;
+  const intent = detectIntent(prompt);
+  const systemPrompt = system || SYSTEM_PROMPTS[intent] || SYSTEM_PROMPTS.general;
+  try {
+    const modelConfig = getBestModel(preferredModel);
+    const modelKey = modelConfig.name;
+    const throttleLevel = throttleTracker[modelKey] || 0;
+    const config2 = throttleLevel > 0 ? throttleParams(modelConfig, throttleLevel) : modelConfig;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6e4);
+    const response = await fetch(`${OLLAMA_HOST}/api/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: config2.name,
+        prompt: `${systemPrompt}
+
+User: ${prompt}
+
+Assistant:`,
+        stream: false,
+        options: {
+          temperature: config2.temperature,
+          top_p: config2.topP,
+          top_k: config2.topK,
+          repeat_penalty: config2.repeatPenalty,
+          num_predict: config2.maxTokens,
+          num_ctx: config2.contextWindow,
+          num_gpu: config2.name.includes("70b") || config2.name.includes("47b") ? 48 : 32,
+          num_thread: getVramConfig().threads,
+          batch_size: getVramConfig().batchSize
+        }
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (!response.ok) {
+      throw new Error(`Ollama error: ${response.status}`);
+    }
+    const data = await response.json();
+    const text2 = data.response?.trim();
+    if (!text2) {
+      throw new Error("Empty response from Ollama");
+    }
+    throttleTracker[modelKey] = 0;
+    return {
+      text: text2,
+      model: config2.name,
+      source: "ollama",
+      tokensPerSecond: data.eval_count / (data.eval_duration / 1e9),
+      throttleLevel: 0
+    };
+  } catch (err) {
+    const modelKey = preferredModel || getBestModel().name;
+    throttleTracker[modelKey] = (throttleTracker[modelKey] || 0) + 1;
+    console.log(`[Ollama] Unavailable (throttle level ${throttleTracker[modelKey]}), falling back to mock. To use local AI, install Ollama and run: ollama run ${getBestModel().name}`);
+    return {
+      text: getMockResponse(intent, prompt),
+      model: "virtus-ai-mock",
+      source: "mock",
+      throttleLevel: throttleTracker[modelKey]
+    };
+  }
+}
+async function checkOllamaHealth() {
+  try {
+    const response = await fetch(`${OLLAMA_HOST}/api/tags`, { signal: AbortSignal.timeout(3e3) });
+    if (!response.ok) return { available: false };
+    const data = await response.json();
+    const models = data.models?.map((m) => m.name) || [];
+    return { available: models.length > 0, models, vramTier: detectVramTier() };
+  } catch {
+    return { available: false };
+  }
+}
+
+// api/ai-router.ts
 var aiRouter = createRouter({
   listConversations: authedQuery.query(async ({ ctx }) => {
     const db = getDb();
-    const userId = ctx.user.id;
-    const conversations = await db.select().from(aiConversations).where(eq6(aiConversations.userId, userId)).orderBy(desc5(aiConversations.createdAt));
-    return conversations;
+    return db.select().from(aiConversations).where(eq7(aiConversations.userId, ctx.user.id)).orderBy(desc5(aiConversations.createdAt));
   }),
   createConversation: authedQuery.input(external_exports.object({ title: external_exports.string().optional(), ebookId: external_exports.number().optional() })).mutation(async ({ ctx, input }) => {
     const db = getDb();
-    const userId = ctx.user.id;
     const result = await db.insert(aiConversations).values({
-      userId,
+      userId: ctx.user.id,
       ebookId: input.ebookId,
       title: input.title ?? "New Conversation"
     }).returning();
@@ -26300,65 +26798,38 @@ var aiRouter = createRouter({
   }),
   listMessages: authedQuery.input(external_exports.object({ conversationId: external_exports.number() })).query(async ({ ctx, input }) => {
     const db = getDb();
-    const userId = ctx.user.id;
-    const conversation = await db.select().from(aiConversations).where(eq6(aiConversations.id, input.conversationId)).limit(1);
-    if (!conversation[0] || conversation[0].userId !== userId) {
-      return [];
-    }
-    const messages = await db.select().from(aiMessages).where(eq6(aiMessages.conversationId, input.conversationId)).orderBy(aiMessages.createdAt);
-    return messages;
+    const conversation = await db.select().from(aiConversations).where(eq7(aiConversations.id, input.conversationId)).limit(1);
+    if (!conversation[0] || conversation[0].userId !== ctx.user.id) return [];
+    return db.select().from(aiMessages).where(eq7(aiMessages.conversationId, input.conversationId)).orderBy(aiMessages.createdAt);
   }),
   sendMessage: authedQuery.input(external_exports.object({ conversationId: external_exports.number(), content: external_exports.string() })).mutation(async ({ ctx, input }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const conversation = await db.select().from(aiConversations).where(eq6(aiConversations.id, input.conversationId)).limit(1);
-    if (!conversation[0] || conversation[0].userId !== userId) {
-      return null;
-    }
+    const conversation = await db.select().from(aiConversations).where(eq7(aiConversations.id, input.conversationId)).limit(1);
+    if (!conversation[0] || conversation[0].userId !== userId) return null;
     await db.insert(aiMessages).values({
       conversationId: input.conversationId,
       role: "user",
       content: input.content
     });
-    const mockResponses = {
-      outline: "I've created a detailed outline for your eBook. Here's a chapter-by-chapter breakdown:\n\n**Chapter 1: Introduction**\n- Hook the reader with a compelling opening\n- Establish the core theme\n- Preview what's to come\n\n**Chapter 2: Foundations**\n- Historical context\n- Key concepts and terminology\n- Setting the stage\n\n**Chapter 3: Core Ideas**\n- Main arguments and insights\n- Supporting evidence\n- Case studies\n\n**Chapter 4: Practical Application**\n- Step-by-step guidance\n- Real-world examples\n- Common pitfalls to avoid\n\n**Chapter 5: Conclusion**\n- Key takeaways\n- Call to action\n- Final thoughts",
-      chapter: "Here's the chapter content:\n\nThe dawn of a new era in publishing has arrived. What once required months of painstaking work can now be accomplished in a fraction of the time, without sacrificing quality or authenticity.\n\nIn this chapter, we'll explore the fundamental shifts that have transformed the literary landscape. From the Gutenberg press to digital distribution, each technological leap has democratized access to knowledge and storytelling.\n\nThe modern author stands at the intersection of creativity and technology. With the right tools and mindset, the barriers to publishing have never been lower, while the potential reach has never been greater.",
-      enhance: "Here's the enhanced version:\n\nThe publishing world has undergone a remarkable transformation. Where authors once faced insurmountable barriers to entry, today's creators enjoy unprecedented access to global audiences. This shift represents more than technological progress\u2014it embodies a fundamental reimagining of how knowledge and stories flow through society.",
-      title: "Here are some title suggestions:\n\n1. **The Art of Digital Storytelling**\n2. **Words Unbound: The New Publishing Revolution**\n3. **From Manuscript to Masterpiece**\n4. **The Author's Digital Canvas**\n5. **Crafting Tomorrow's Classics**"
-    };
-    const lowerContent = input.content.toLowerCase();
-    let responseText = "I'm here to help with your eBook! I can assist with:\n\n- **Outlining** - Create chapter structures and flow\n- **Writing** - Generate chapter content and prose\n- **Editing** - Enhance and refine your text\n- **Titling** - Suggest compelling titles\n- **Metadata** - Optimize descriptions and tags\n\nWhat would you like to work on?";
-    for (const [key, response] of Object.entries(mockResponses)) {
-      if (lowerContent.includes(key)) {
-        responseText = response;
-        break;
-      }
-    }
-    if (lowerContent.includes("write") || lowerContent.includes("content")) {
-      responseText = mockResponses.chapter;
-    } else if (lowerContent.includes("outline") || lowerContent.includes("structure")) {
-      responseText = mockResponses.outline;
-    } else if (lowerContent.includes("title") || lowerContent.includes("name")) {
-      responseText = mockResponses.title;
-    } else if (lowerContent.includes("edit") || lowerContent.includes("improve") || lowerContent.includes("enhance")) {
-      responseText = mockResponses.enhance;
-    }
+    const { text: responseText, model, source, tokensPerSecond, throttleLevel } = await generateWithOllama({
+      prompt: input.content
+    });
     await db.insert(aiMessages).values({
       conversationId: input.conversationId,
       role: "assistant",
       content: responseText,
-      model: "virtus-ai-v1",
+      model,
       tokensUsed: responseText.length
     });
-    return { success: true, response: responseText };
+    return { success: true, response: responseText, model, source, tokensPerSecond, throttleLevel };
   }),
   generateOutline: authedQuery.input(external_exports.object({ prompt: external_exports.string(), ebookId: external_exports.number().optional() })).mutation(async ({ ctx, input }) => {
     const db = getDb();
-    const userId = ctx.user.id;
     const result = await db.insert(aiConversations).values({
-      userId,
+      userId: ctx.user.id,
       ebookId: input.ebookId,
-      title: `Outline: ${input.prompt.slice(0, 50)}...`
+      title: `Outline: ${input.prompt.slice(0, 50)}`
     }).returning();
     const conv = result[0];
     await db.insert(aiMessages).values({
@@ -26366,71 +26837,40 @@ var aiRouter = createRouter({
       role: "user",
       content: `Generate an outline for: ${input.prompt}`
     });
-    const outline = `## eBook Outline: ${input.prompt}
-
-### Chapter 1: Introduction
-- Opening hook
-- Problem statement
-- Promise of the book
-
-### Chapter 2: Background & Context
-- Historical overview
-- Current landscape
-- Key players and concepts
-
-### Chapter 3: Core Principles
-- Principle 1: Foundational concepts
-- Principle 2: Practical applications
-- Principle 3: Advanced techniques
-
-### Chapter 4: Case Studies
-- Success story #1
-- Success story #2
-- Lessons learned
-
-### Chapter 5: Implementation Guide
-- Step-by-step process
-- Tools and resources
-- Timeline and milestones
-
-### Chapter 6: Conclusion
-- Key takeaways
-- Next steps
-- Call to action`;
+    const { text: outline, model, source } = await generateWithOllama({
+      prompt: `Generate a detailed chapter outline for an eBook about: ${input.prompt}`,
+      system: SYSTEM_PROMPTS.outline
+    });
     await db.insert(aiMessages).values({
       conversationId: conv.id,
       role: "assistant",
       content: outline,
-      model: "virtus-ai-v1",
+      model,
       tokensUsed: outline.length
     });
-    return { outline, conversationId: conv.id };
+    return { outline, conversationId: conv.id, source };
   }),
   generateChapter: authedQuery.input(external_exports.object({ title: external_exports.string(), prompt: external_exports.string(), ebookId: external_exports.number().optional() })).mutation(async ({ input }) => {
-    const chapter = `# ${input.title}
-
-${input.prompt}
-
-The journey begins with a single step\u2014a commitment to excellence that separates the extraordinary from the ordinary. In the pages that follow, we will explore the depths of this subject with rigor and passion, uncovering insights that have the power to transform perspectives and ignite action.
-
-Every great work starts with a vision. The vision for this chapter is to provide a comprehensive yet accessible exploration of the topic at hand, drawing from both timeless wisdom and cutting-edge research. Readers will find practical strategies interwoven with compelling narratives, creating an experience that is both educational and inspiring.
-
-As we delve deeper, the interconnectedness of ideas becomes apparent. What may seem like disparate concepts at first glance reveal themselves as threads in a larger tapestry of understanding. This holistic approach ensures that readers not only grasp individual points but also appreciate the broader context in which they exist.`;
-    return { chapter };
+    const { text: chapter, model, source } = await generateWithOllama({
+      prompt: `Write a full chapter titled "${input.title}" for an eBook. Context: ${input.prompt}`,
+      system: SYSTEM_PROMPTS.chapter
+    });
+    return { chapter, model, source };
   }),
   enhanceText: authedQuery.input(external_exports.object({ text: external_exports.string(), style: external_exports.enum(["professional", "casual", "academic", "creative"]).default("professional") })).mutation(async ({ input }) => {
-    const enhanced = `[${input.style} tone applied]
+    const { text: enhanced, model, source } = await generateWithOllama({
+      prompt: `Enhance and refine the following text for a ${input.style} tone:
 
-${input.text}
-
-This refined version elevates the original text while preserving its core message. The language has been carefully chosen to resonate with the intended audience, balancing clarity with sophistication.`;
-    return { enhanced };
+${input.text}`,
+      system: SYSTEM_PROMPTS.enhance
+    });
+    return { enhanced, model, source };
   })
 });
 
 // api/user-router.ts
 import { TRPCError as TRPCError6 } from "@trpc/server";
-import { eq as eq7, and as and4, sql as sql3 } from "drizzle-orm";
+import { eq as eq8, and as and5, sql as sql3, desc as desc6 } from "drizzle-orm";
 var userRouter = createRouter({
   profile: authedQuery.query(async ({ ctx }) => {
     const db = getDb();
@@ -26444,7 +26884,7 @@ var userRouter = createRouter({
       website: users.website,
       role: users.role,
       createdAt: users.createdAt
-    }).from(users).where(eq7(users.id, userId)).limit(1);
+    }).from(users).where(eq8(users.id, userId)).limit(1);
     if (!user[0]) {
       throw new TRPCError6({ code: "NOT_FOUND", message: "User not found" });
     }
@@ -26465,19 +26905,19 @@ var userRouter = createRouter({
     if (input.bio !== void 0) updateData.bio = input.bio;
     if (input.website !== void 0) updateData.website = input.website;
     if (input.avatar !== void 0) updateData.avatar = input.avatar;
-    const updated = await db.update(users).set(updateData).where(eq7(users.id, userId)).returning();
+    const updated = await db.update(users).set(updateData).where(eq8(users.id, userId)).returning();
     return updated[0];
   }),
   stats: authedQuery.query(async ({ ctx }) => {
     const db = getDb();
     const userId = ctx.user.id;
-    const totalBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(eq7(ebooks.userId, userId));
-    const publishedBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and4(eq7(ebooks.userId, userId), eq7(ebooks.status, "published")));
-    const inProgressBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and4(eq7(ebooks.userId, userId), eq7(ebooks.status, "in_progress")));
-    const draftBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and4(eq7(ebooks.userId, userId), eq7(ebooks.status, "draft")));
-    const totalPurchasesResult = await db.select({ count: sql3`count(*)::int` }).from(purchases).innerJoin(ebooks, eq7(purchases.ebookId, ebooks.id)).where(and4(eq7(ebooks.userId, userId), eq7(purchases.status, "completed")));
-    const revenueResult = await db.select({ total: sql3`COALESCE(sum(purchases.amount), 0)::numeric` }).from(purchases).innerJoin(ebooks, eq7(purchases.ebookId, ebooks.id)).where(and4(eq7(ebooks.userId, userId), eq7(purchases.status, "completed")));
-    const totalReviewsResult = await db.select({ count: sql3`count(*)::int` }).from(reviews).innerJoin(ebooks, eq7(reviews.ebookId, ebooks.id)).where(eq7(ebooks.userId, userId));
+    const totalBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(eq8(ebooks.userId, userId));
+    const publishedBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and5(eq8(ebooks.userId, userId), eq8(ebooks.status, "published")));
+    const inProgressBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and5(eq8(ebooks.userId, userId), eq8(ebooks.status, "in_progress")));
+    const draftBooks = await db.select({ count: sql3`count(*)::int` }).from(ebooks).where(and5(eq8(ebooks.userId, userId), eq8(ebooks.status, "draft")));
+    const totalPurchasesResult = await db.select({ count: sql3`count(*)::int` }).from(purchases).innerJoin(ebooks, eq8(purchases.ebookId, ebooks.id)).where(and5(eq8(ebooks.userId, userId), eq8(purchases.status, "completed")));
+    const revenueResult = await db.select({ total: sql3`COALESCE(sum(purchases.amount), 0)::numeric` }).from(purchases).innerJoin(ebooks, eq8(purchases.ebookId, ebooks.id)).where(and5(eq8(ebooks.userId, userId), eq8(purchases.status, "completed")));
+    const totalReviewsResult = await db.select({ count: sql3`count(*)::int` }).from(reviews).innerJoin(ebooks, eq8(reviews.ebookId, ebooks.id)).where(eq8(ebooks.userId, userId));
     return {
       totalBooks: totalBooks[0]?.count ?? 0,
       publishedBooks: publishedBooks[0]?.count ?? 0,
@@ -26487,27 +26927,43 @@ var userRouter = createRouter({
       revenue: Number(revenueResult[0]?.total ?? 0),
       totalReviews: totalReviewsResult[0]?.count ?? 0
     };
+  }),
+  subscription: authedQuery.query(async ({ ctx }) => {
+    const db = getDb();
+    const sub = await db.select().from(subscriptions).where(eq8(subscriptions.userId, ctx.user.id)).orderBy(desc6(subscriptions.createdAt)).limit(1);
+    if (!sub[0]) {
+      return { hasActiveSubscription: false, tier: null, status: null, expiresAt: null };
+    }
+    const expired = sub[0].currentPeriodEnd ? new Date(sub[0].currentPeriodEnd) < /* @__PURE__ */ new Date() : false;
+    const active = !expired && (sub[0].status === "active" || sub[0].status === "trial");
+    return {
+      hasActiveSubscription: active,
+      tier: sub[0].tier,
+      status: sub[0].status,
+      expiresAt: sub[0].currentPeriodEnd,
+      cancelAtPeriodEnd: sub[0].cancelAtPeriodEnd
+    };
   })
 });
 
 // api/admin-router.ts
-import { eq as eq8, and as and5, desc as desc6, sql as sql4, gte } from "drizzle-orm";
+import { eq as eq9, and as and6, desc as desc7, sql as sql4, gte as gte2 } from "drizzle-orm";
 var adminRouter = createRouter({
   overview: adminQuery.query(async () => {
     const db = getDb();
     const totalUsers = await db.select({ count: sql4`count(*)::int` }).from(users);
     const totalEbooks = await db.select({ count: sql4`count(*)::int` }).from(ebooks);
-    const publishedEbooks = await db.select({ count: sql4`count(*)::int` }).from(ebooks).where(eq8(ebooks.status, "published"));
-    const totalPurchases = await db.select({ count: sql4`count(*)::int` }).from(purchases).where(eq8(purchases.status, "completed"));
-    const totalRevenue = await db.select({ total: sql4`COALESCE(sum(amount), 0)::numeric` }).from(purchases).where(eq8(purchases.status, "completed"));
+    const publishedEbooks = await db.select({ count: sql4`count(*)::int` }).from(ebooks).where(eq9(ebooks.status, "published"));
+    const totalPurchases = await db.select({ count: sql4`count(*)::int` }).from(purchases).where(eq9(purchases.status, "completed"));
+    const totalRevenue = await db.select({ total: sql4`COALESCE(sum(amount), 0)::numeric` }).from(purchases).where(eq9(purchases.status, "completed"));
     const totalReviews = await db.select({ count: sql4`count(*)::int` }).from(reviews);
     const aiMessagesCount = await db.select({ count: sql4`count(*)::int` }).from(aiMessages);
     const now = /* @__PURE__ */ new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1e3);
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1e3);
-    const newUsers7d = await db.select({ count: sql4`count(*)::int` }).from(users).where(gte(users.createdAt, sevenDaysAgo));
-    const newUsers30d = await db.select({ count: sql4`count(*)::int` }).from(users).where(gte(users.createdAt, thirtyDaysAgo));
-    const revenue30d = await db.select({ total: sql4`COALESCE(sum(amount), 0)::numeric` }).from(purchases).where(and5(eq8(purchases.status, "completed"), gte(purchases.createdAt, thirtyDaysAgo)));
+    const newUsers7d = await db.select({ count: sql4`count(*)::int` }).from(users).where(gte2(users.createdAt, sevenDaysAgo));
+    const newUsers30d = await db.select({ count: sql4`count(*)::int` }).from(users).where(gte2(users.createdAt, thirtyDaysAgo));
+    const revenue30d = await db.select({ total: sql4`COALESCE(sum(amount), 0)::numeric` }).from(purchases).where(and6(eq9(purchases.status, "completed"), gte2(purchases.createdAt, thirtyDaysAgo)));
     return {
       totalUsers: totalUsers[0]?.count ?? 0,
       totalEbooks: totalEbooks[0]?.count ?? 0,
@@ -26529,7 +26985,7 @@ var adminRouter = createRouter({
       date: sql4`DATE("createdAt")`,
       revenue: sql4`COALESCE(sum(amount), 0)::numeric`,
       count: sql4`count(*)::int`
-    }).from(purchases).where(and5(eq8(purchases.status, "completed"), gte(purchases.createdAt, since))).groupBy(sql4`DATE("createdAt")`).orderBy(sql4`DATE("createdAt")`);
+    }).from(purchases).where(and6(eq9(purchases.status, "completed"), gte2(purchases.createdAt, since))).groupBy(sql4`DATE("createdAt")`).orderBy(sql4`DATE("createdAt")`);
     const result = {};
     for (const row of rows) {
       result[row.date] = { revenue: Number(row.revenue), count: row.count };
@@ -26553,7 +27009,7 @@ var adminRouter = createRouter({
     const rows = await db.select({
       date: sql4`DATE("createdAt")`,
       count: sql4`count(*)::int`
-    }).from(users).where(gte(users.createdAt, since)).groupBy(sql4`DATE("createdAt")`).orderBy(sql4`DATE("createdAt")`);
+    }).from(users).where(gte2(users.createdAt, since)).groupBy(sql4`DATE("createdAt")`).orderBy(sql4`DATE("createdAt")`);
     const result = {};
     for (const row of rows) {
       result[row.date] = row.count;
@@ -26576,11 +27032,11 @@ var adminRouter = createRouter({
     const created = await db.select({
       date: sql4`DATE("createdAt")`,
       count: sql4`count(*)::int`
-    }).from(ebooks).where(gte(ebooks.createdAt, since)).groupBy(sql4`DATE("createdAt")`).orderBy(sql4`DATE("createdAt")`);
+    }).from(ebooks).where(gte2(ebooks.createdAt, since)).groupBy(sql4`DATE("createdAt")`).orderBy(sql4`DATE("createdAt")`);
     const published = await db.select({
       date: sql4`DATE("publishedAt")`,
       count: sql4`count(*)::int`
-    }).from(ebooks).where(and5(gte(ebooks.publishedAt, since), eq8(ebooks.status, "published"))).groupBy(sql4`DATE("publishedAt")`).orderBy(sql4`DATE("publishedAt")`);
+    }).from(ebooks).where(and6(gte2(ebooks.publishedAt, since), eq9(ebooks.status, "published"))).groupBy(sql4`DATE("publishedAt")`).orderBy(sql4`DATE("publishedAt")`);
     const createdMap = {};
     for (const r of created) createdMap[r.date] = r.count;
     const publishedMap = {};
@@ -26614,7 +27070,7 @@ var adminRouter = createRouter({
       revenue: sql4`COALESCE((SELECT sum(amount)::numeric FROM purchases WHERE "ebookId" = ebooks.id AND status = 'completed'), 0)`,
       avgRating: sql4`COALESCE((SELECT avg(rating)::numeric FROM reviews WHERE "ebookId" = ebooks.id), 0)`,
       reviewCount: sql4`COALESCE((SELECT count(*)::int FROM reviews WHERE "ebookId" = ebooks.id), 0)`
-    }).from(ebooks).orderBy(desc6(ebooks.createdAt)).limit(limit);
+    }).from(ebooks).orderBy(desc7(ebooks.createdAt)).limit(limit);
     return books.map((b) => ({
       ...b,
       sales: Number(b.sales),
@@ -26637,7 +27093,7 @@ var adminRouter = createRouter({
       lastSignInAt: users.lastSignInAt,
       ebookCount: sql4`(SELECT count(*)::int FROM ebooks WHERE "userId" = users.id)`,
       purchaseCount: sql4`(SELECT count(*)::int FROM purchases WHERE "userId" = users.id)`
-    }).from(users).orderBy(desc6(users.createdAt)).limit(limit).offset(offset);
+    }).from(users).orderBy(desc7(users.createdAt)).limit(limit).offset(offset);
     const totalResult = await db.select({ count: sql4`count(*)::int` }).from(users);
     return {
       items: items.map((u) => ({
@@ -26662,8 +27118,26 @@ var adminRouter = createRouter({
       metadata: activityLog.metadata,
       createdAt: activityLog.createdAt,
       userName: users.name
-    }).from(activityLog).leftJoin(users, eq8(activityLog.userId, users.id)).orderBy(desc6(activityLog.createdAt)).limit(limit);
+    }).from(activityLog).leftJoin(users, eq9(activityLog.userId, users.id)).orderBy(desc7(activityLog.createdAt)).limit(limit);
     return logs;
+  }),
+  subscriptionsList: adminQuery.query(async () => {
+    const db = getDb();
+    const subs = await db.select({
+      id: subscriptions.id,
+      userId: subscriptions.userId,
+      tier: subscriptions.tier,
+      status: subscriptions.status,
+      stripeSubscriptionId: subscriptions.stripeSubscriptionId,
+      currentPeriodEnd: subscriptions.currentPeriodEnd,
+      cancelAtPeriodEnd: subscriptions.cancelAtPeriodEnd,
+      createdAt: subscriptions.createdAt,
+      name: users.name,
+      email: users.email
+    }).from(subscriptions).leftJoin(users, eq9(subscriptions.userId, users.id)).orderBy(desc7(subscriptions.createdAt));
+    const byTier = await db.select({ tier: subscriptions.tier, count: sql4`count(*)::int` }).from(subscriptions).groupBy(subscriptions.tier);
+    const byStatus = await db.select({ status: subscriptions.status, count: sql4`count(*)::int` }).from(subscriptions).groupBy(subscriptions.status);
+    return { subs, byTier, byStatus };
   }),
   categoryBreakdown: adminQuery.query(async () => {
     const db = getDb();
@@ -26680,25 +27154,25 @@ var adminRouter = createRouter({
 });
 
 // api/blog-router.ts
-import { eq as eq9, desc as desc7 } from "drizzle-orm";
+import { eq as eq10, desc as desc8 } from "drizzle-orm";
 var blogRouter = createRouter({
   list: publicQuery.input(external_exports.object({ publishedOnly: external_exports.boolean().default(true) }).optional()).query(async ({ input }) => {
     const db = getDb();
     const publishedOnly = input?.publishedOnly ?? true;
-    let query = db.select().from(blogPosts).orderBy(desc7(blogPosts.createdAt));
+    let query = db.select().from(blogPosts).orderBy(desc8(blogPosts.createdAt));
     if (publishedOnly) {
-      return db.select().from(blogPosts).where(eq9(blogPosts.published, true)).orderBy(desc7(blogPosts.createdAt));
+      return db.select().from(blogPosts).where(eq10(blogPosts.published, true)).orderBy(desc8(blogPosts.createdAt));
     }
     return query;
   }),
   getBySlug: publicQuery.input(external_exports.object({ slug: external_exports.string() })).query(async ({ input }) => {
     const db = getDb();
-    const result = await db.select().from(blogPosts).where(eq9(blogPosts.slug, input.slug)).limit(1);
+    const result = await db.select().from(blogPosts).where(eq10(blogPosts.slug, input.slug)).limit(1);
     return result[0] || null;
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const db = getDb();
-    const result = await db.select().from(blogPosts).where(eq9(blogPosts.id, input.id)).limit(1);
+    const result = await db.select().from(blogPosts).where(eq10(blogPosts.id, input.id)).limit(1);
     return result[0] || null;
   }),
   create: adminQuery.input(
@@ -26747,37 +27221,37 @@ var blogRouter = createRouter({
   ).mutation(async ({ input }) => {
     const db = getDb();
     const { id, ...data } = input;
-    const result = await db.update(blogPosts).set(data).where(eq9(blogPosts.id, id)).returning();
+    const result = await db.update(blogPosts).set(data).where(eq10(blogPosts.id, id)).returning();
     return result[0];
   }),
   delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     const db = getDb();
-    await db.delete(blogPosts).where(eq9(blogPosts.id, input.id));
+    await db.delete(blogPosts).where(eq10(blogPosts.id, input.id));
     return { success: true };
   }),
   togglePublish: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     const db = getDb();
-    const existing = await db.select().from(blogPosts).where(eq9(blogPosts.id, input.id)).limit(1);
+    const existing = await db.select().from(blogPosts).where(eq10(blogPosts.id, input.id)).limit(1);
     if (!existing[0]) throw new Error("Post not found");
-    const result = await db.update(blogPosts).set({ published: !existing[0].published }).where(eq9(blogPosts.id, input.id)).returning();
+    const result = await db.update(blogPosts).set({ published: !existing[0].published }).where(eq10(blogPosts.id, input.id)).returning();
     return result[0];
   })
 });
 
 // api/podcast-router.ts
-import { eq as eq10, desc as desc8 } from "drizzle-orm";
+import { eq as eq11, desc as desc9 } from "drizzle-orm";
 var podcastRouter = createRouter({
   list: publicQuery.input(external_exports.object({ publishedOnly: external_exports.boolean().default(true) }).optional()).query(async ({ input }) => {
     const db = getDb();
     const publishedOnly = input?.publishedOnly ?? true;
     if (publishedOnly) {
-      return db.select().from(podcasts).where(eq10(podcasts.published, true)).orderBy(desc8(podcasts.createdAt));
+      return db.select().from(podcasts).where(eq11(podcasts.published, true)).orderBy(desc9(podcasts.createdAt));
     }
-    return db.select().from(podcasts).orderBy(desc8(podcasts.createdAt));
+    return db.select().from(podcasts).orderBy(desc9(podcasts.createdAt));
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const db = getDb();
-    const result = await db.select().from(podcasts).where(eq10(podcasts.id, input.id)).limit(1);
+    const result = await db.select().from(podcasts).where(eq11(podcasts.id, input.id)).limit(1);
     return result[0] || null;
   }),
   create: adminQuery.input(
@@ -26819,26 +27293,26 @@ var podcastRouter = createRouter({
   ).mutation(async ({ input }) => {
     const db = getDb();
     const { id, ...data } = input;
-    const result = await db.update(podcasts).set(data).where(eq10(podcasts.id, id)).returning();
+    const result = await db.update(podcasts).set(data).where(eq11(podcasts.id, id)).returning();
     return result[0];
   }),
   delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     const db = getDb();
-    await db.delete(podcasts).where(eq10(podcasts.id, input.id));
+    await db.delete(podcasts).where(eq11(podcasts.id, input.id));
     return { success: true };
   }),
   togglePublish: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     const db = getDb();
-    const existing = await db.select().from(podcasts).where(eq10(podcasts.id, input.id)).limit(1);
+    const existing = await db.select().from(podcasts).where(eq11(podcasts.id, input.id)).limit(1);
     if (!existing[0]) throw new Error("Podcast not found");
-    const result = await db.update(podcasts).set({ published: !existing[0].published }).where(eq10(podcasts.id, input.id)).returning();
+    const result = await db.update(podcasts).set({ published: !existing[0].published }).where(eq11(podcasts.id, input.id)).returning();
     return result[0];
   }),
   incrementPlays: publicQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     const db = getDb();
-    const existing = await db.select().from(podcasts).where(eq10(podcasts.id, input.id)).limit(1);
+    const existing = await db.select().from(podcasts).where(eq11(podcasts.id, input.id)).limit(1);
     if (!existing[0]) return null;
-    const result = await db.update(podcasts).set({ plays: (existing[0].plays || 0) + 1 }).where(eq10(podcasts.id, input.id)).returning();
+    const result = await db.update(podcasts).set({ plays: (existing[0].plays || 0) + 1 }).where(eq11(podcasts.id, input.id)).returning();
     return result[0];
   })
 });
@@ -44362,6 +44836,879 @@ var paymentRouter = createRouter({
   })
 });
 
+// api/campaign-router.ts
+import { eq as eq12, desc as desc10 } from "drizzle-orm";
+var campaignRouter = createRouter({
+  list: operationsQuery.query(async () => {
+    const db = getDb();
+    return db.select().from(campaigns).orderBy(desc10(campaigns.createdAt));
+  }),
+  create: operationsQuery.input(
+    external_exports.object({
+      name: external_exports.string().min(1).max(255),
+      channel: external_exports.string().min(1).max(50),
+      content: external_exports.string().min(1),
+      status: external_exports.enum(["draft", "scheduled", "running", "paused", "completed"]).default("draft"),
+      scheduledAt: external_exports.string().optional(),
+      confidenceScore: external_exports.number().min(0).max(100).default(90)
+    })
+  ).mutation(async ({ input, ctx }) => {
+    const db = getDb();
+    const result = await db.insert(campaigns).values({
+      name: input.name,
+      channel: input.channel,
+      content: input.content,
+      status: input.status,
+      scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : null,
+      confidenceScore: String(input.confidenceScore),
+      createdBy: ctx.user.id
+    }).returning();
+    return result[0];
+  }),
+  updateStatus: operationsQuery.input(
+    external_exports.object({
+      id: external_exports.number(),
+      status: external_exports.enum(["draft", "scheduled", "running", "paused", "completed"])
+    })
+  ).mutation(async ({ input }) => {
+    const db = getDb();
+    const result = await db.update(campaigns).set({
+      status: input.status,
+      publishedAt: input.status === "running" ? /* @__PURE__ */ new Date() : void 0
+    }).where(eq12(campaigns.id, input.id)).returning();
+    return result[0];
+  }),
+  delete: operationsQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    const db = getDb();
+    await db.delete(campaigns).where(eq12(campaigns.id, input.id));
+    return { success: true };
+  })
+});
+
+// api/sales-lead-router.ts
+import { eq as eq13, desc as desc11 } from "drizzle-orm";
+var salesLeadRouter = createRouter({
+  list: salesQuery.query(async () => {
+    const db = getDb();
+    return db.select().from(salesLeads).orderBy(desc11(salesLeads.createdAt));
+  }),
+  create: salesQuery.input(
+    external_exports.object({
+      name: external_exports.string().min(1).max(255),
+      email: external_exports.string().email().max(320),
+      company: external_exports.string().max(255).optional(),
+      phone: external_exports.string().max(50).optional(),
+      source: external_exports.string().max(50).default("website"),
+      tier: external_exports.enum(["creator", "professional", "publisher", "enterprise"]).optional(),
+      notes: external_exports.string().optional(),
+      value: external_exports.number().default(0),
+      status: external_exports.string().max(20).default("new")
+    })
+  ).mutation(async ({ input }) => {
+    const db = getDb();
+    const result = await db.insert(salesLeads).values({
+      name: input.name,
+      email: input.email,
+      company: input.company || null,
+      phone: input.phone || null,
+      source: input.source,
+      tier: input.tier || null,
+      notes: input.notes || null,
+      value: String(input.value),
+      status: input.status
+    }).returning();
+    return result[0];
+  }),
+  update: salesQuery.input(
+    external_exports.object({
+      id: external_exports.number(),
+      name: external_exports.string().min(1).max(255).optional(),
+      email: external_exports.string().email().max(320).optional(),
+      company: external_exports.string().max(255).optional(),
+      phone: external_exports.string().max(50).optional(),
+      tier: external_exports.enum(["creator", "professional", "publisher", "enterprise"]).optional(),
+      notes: external_exports.string().optional(),
+      value: external_exports.number().optional(),
+      status: external_exports.string().max(20).optional()
+    })
+  ).mutation(async ({ input }) => {
+    const db = getDb();
+    const { id, ...data } = input;
+    const updateData = {};
+    if (data.name !== void 0) updateData.name = data.name;
+    if (data.email !== void 0) updateData.email = data.email;
+    if (data.company !== void 0) updateData.company = data.company;
+    if (data.phone !== void 0) updateData.phone = data.phone;
+    if (data.tier !== void 0) updateData.tier = data.tier;
+    if (data.notes !== void 0) updateData.notes = data.notes;
+    if (data.value !== void 0) updateData.value = String(data.value);
+    if (data.status !== void 0) updateData.status = data.status;
+    const result = await db.update(salesLeads).set(updateData).where(eq13(salesLeads.id, id)).returning();
+    return result[0];
+  }),
+  delete: salesQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    const db = getDb();
+    await db.delete(salesLeads).where(eq13(salesLeads.id, input.id));
+    return { success: true };
+  })
+});
+
+// api/team-router.ts
+import { eq as eq14, desc as desc12, inArray } from "drizzle-orm";
+var teamRouter = createRouter({
+  list: operationsQuery.query(async () => {
+    const db = getDb();
+    return db.select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+      avatar: users.avatar,
+      createdAt: users.createdAt,
+      lastSignInAt: users.lastSignInAt
+    }).from(users).where(inArray(users.role, ["admin", "operations", "sales"])).orderBy(desc12(users.createdAt));
+  }),
+  updateRole: adminQuery.input(
+    external_exports.object({
+      id: external_exports.number(),
+      role: external_exports.enum(["user", "author", "sales", "operations", "admin"])
+    })
+  ).mutation(async ({ input }) => {
+    const db = getDb();
+    const result = await db.update(users).set({ role: input.role }).where(eq14(users.id, input.id)).returning();
+    return result[0];
+  }),
+  remove: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    const db = getDb();
+    await db.update(users).set({ role: "user" }).where(eq14(users.id, input.id));
+    return { success: true };
+  })
+});
+
+// api/file-upload-router.ts
+var fileUploadRouter = createRouter({
+  parseText: authedQuery.input(external_exports.object({
+    filename: external_exports.string(),
+    contentBase64: external_exports.string(),
+    mimeType: external_exports.string().optional()
+  })).mutation(async ({ input }) => {
+    try {
+      const buffer = Buffer.from(input.contentBase64, "base64");
+      const text2 = buffer.toString("utf-8");
+      const cleaned = text2.replace(/\r\n/g, "\n").replace(/\r/g, "\n").replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").trim();
+      const lines = cleaned.split("\n").filter((l) => l.trim());
+      const title = lines[0]?.slice(0, 255) || "Untitled";
+      const description = lines.slice(1, 5).join(" ").slice(0, 500) || "";
+      return {
+        success: true,
+        title,
+        description,
+        content: cleaned,
+        wordCount: cleaned.split(/\s+/).filter((w) => w).length,
+        charCount: cleaned.length,
+        filename: input.filename
+      };
+    } catch (err) {
+      console.error("[FileUpload] Parse error:", err);
+      throw new Error("Failed to parse file. Please upload a valid text file.");
+    }
+  })
+});
+
+// api/ollama-router.ts
+var ollamaRouter = createRouter({
+  health: publicQuery.query(async () => {
+    const health = await checkOllamaHealth();
+    const config2 = getVramConfig();
+    return {
+      ...health,
+      vramTier: detectVramTier2(),
+      vramLabel: config2.label,
+      maxGpuLayers: config2.maxGpuLayers,
+      batchSize: config2.batchSize,
+      threads: config2.threads,
+      recommendedModels: config2.models.map((m) => ({
+        name: m.name,
+        size: m.parameterSize,
+        description: m.description
+      }))
+    };
+  }),
+  config: publicQuery.query(() => {
+    const tier = detectVramTier2();
+    const config2 = getVramConfig();
+    return {
+      currentTier: tier,
+      label: config2.label,
+      maxVramGB: config2.maxVramGB,
+      allTiers: Object.entries(VRAM_TIERS).map(([key, t2]) => ({
+        key,
+        label: t2.label,
+        maxVramGB: t2.maxVramGB,
+        models: t2.models.map((m) => ({ name: m.name, size: m.parameterSize }))
+      }))
+    };
+  }),
+  // Direct chat endpoint for testing
+  chat: operationsQuery.input(external_exports.object({ prompt: external_exports.string(), model: external_exports.string().optional() })).mutation(async ({ input }) => {
+    const result = await generateWithOllama({
+      prompt: input.prompt,
+      model: input.model
+    });
+    return result;
+  })
+});
+
+// api/lib/kb-indexer.ts
+import { readFileSync, readdirSync, statSync } from "fs";
+import { join, basename } from "path";
+function parseFrontmatter(raw) {
+  const frontmatter = {};
+  let content = raw;
+  if (raw.startsWith("---")) {
+    const end = raw.indexOf("---", 3);
+    if (end !== -1) {
+      const fmBlock = raw.slice(3, end).trim();
+      content = raw.slice(end + 3).trim();
+      for (const line of fmBlock.split("\n")) {
+        const colonIdx = line.indexOf(":");
+        if (colonIdx === -1) continue;
+        const key = line.slice(0, colonIdx).trim();
+        let value = line.slice(colonIdx + 1).trim();
+        if (key === "tags") {
+          frontmatter.tags = value.split(",").map((t2) => t2.trim()).filter(Boolean);
+        } else if (key === "date") {
+          frontmatter.date = value;
+        } else {
+          frontmatter[key] = value;
+        }
+      }
+    }
+  }
+  return { frontmatter, content };
+}
+function slugify2(name) {
+  return name.replace(/\.md$/i, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+function estimateReadingTime(content) {
+  const words = content.split(/\s+/).filter((w) => w.length > 0).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
+var kbCache = null;
+var cacheTimestamp = 0;
+var CACHE_TTL_MS = 3e4;
+function indexKnowledgeBase(kbDir = join(process.cwd(), "kb")) {
+  const now = Date.now();
+  if (kbCache && cacheTimestamp + CACHE_TTL_MS > now) {
+    return kbCache;
+  }
+  const articles = [];
+  try {
+    const entries = readdirSync(kbDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
+      const filePath = join(kbDir, entry.name);
+      const raw = readFileSync(filePath, "utf-8");
+      const { frontmatter, content } = parseFrontmatter(raw);
+      const stats = statSync(filePath);
+      const slug = slugify2(entry.name);
+      const firstPara = content.split("\n\n").find((p) => p.trim().length > 20) || "";
+      articles.push({
+        slug,
+        title: frontmatter.title || basename(entry.name, ".md").replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+        category: frontmatter.category || "General",
+        tags: frontmatter.tags || [],
+        excerpt: frontmatter.excerpt || firstPara.slice(0, 200).trim(),
+        content,
+        date: frontmatter.date || stats.mtime.toISOString().split("T")[0],
+        updatedAt: stats.mtime.toISOString(),
+        author: frontmatter.author || "Virtus Team",
+        readingTime: estimateReadingTime(content)
+      });
+    }
+  } catch (err) {
+    console.log("[KB] No knowledge base directory found, returning empty");
+  }
+  articles.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  kbCache = articles;
+  cacheTimestamp = now;
+  return articles;
+}
+function getArticle(slug, kbDir) {
+  const articles = indexKnowledgeBase(kbDir);
+  return articles.find((a) => a.slug === slug) || null;
+}
+function searchArticles(query, kbDir) {
+  const articles = indexKnowledgeBase(kbDir);
+  const lower = query.toLowerCase();
+  return articles.filter(
+    (a) => a.title.toLowerCase().includes(lower) || a.content.toLowerCase().includes(lower) || a.tags.some((t2) => t2.toLowerCase().includes(lower)) || a.category.toLowerCase().includes(lower)
+  );
+}
+function getCategories(kbDir) {
+  const articles = indexKnowledgeBase(kbDir);
+  const cats = new Set(articles.map((a) => a.category));
+  return Array.from(cats).sort();
+}
+
+// api/kb-router.ts
+var kbRouter = createRouter({
+  list: publicQuery.query(() => {
+    return indexKnowledgeBase();
+  }),
+  categories: publicQuery.query(() => {
+    return getCategories();
+  }),
+  bySlug: publicQuery.input(external_exports.object({ slug: external_exports.string() })).query(({ input }) => {
+    const article = getArticle(input.slug);
+    if (!article) {
+      return null;
+    }
+    return article;
+  }),
+  search: publicQuery.input(external_exports.object({ q: external_exports.string() })).query(({ input }) => {
+    if (!input.q.trim()) return [];
+    return searchArticles(input.q);
+  })
+});
+
+// api/adgpt-router.ts
+import { eq as eq15, desc as desc13, sql as sql6 } from "drizzle-orm";
+
+// api/lib/crypto.ts
+import { randomBytes as randomBytes2, createCipheriv, createDecipheriv } from "crypto";
+function getMasterKey() {
+  const envKey = process.env.ADGPT_MASTER_KEY;
+  if (envKey) {
+    const hash4 = __require("crypto").createHash("sha256");
+    hash4.update(envKey);
+    return hash4.digest();
+  }
+  const hash3 = __require("crypto").createHash("sha256");
+  hash3.update("virtus-adgpt-default-master-key-2026");
+  return hash3.digest();
+}
+var MASTER_KEY = getMasterKey();
+function encryptPayload(payload) {
+  const iv = randomBytes2(16);
+  const cipher = createCipheriv("aes-256-gcm", MASTER_KEY, iv);
+  const plaintext = JSON.stringify(payload);
+  const ciphertext = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+  return {
+    ciphertext: ciphertext.toString("base64"),
+    iv: iv.toString("hex"),
+    authTag: authTag.toString("hex")
+  };
+}
+function decryptPayload(encrypted) {
+  const decipher = createDecipheriv(
+    "aes-256-gcm",
+    MASTER_KEY,
+    Buffer.from(encrypted.iv, "hex")
+  );
+  decipher.setAuthTag(Buffer.from(encrypted.authTag, "hex"));
+  const ciphertext = Buffer.from(encrypted.ciphertext, "base64");
+  const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  return JSON.parse(plaintext.toString("utf8"));
+}
+
+// api/adgpt-router.ts
+var adgptRouter = createRouter({
+  // -------------------------------------------------------------------
+  // Campaign: generate a campaign asset bundle
+  // -------------------------------------------------------------------
+  generate: adminQuery.input(
+    external_exports.object({
+      clientId: external_exports.string().min(1),
+      targetUrl: external_exports.string().url(),
+      bookTitle: external_exports.string().min(1),
+      bookAuthor: external_exports.string().optional(),
+      ugcScript: external_exports.string().optional(),
+      adHeadlines: external_exports.string().optional(),
+      platform: external_exports.enum(["google", "meta", "tiktok", "mixed"]).default("mixed")
+    })
+  ).mutation(async ({ input, ctx }) => {
+    const db = getDb();
+    const client = await db.select().from(virtusClientLedgers).where(eq15(virtusClientLedgers.clientId, input.clientId)).limit(1);
+    if (!client[0]) {
+      const tierCredits = { creator: 3, professional: 10, publisher: 50, enterprise: 100 };
+      const credits = tierCredits[input.clientId.split("_")[0] || "creator"] ?? 3;
+      await db.insert(virtusClientLedgers).values({
+        clientId: input.clientId,
+        marketingCredits: credits,
+        subscriptionTier: "creator",
+        lastDebitTimestamp: /* @__PURE__ */ new Date()
+      });
+      return { error: "Ledger auto-created. Try again." };
+    }
+    if (client[0].subscriptionTier === "free" || client[0].subscriptionTier === "basic") {
+      return { error: "Client tier does not include marketing credits. Upgrade required." };
+    }
+    if (client[0].marketingCredits <= 0) {
+      return { error: "Insufficient marketing credits. Client has 0 credits remaining." };
+    }
+    await db.update(virtusClientLedgers).set({
+      marketingCredits: sql6`${virtusClientLedgers.marketingCredits} - 1`,
+      lastDebitTimestamp: /* @__PURE__ */ new Date()
+    }).where(eq15(virtusClientLedgers.clientId, input.clientId));
+    let scrapedMeta = { title: input.bookTitle, description: "", author: input.bookAuthor || "", coverUrl: "" };
+    try {
+      const response = await fetch(input.targetUrl, { signal: AbortSignal.timeout(8e3) });
+      const html = await response.text();
+      const ogTitle = html.match(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i)?.[1];
+      const ogDesc = html.match(/<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i)?.[1];
+      const ogImage = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i)?.[1];
+      scrapedMeta = {
+        title: ogTitle || input.bookTitle,
+        description: ogDesc || "",
+        author: input.bookAuthor || "",
+        coverUrl: ogImage || ""
+      };
+    } catch (err) {
+      console.log("[AdGPT] Scrape skipped:", err.message);
+    }
+    let generatedImageUrl = "";
+    const openaiKey = process.env.OPENAI_API_KEY;
+    if (openaiKey) {
+      try {
+        const resp = await fetch("https://api.openai.com/v1/images/generations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${openaiKey}` },
+          body: JSON.stringify({
+            model: "dall-e-3",
+            prompt: `Professional book marketing creative: ${scrapedMeta.title} by ${scrapedMeta.author}. Elegant, eye-catching design with bold typography, warm colors, and a modern literary aesthetic. No text except the book title.`,
+            size: "1024x1024",
+            n: 1
+          })
+        });
+        const data = await resp.json();
+        generatedImageUrl = data.data?.[0]?.url || "";
+      } catch (err) {
+        console.log("[AdGPT] DALL-E skipped:", err.message);
+      }
+    }
+    const campaignPayload = {
+      clientId: input.clientId,
+      targetUrl: input.targetUrl,
+      bookTitle: scrapedMeta.title,
+      bookAuthor: scrapedMeta.author,
+      bookDescription: scrapedMeta.description,
+      bookCoverUrl: scrapedMeta.coverUrl || generatedImageUrl,
+      generatedImageUrl,
+      ugcScript: input.ugcScript || "",
+      adHeadlines: input.adHeadlines || "",
+      platform: input.platform,
+      keywords: generateKeywords(scrapedMeta.title, scrapedMeta.author),
+      generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      generatedBy: ctx.user.id
+    };
+    const { ciphertext, iv, authTag } = encryptPayload(campaignPayload);
+    const result = await db.insert(virtusAiCampaigns).values({
+      associatedUrl: input.targetUrl,
+      bookTitle: scrapedMeta.title,
+      bookAuthor: scrapedMeta.author,
+      bookCoverUrl: scrapedMeta.coverUrl || generatedImageUrl,
+      encryptedPayload: ciphertext,
+      iv,
+      authTag,
+      createdBy: ctx.user.id,
+      campaignStatus: "draft"
+    }).returning();
+    return {
+      success: true,
+      campaignId: result[0].id,
+      payload: campaignPayload,
+      encrypted: { iv, authTag: authTag.slice(0, 8) + "..." },
+      creditsRemaining: client[0].marketingCredits - 1
+    };
+  }),
+  // -------------------------------------------------------------------
+  // Analytics: decrypt and return campaign by ID
+  // -------------------------------------------------------------------
+  analytics: adminQuery.input(external_exports.object({ recordId: external_exports.string().uuid() })).query(async ({ input }) => {
+    const db = getDb();
+    const rows = await db.select().from(virtusAiCampaigns).where(eq15(virtusAiCampaigns.id, input.recordId)).limit(1);
+    if (!rows[0]) return { error: "Campaign not found" };
+    const row = rows[0];
+    const decrypted = decryptPayload({
+      ciphertext: row.encryptedPayload,
+      iv: row.iv,
+      authTag: row.authTag
+    });
+    return {
+      campaignId: row.id,
+      bookTitle: row.bookTitle,
+      bookAuthor: row.bookAuthor,
+      bookCoverUrl: row.bookCoverUrl,
+      associatedUrl: row.associatedUrl,
+      campaignStatus: row.campaignStatus,
+      generatedAt: row.generatedAt,
+      decryptedPayload: decrypted
+    };
+  }),
+  // -------------------------------------------------------------------
+  // List all campaigns
+  // -------------------------------------------------------------------
+  list: adminQuery.query(async () => {
+    const db = getDb();
+    return db.select({
+      id: virtusAiCampaigns.id,
+      bookTitle: virtusAiCampaigns.bookTitle,
+      bookAuthor: virtusAiCampaigns.bookAuthor,
+      bookCoverUrl: virtusAiCampaigns.bookCoverUrl,
+      associatedUrl: virtusAiCampaigns.associatedUrl,
+      campaignStatus: virtusAiCampaigns.campaignStatus,
+      generatedAt: virtusAiCampaigns.generatedAt,
+      createdBy: virtusAiCampaigns.createdBy
+    }).from(virtusAiCampaigns).orderBy(desc13(virtusAiCampaigns.generatedAt));
+  }),
+  // -------------------------------------------------------------------
+  // Client ledger: credits info
+  // -------------------------------------------------------------------
+  ledger: adminQuery.input(external_exports.object({ clientId: external_exports.string() })).query(async ({ input }) => {
+    const db = getDb();
+    const rows = await db.select().from(virtusClientLedgers).where(eq15(virtusClientLedgers.clientId, input.clientId)).limit(1);
+    if (!rows[0]) return { credits: 0, tier: "none", lastDebit: null };
+    return { credits: rows[0].marketingCredits, tier: rows[0].subscriptionTier, lastDebit: rows[0].lastDebitTimestamp };
+  }),
+  // -------------------------------------------------------------------
+  // PDF Export: generate a white-label marketing brief
+  // -------------------------------------------------------------------
+  exportPdf: adminQuery.input(external_exports.object({ recordId: external_exports.string().uuid() })).mutation(async ({ input }) => {
+    const db = getDb();
+    const rows = await db.select().from(virtusAiCampaigns).where(eq15(virtusAiCampaigns.id, input.recordId)).limit(1);
+    if (!rows[0]) return { error: "Campaign not found" };
+    const row = rows[0];
+    const decrypted = decryptPayload({ ciphertext: row.encryptedPayload, iv: row.iv, authTag: row.authTag });
+    const PDFDocument = (await import("pdfkit")).default;
+    const doc = new PDFDocument();
+    const chunks = [];
+    doc.on("data", (chunk) => chunks.push(chunk));
+    doc.on("end", () => {
+    });
+    doc.fontSize(24).fillColor("#1A1A1F").text("VIRTUS MARKETING BRIEF", 50, 50);
+    doc.fontSize(11).fillColor("#9B9589").text(`Generated: ${new Date(row.generatedAt).toLocaleString()}`, 50, 85);
+    doc.moveDown(2);
+    doc.fontSize(16).fillColor("#C8A55C").text("Book Information");
+    doc.fontSize(12).fillColor("#1A1A1F").text(`Title: ${row.bookTitle}`);
+    doc.text(`Author: ${row.bookAuthor || "N/A"}`);
+    doc.text(`Target URL: ${row.associatedUrl}`);
+    doc.moveDown(1.5);
+    doc.fontSize(16).fillColor("#C8A55C").text("Target Keywords");
+    if (decrypted.keywords) {
+      doc.fontSize(11).fillColor("#1A1A1F");
+      decrypted.keywords.forEach((kw) => doc.text(`  - ${kw}`));
+    }
+    doc.moveDown(1.5);
+    if (decrypted.ugcScript) {
+      doc.fontSize(16).fillColor("#C8A55C").text("UGC Video Script");
+      doc.fontSize(11).fillColor("#1A1A1F").text(decrypted.ugcScript, { width: 500 });
+      doc.moveDown(1.5);
+    }
+    if (decrypted.adHeadlines) {
+      doc.fontSize(16).fillColor("#C8A55C").text("Ad Headlines");
+      doc.fontSize(11).fillColor("#1A1A1F").text(decrypted.adHeadlines, { width: 500 });
+      doc.moveDown(1.5);
+    }
+    doc.fontSize(16).fillColor("#C8A55C").text("Platform Targeting");
+    doc.fontSize(11).fillColor("#1A1A1F").text(`Primary Platform: ${decrypted.platform || "mixed"}`);
+    doc.moveDown(1.5);
+    doc.fontSize(9).fillColor("#9B9589").text("Powered by Virtus Publishing AdGPT Engine", 50, doc.page.height - 80);
+    doc.text("CONFIDENTIAL \u2014 Internal Use Only");
+    doc.end();
+    return new Promise((resolve) => {
+      doc.on("end", () => {
+        const pdfBuffer = Buffer.concat(chunks);
+        resolve({
+          success: true,
+          pdfBase64: pdfBuffer.toString("base64"),
+          filename: `virtus-brief-${row.bookTitle.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-${Date.now()}.pdf`
+        });
+      });
+    });
+  })
+});
+function generateKeywords(title, author) {
+  const words = title.toLowerCase().split(/\s+/).filter((w) => w.length > 2);
+  const base = [...words, author.toLowerCase(), "ebook", "book", "kindle", "bestseller"];
+  const exact = base.map((w) => `"${w}"`);
+  const phrase = base.map((w) => `[${w}]`);
+  const broad = base;
+  return [.../* @__PURE__ */ new Set([...exact, ...phrase, ...broad])];
+}
+
+// api/adgpt-connector-router.ts
+import { eq as eq16, and as and7 } from "drizzle-orm";
+var adgptConnectorRouter = createRouter({
+  // -------------------------------------------------------------------
+  // Save encrypted platform credentials
+  // -------------------------------------------------------------------
+  linkCredentials: adminQuery.input(
+    external_exports.object({
+      staffId: external_exports.string().min(1),
+      platform: external_exports.enum(["google_ads", "meta", "tiktok"]),
+      credentials: external_exports.record(external_exports.string())
+      // { accessToken, refreshToken, accountId, etc }
+    })
+  ).mutation(async ({ input }) => {
+    const db = getDb();
+    const encrypted = encryptPayload(input.credentials);
+    await db.delete(virtusStaffIntegrations).where(and7(
+      eq16(virtusStaffIntegrations.staffId, input.staffId),
+      eq16(virtusStaffIntegrations.platform, input.platform)
+    ));
+    await db.insert(virtusStaffIntegrations).values({
+      staffId: input.staffId,
+      platform: input.platform,
+      encryptedCredentials: encrypted.ciphertext,
+      iv: encrypted.iv,
+      authTag: encrypted.authTag,
+      linkedAt: /* @__PURE__ */ new Date()
+    });
+    return { success: true, platform: input.platform, linkedAt: (/* @__PURE__ */ new Date()).toISOString() };
+  }),
+  // -------------------------------------------------------------------
+  // Retrieve decrypted credentials (for server-side use only)
+  // -------------------------------------------------------------------
+  getCredentials: adminQuery.input(external_exports.object({ staffId: external_exports.string(), platform: external_exports.enum(["google_ads", "meta", "tiktok"]) })).query(async ({ input }) => {
+    const db = getDb();
+    const rows = await db.select().from(virtusStaffIntegrations).where(and7(
+      eq16(virtusStaffIntegrations.staffId, input.staffId),
+      eq16(virtusStaffIntegrations.platform, input.platform)
+    )).limit(1);
+    if (!rows[0]) return { linked: false };
+    const decrypted = decryptPayload({
+      ciphertext: rows[0].encryptedCredentials,
+      iv: rows[0].iv,
+      authTag: rows[0].authTag
+    });
+    return { linked: true, credentials: decrypted, linkedAt: rows[0].linkedAt };
+  }),
+  // -------------------------------------------------------------------
+  // List all linked integrations for a staff member
+  // -------------------------------------------------------------------
+  listIntegrations: adminQuery.input(external_exports.object({ staffId: external_exports.string() })).query(async ({ input }) => {
+    const db = getDb();
+    const rows = await db.select().from(virtusStaffIntegrations).where(eq16(virtusStaffIntegrations.staffId, input.staffId));
+    return rows.map((r) => ({
+      platform: r.platform,
+      linkedAt: r.linkedAt,
+      // Never expose encrypted data — just confirm linkage
+      linked: true
+    }));
+  }),
+  // -------------------------------------------------------------------
+  // Disconnect a platform
+  // -------------------------------------------------------------------
+  disconnect: adminQuery.input(external_exports.object({ staffId: external_exports.string(), platform: external_exports.enum(["google_ads", "meta", "tiktok"]) })).mutation(async ({ input }) => {
+    const db = getDb();
+    await db.delete(virtusStaffIntegrations).where(and7(
+      eq16(virtusStaffIntegrations.staffId, input.staffId),
+      eq16(virtusStaffIntegrations.platform, input.platform)
+    ));
+    return { success: true };
+  }),
+  // -------------------------------------------------------------------
+  // Push campaign to Google Ads (server-to-server)
+  // -------------------------------------------------------------------
+  pushGoogleAds: adminQuery.input(external_exports.object({
+    staffId: external_exports.string(),
+    campaignId: external_exports.string().uuid()
+  })).mutation(async ({ input }) => {
+    const db = getDb();
+    const credRows = await db.select().from(virtusStaffIntegrations).where(and7(
+      eq16(virtusStaffIntegrations.staffId, input.staffId),
+      eq16(virtusStaffIntegrations.platform, "google_ads")
+    )).limit(1);
+    if (!credRows[0]) return { error: "Google Ads credentials not linked." };
+    const creds = decryptPayload({
+      ciphertext: credRows[0].encryptedCredentials,
+      iv: credRows[0].iv,
+      authTag: credRows[0].authTag
+    });
+    const campRows = await db.select().from(virtusAiCampaigns).where(eq16(virtusAiCampaigns.id, input.campaignId)).limit(1);
+    if (!campRows[0]) return { error: "Campaign not found." };
+    const campaign = decryptPayload({
+      ciphertext: campRows[0].encryptedPayload,
+      iv: campRows[0].iv,
+      authTag: campRows[0].authTag
+    });
+    try {
+      const customerId = creds.customerId || creds.accountId;
+      const developerToken = creds.developerToken || process.env.GOOGLE_ADS_DEV_TOKEN;
+      const campaignResource = {
+        name: `Virtus: ${campaign.bookTitle} \u2014 ${Date.now()}`,
+        advertisingChannelType: "SEARCH",
+        status: "ENABLED",
+        campaignBudget: `customers/${customerId}/campaignBudgets/-1`,
+        startDate: (/* @__PURE__ */ new Date()).toISOString().slice(0, 10).replace(/-/g, ""),
+        endDate: new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10).replace(/-/g, ""),
+        manualCpc: { enhancedCpcEnabled: true }
+      };
+      const resp = await fetch(
+        `https://googleads.googleapis.com/v16/customers/${customerId}/campaigns:mutate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${creds.accessToken}`,
+            "developer-token": developerToken
+          },
+          body: JSON.stringify({
+            operations: [{ create: campaignResource }],
+            partialFailure: true
+          })
+        }
+      );
+      const data = await resp.json();
+      await db.update(virtusAiCampaigns).set({ campaignStatus: "scheduled" }).where(eq16(virtusAiCampaigns.id, input.campaignId));
+      return {
+        success: !data.error,
+        platformResponse: data,
+        campaignStatus: "scheduled"
+      };
+    } catch (err) {
+      console.error("[AdGPT] Google Ads push failed:", err);
+      return { error: err.message, platform: "google_ads" };
+    }
+  }),
+  // -------------------------------------------------------------------
+  // Push campaign to Meta Marketing API
+  // -------------------------------------------------------------------
+  pushMeta: adminQuery.input(external_exports.object({
+    staffId: external_exports.string(),
+    campaignId: external_exports.string().uuid()
+  })).mutation(async ({ input }) => {
+    const db = getDb();
+    const credRows = await db.select().from(virtusStaffIntegrations).where(and7(
+      eq16(virtusStaffIntegrations.staffId, input.staffId),
+      eq16(virtusStaffIntegrations.platform, "meta")
+    )).limit(1);
+    if (!credRows[0]) return { error: "Meta credentials not linked." };
+    const creds = decryptPayload({
+      ciphertext: credRows[0].encryptedCredentials,
+      iv: credRows[0].iv,
+      authTag: credRows[0].authTag
+    });
+    const campRows = await db.select().from(virtusAiCampaigns).where(eq16(virtusAiCampaigns.id, input.campaignId)).limit(1);
+    if (!campRows[0]) return { error: "Campaign not found." };
+    const campaign = decryptPayload({
+      ciphertext: campRows[0].encryptedPayload,
+      iv: campRows[0].iv,
+      authTag: campRows[0].authTag
+    });
+    try {
+      const resp = await fetch(
+        `https://graph.facebook.com/v22.0/act_${creds.adAccountId}/campaigns`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            name: `Virtus: ${campaign.bookTitle} \u2014 ${Date.now()}`,
+            objective: "CONVERSIONS",
+            status: "PAUSED",
+            access_token: creds.accessToken,
+            special_ad_categories: "[]"
+          })
+        }
+      );
+      const data = await resp.json();
+      await db.update(virtusAiCampaigns).set({ campaignStatus: "scheduled" }).where(eq16(virtusAiCampaigns.id, input.campaignId));
+      return { success: !data.error, platformResponse: data, campaignStatus: "scheduled" };
+    } catch (err) {
+      console.error("[AdGPT] Meta push failed:", err);
+      return { error: err.message, platform: "meta" };
+    }
+  }),
+  // -------------------------------------------------------------------
+  // Push campaign to TikTok Ads API
+  // -------------------------------------------------------------------
+  pushTikTok: adminQuery.input(external_exports.object({
+    staffId: external_exports.string(),
+    campaignId: external_exports.string().uuid()
+  })).mutation(async ({ input }) => {
+    const db = getDb();
+    const credRows = await db.select().from(virtusStaffIntegrations).where(and7(
+      eq16(virtusStaffIntegrations.staffId, input.staffId),
+      eq16(virtusStaffIntegrations.platform, "tiktok")
+    )).limit(1);
+    if (!credRows[0]) return { error: "TikTok credentials not linked." };
+    const creds = decryptPayload({
+      ciphertext: credRows[0].encryptedCredentials,
+      iv: credRows[0].iv,
+      authTag: credRows[0].authTag
+    });
+    const campRows = await db.select().from(virtusAiCampaigns).where(eq16(virtusAiCampaigns.id, input.campaignId)).limit(1);
+    if (!campRows[0]) return { error: "Campaign not found." };
+    try {
+      const resp = await fetch(
+        "https://business-api.tiktok.com/open_api/v1.3/campaign/create/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Token": creds.accessToken
+          },
+          body: JSON.stringify({
+            advertiser_id: creds.advertiserId,
+            campaign_name: `Virtus: Book Campaign ${Date.now()}`,
+            objective_type: "TRAFFIC",
+            budget_mode: "BUDGET_MODE_DAY",
+            budget: "50.00",
+            campaign_type: "REGULAR"
+          })
+        }
+      );
+      const data = await resp.json();
+      await db.update(virtusAiCampaigns).set({ campaignStatus: "scheduled" }).where(eq16(virtusAiCampaigns.id, input.campaignId));
+      return { success: data.code === 0, platformResponse: data, campaignStatus: "scheduled" };
+    } catch (err) {
+      console.error("[AdGPT] TikTok push failed:", err);
+      return { error: err.message, platform: "tiktok" };
+    }
+  }),
+  // -------------------------------------------------------------------
+  // Platform health check — verify credentials are valid
+  // -------------------------------------------------------------------
+  healthCheck: adminQuery.input(external_exports.object({
+    staffId: external_exports.string(),
+    platform: external_exports.enum(["google_ads", "meta", "tiktok"])
+  })).query(async ({ input }) => {
+    const db = getDb();
+    const rows = await db.select().from(virtusStaffIntegrations).where(and7(
+      eq16(virtusStaffIntegrations.staffId, input.staffId),
+      eq16(virtusStaffIntegrations.platform, input.platform)
+    )).limit(1);
+    if (!rows[0]) return { healthy: false, reason: "not_linked" };
+    const creds = decryptPayload({
+      ciphertext: rows[0].encryptedCredentials,
+      iv: rows[0].iv,
+      authTag: rows[0].authTag
+    });
+    try {
+      if (input.platform === "google_ads") {
+        const resp = await fetch("https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" + creds.accessToken);
+        return { healthy: resp.ok, reason: resp.ok ? "ok" : "invalid_token" };
+      }
+      if (input.platform === "meta") {
+        const resp = await fetch(`https://graph.facebook.com/v22.0/me?access_token=${creds.accessToken}`);
+        return { healthy: resp.ok, reason: resp.ok ? "ok" : "invalid_token" };
+      }
+      if (input.platform === "tiktok") {
+        const resp = await fetch(
+          `https://business-api.tiktok.com/open_api/v1.3/advertiser/info/?advertiser_ids=["${creds.advertiserId}"]`,
+          { headers: { "Access-Token": creds.accessToken } }
+        );
+        return { healthy: resp.ok, reason: resp.ok ? "ok" : "invalid_token" };
+      }
+    } catch {
+      return { healthy: false, reason: "network_error" };
+    }
+    return { healthy: false, reason: "unknown" };
+  })
+});
+
 // api/router.ts
 var appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
@@ -44376,11 +45723,19 @@ var appRouter = createRouter({
   admin: adminRouter,
   blog: blogRouter,
   podcast: podcastRouter,
-  payment: paymentRouter
+  payment: paymentRouter,
+  campaign: campaignRouter,
+  salesLead: salesLeadRouter,
+  team: teamRouter,
+  fileUpload: fileUploadRouter,
+  ollama: ollamaRouter,
+  kb: kbRouter,
+  adgpt: adgptRouter,
+  adgptConnector: adgptConnectorRouter
 });
 
 // api/kimi/auth.ts
-import { eq as eq11 } from "drizzle-orm";
+import { eq as eq17 } from "drizzle-orm";
 var sessions = /* @__PURE__ */ new Map();
 function generateSessionId() {
   return crypto.randomUUID();
@@ -44408,7 +45763,7 @@ async function authenticateRequest(headers) {
     return void 0;
   }
   const db = getDb();
-  const rows = await db.select().from(users).where(eq11(users.unionId, session.unionId)).limit(1);
+  const rows = await db.select().from(users).where(eq17(users.unionId, session.unionId)).limit(1);
   return rows[0];
 }
 function createOAuthCallbackHandler() {
@@ -44472,7 +45827,7 @@ function createOAuthCallbackHandler() {
 }
 
 // api/context.ts
-import { eq as eq12 } from "drizzle-orm";
+import { eq as eq18 } from "drizzle-orm";
 async function createContext(opts) {
   const ctx = { req: opts.req, resHeaders: opts.resHeaders };
   try {
@@ -44484,7 +45839,7 @@ async function createContext(opts) {
       const decoded = getLocalUserFromCookie(opts.req.headers);
       if (decoded) {
         const db = getDb();
-        const result = await db.select().from(users).where(eq12(users.id, decoded.userId)).limit(1);
+        const result = await db.select().from(users).where(eq18(users.id, decoded.userId)).limit(1);
         ctx.user = result[0];
       }
     } catch {

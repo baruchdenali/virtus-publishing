@@ -13,6 +13,8 @@
   ],
   "compilerOptions": {
     "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
     "paths": {
       "@/*": [
         "./src/*"

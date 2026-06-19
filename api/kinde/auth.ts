@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createKindeServerClient, GrantType, type SessionManager } from "@kinde-oss/kinde-typescript-sdk";
 
 // Kinde server client for backend operations

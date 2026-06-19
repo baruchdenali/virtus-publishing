@@ -1,9 +1,10 @@
 import { Outlet, useLocation, Link } from 'react-router'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { Search, Menu, X, Sparkles, BookOpen, Store, LayoutDashboard, Settings, LogOut, BarChart3, Globe, ChevronDown, Calendar, Newspaper, Mic, Mail, Phone, MapPin, Shield, DollarSign } from 'lucide-react'
+import { Search, Menu, X, Sparkles, BookOpen, Store, LayoutDashboard, Settings, LogOut, BarChart3, Globe, ChevronDown, Calendar, Newspaper, Mic, Mail, Phone, MapPin, Shield, DollarSign, BookMarked, Megaphone } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import Logo from '@/components/Logo'
+import ErrorBoundary from './ErrorBoundary'
 
 export default function AppShell() {
   const location = useLocation()
@@ -25,14 +26,17 @@ export default function AppShell() {
     { path: '/events', label: 'Events', icon: Calendar },
     { path: '/blog', label: 'Blog', icon: Newspaper },
     { path: '/podcast', label: 'Podcast', icon: Mic },
+    { path: '/kb', label: 'KB', icon: BookMarked },
     ...(isAuthenticated ? [
       { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     ] : []),
     ...(isAdmin ? [
       { path: '/admin', label: 'Admin', icon: BarChart3 },
+      { path: '/admin/adgpt', label: 'AdGPT', icon: Megaphone },
     ] : []),
     ...(isOperations ? [
       { path: '/admin/operations', label: 'Operations', icon: Shield },
+      { path: '/admin/adgpt', label: 'AdGPT', icon: Megaphone },
     ] : []),
     ...(isSales ? [
       { path: '/admin/sales', label: 'Sales', icon: DollarSign },
@@ -201,7 +205,9 @@ export default function AppShell() {
       {/* Main Content */}
       <main className="pt-[136px] pb-0" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-12 page-enter">
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </div>
       </main>
 

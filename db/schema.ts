@@ -8,6 +8,7 @@ import {
   decimal,
   integer,
   jsonb,
+  uuid,
   boolean,
 } from "drizzle-orm/pg-core";
 
@@ -235,4 +236,41 @@ export type Podcast = typeof podcasts.$inferSelect;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type Service = typeof services.$inferSelect;
 export type Campaign = typeof campaigns.$inferSelect;
+// ===================================================================
+// MODULE 1: AdGPT Isolated Microservice Tables
+// ===================================================================
+
+export const virtusAiCampaigns = pgTable("virtus_ai_campaigns", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  associatedUrl: text("associated_url").notNull(),
+  generatedAt: timestamp("generated_at", { mode: "date" }).defaultNow().notNull(),
+  bookTitle: text("book_title").notNull(),
+  bookAuthor: text("book_author"),
+  bookCoverUrl: text("book_cover_url"),
+  encryptedPayload: text("encrypted_payload").notNull(),
+  iv: varchar("iv", { length: 64 }).notNull(),
+  authTag: varchar("auth_tag", { length: 64 }).notNull(),
+  createdBy: integer("created_by").notNull(),
+  campaignStatus: varchar("campaign_status", { length: 32 }).default("draft").notNull(),
+});
+
+export const virtusClientLedgers = pgTable("virtus_client_ledgers", {
+  clientId: varchar("client_id", { length: 64 }).primaryKey(),
+  marketingCredits: integer("marketing_credits").default(0).notNull(),
+  subscriptionTier: varchar("subscription_tier", { length: 32 }).default("creator").notNull(),
+  lastDebitTimestamp: timestamp("last_debit_timestamp", { mode: "date" }),
+});
+
+export const virtusStaffIntegrations = pgTable("virtus_staff_integrations", {
+  staffId: varchar("staff_id", { length: 64 }).primaryKey(),
+  platform: varchar("platform", { length: 32 }).notNull(),
+  linkedAt: timestamp("linked_at", { mode: "date" }).defaultNow().notNull(),
+  encryptedCredentials: text("encrypted_credentials").notNull(),
+  iv: varchar("iv", { length: 64 }).notNull(),
+  authTag: varchar("auth_tag", { length: 64 }).notNull(),
+});
+
 export type SalesLead = typeof salesLeads.$inferSelect;
+export type VirtusAiCampaign = typeof virtusAiCampaigns.$inferSelect;
+export type VirtusClientLedger = typeof virtusClientLedgers.$inferSelect;
+export type VirtusStaffIntegration = typeof virtusStaffIntegrations.$inferSelect;

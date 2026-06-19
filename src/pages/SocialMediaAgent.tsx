@@ -1,19 +1,13 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { motion } from 'framer-motion'
-import { Share2, Calendar, Check, Play, Pause, RotateCcw, TrendingUp, Users, Eye, Heart, MessageCircle, Send, Clock, AlertTriangle, CheckCircle, Image, Type, Link2 } from 'lucide-react'
-
-interface Campaign {
-  id: number
-  name: string
-  channel: string
-  status: 'draft' | 'scheduled' | 'running' | 'paused' | 'completed'
-  content: string
-  scheduledAt: string
-  engagement: number
-  reach: number
-  conversions: number
-  confidence: number
-}
+import { useAuth } from '@/hooks/useAuth'
+import { trpc } from '@/providers/trpc'
+import {
+  Share2, Calendar, Play, Pause, TrendingUp, Users, Eye, Heart,
+  Send, Clock, CheckCircle, Zap, Edit3, Check, X, Link2,
+  Globe, Trash2, AlertTriangle, RefreshCw, Loader2
+} from 'lucide-react'
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -28,23 +22,42 @@ const channelConfig: Record<string, { maxChars: number; supportsImage: boolean; 
   Blog: { maxChars: 50000, supportsImage: true, supportsLink: true },
 }
 
-const initialCampaigns: Campaign[] = [
-  { id: 1, name: 'New AI Feature Launch', channel: 'Twitter', status: 'running', content: 'Exciting news! Our AI Writing Assistant just got a major upgrade. Write smarter, publish faster with Virtus Publishing. #AIPublishing #VirtusPublishing', scheduledAt: '2026-06-01 10:00', engagement: 342, reach: 5600, conversions: 28, confidence: 96 },
-  { id: 2, name: 'Author Spotlight: Elena Voss', channel: 'LinkedIn', status: 'scheduled', content: 'Meet Elena Voss, a Virtus author who published 5 bestsellers in 12 months using our platform. Read her story and learn how you can do the same.', scheduledAt: '2026-06-02 14:00', engagement: 0, reach: 0, conversions: 0, confidence: 92 },
-  { id: 3, name: 'Weekend Writing Challenge', channel: 'Instagram', status: 'draft', content: 'Join our Weekend Writing Challenge! Use our AI assistant to write 1,000 words this weekend. Tag us with your progress! #WeekendWritingChallenge', scheduledAt: '', engagement: 0, reach: 0, conversions: 0, confidence: 88 },
-  { id: 4, name: 'Enterprise Licensing Promo', channel: 'LinkedIn', status: 'paused', content: 'Universities and publishing houses: Scale your publishing with Virtus Enterprise. Custom pricing starts at $5,000/year. DM us for a demo.', scheduledAt: '2026-06-03 09:00', engagement: 156, reach: 3200, conversions: 12, confidence: 91 },
-  { id: 5, name: 'Summer Sale Announcement', channel: 'Twitter', status: 'completed', content: 'Summer Sale! Get 30% off Virtus Professional for your first 3 months. Use code SUMMER30. Limited time offer! #SummerSale #eBookPublishing', scheduledAt: '2026-05-28 08:00', engagement: 891, reach: 12400, conversions: 67, confidence: 95 },
-]
+interface SocialAccount {
+  id: number
+  platform: string
+  handle: string
+  url: string
+  followers: number
+  growth: string
+  status: 'connected' | 'needs_auth' | 'disconnected'
+  lastPost: string
+}
 
-const socialAccounts = [
-  { platform: 'Twitter', handle: '@VirtusPublishing', followers: 12500, growth: '+8%', status: 'connected', lastPost: '2h ago' },
-  { platform: 'LinkedIn', handle: 'Virtus Publishing', followers: 8400, growth: '+12%', status: 'connected', lastPost: '5h ago' },
-  { platform: 'Instagram', handle: '@virtus.publishing', followers: 6200, growth: '+15%', status: 'connected', lastPost: '1d ago' },
-  { platform: 'Facebook', handle: 'Virtus Publishing', followers: 4300, growth: '+3%', status: 'needs_auth', lastPost: '3d ago' },
+const initialAccounts: SocialAccount[] = [
+  { id: 1, platform: 'Twitter', handle: '@VirtusPublishing', url: 'https://twitter.com/VirtusPublishing', followers: 12500, growth: '+8%', status: 'connected', lastPost: '2h ago' },
+  { id: 2, platform: 'LinkedIn', handle: 'Virtus Publishing', url: 'https://linkedin.com/company/virtus-publishing', followers: 8400, growth: '+12%', status: 'connected', lastPost: '5h ago' },
+  { id: 3, platform: 'Instagram', handle: '@virtus.publishing', url: 'https://instagram.com/virtus.publishing', followers: 6200, growth: '+15%', status: 'connected', lastPost: '1d ago' },
+  { id: 4, platform: 'Facebook', handle: 'Virtus Publishing', url: 'https://facebook.com/VirtusPublishing', followers: 4300, growth: '+3%', status: 'needs_auth', lastPost: '3d ago' },
+  { id: 5, platform: 'TikTok', handle: '@virtuspublishing', url: 'https://tiktok.com/@virtuspublishing', followers: 0, growth: '0%', status: 'disconnected', lastPost: 'Never' },
+  { id: 6, platform: 'YouTube', handle: 'Virtus Publishing', url: 'https://youtube.com/@VirtusPublishing', followers: 0, growth: '0%', status: 'disconnected', lastPost: 'Never' },
 ]
 
 export default function SocialMediaAgent() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>(initialCampaigns)
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const hasAccess = user?.role === 'admin' || user?.role === 'operations'
+  const utils = trpc.useUtils()
+
+  // tRPC: campaigns from database
+  const { data: dbCampaigns, isLoading } = trpc.campaign.list.useQuery(undefined, { enabled: hasAccess })
+  const createMutation = trpc.campaign.create.useMutation({ onSuccess: () => utils.campaign.list.invalidate() })
+  const updateStatusMutation = trpc.campaign.updateStatus.useMutation({ onSuccess: () => utils.campaign.list.invalidate() })
+  const deleteMutation = trpc.campaign.delete.useMutation({ onSuccess: () => utils.campaign.list.invalidate() })
+
+  const campaigns = dbCampaigns ?? []
+
+  // Local state
+  const [accounts, setAccounts] = useState<SocialAccount[]>(initialAccounts)
   const [showCreate, setShowCreate] = useState(false)
   const [newName, setNewName] = useState('')
   const [newChannel, setNewChannel] = useState('Twitter')
@@ -52,23 +65,63 @@ export default function SocialMediaAgent() {
   const [newScheduled, setNewScheduled] = useState('')
   const [aiMode, setAiMode] = useState(false)
   const [aiPrompt, setAiPrompt] = useState('')
+  const [editingAccount, setEditingAccount] = useState<number | null>(null)
+  const [editForm, setEditForm] = useState({ handle: '', url: '' })
 
-  const runningCount = campaigns.filter(c => c.status === 'running').length
-  const scheduledCount = campaigns.filter(c => c.status === 'scheduled').length
-  const draftCount = campaigns.filter(c => c.status === 'draft').length
-  const completedCount = campaigns.filter(c => c.status === 'completed').length
-  const totalEngagement = campaigns.reduce((sum, c) => sum + c.engagement, 0)
-  const totalReach = campaigns.reduce((sum, c) => sum + c.reach, 0)
-  const avgConfidence = campaigns.filter(c => c.confidence > 0).length > 0
-    ? Math.round(campaigns.filter(c => c.confidence > 0).reduce((sum, c) => sum + c.confidence, 0) / campaigns.filter(c => c.confidence > 0).length)
+  const runningCount = campaigns.filter((c: any) => c.status === 'running').length
+  const scheduledCount = campaigns.filter((c: any) => c.status === 'scheduled').length
+  const draftCount = campaigns.filter((c: any) => c.status === 'draft').length
+  const totalEngagement = campaigns.reduce((sum: number, c: any) => sum + (c.engagement ?? 0), 0)
+  const totalReach = campaigns.reduce((sum: number, c: any) => sum + (c.reach ?? 0), 0)
+  const avgConfidence = campaigns.length > 0
+    ? Math.round(campaigns.reduce((sum: number, c: any) => sum + Number(c.confidenceScore ?? 0), 0) / campaigns.length)
     : 0
 
-  function toggleStatus(id: number) {
-    setCampaigns(prev => prev.map(c => {
-      if (c.id !== id) return c
-      const next: Record<string, Campaign['status']> = { draft: 'scheduled', scheduled: 'running', running: 'paused', paused: 'running', completed: 'completed' }
-      return { ...c, status: next[c.status] || c.status }
-    }))
+  if (!hasAccess) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <Share2 className="w-16 h-16 text-[#C27070] mb-4" />
+        <h2 className="text-[24px] font-semibold mb-2">Access Denied</h2>
+        <p className="text-[14px] text-[#9B9589] mb-6">You need admin or operations privileges to access the Social Media Agent.</p>
+        <button onClick={() => navigate('/')} className="btn-gold text-[13px]">Back to Home</button>
+      </div>
+    )
+  }
+
+  const statusColors: Record<string, string> = {
+    draft: 'bg-[rgba(245,240,232,0.06)] text-[#9B9589]',
+    scheduled: 'bg-[rgba(107,155,209,0.12)] text-[#6B9BD1]',
+    running: 'bg-[rgba(74,222,128,0.12)] text-[#4ADE80]',
+    paused: 'bg-[rgba(239,68,68,0.12)] text-[#EF4444]',
+    completed: 'bg-[rgba(200,165,92,0.12)] text-[#C8A55C]',
+  }
+
+  function handleToggleStatus(id: number, current: string) {
+    const next: Record<string, string> = { draft: 'scheduled', scheduled: 'running', running: 'paused', paused: 'running', completed: 'completed' }
+    updateStatusMutation.mutate({ id, status: next[current] as any })
+  }
+
+  function handleDelete(id: number) {
+    if (window.confirm('Delete this campaign?')) deleteMutation.mutate({ id })
+  }
+
+  function handleCreateCampaign() {
+    if (!newName.trim() || !newContent.trim()) return
+    createMutation.mutate({
+      name: newName,
+      channel: newChannel,
+      content: newContent,
+      status: newScheduled ? 'scheduled' : 'draft',
+      scheduledAt: newScheduled || undefined,
+      confidenceScore: Math.floor(Math.random() * 15) + 85,
+    }, {
+      onSuccess: () => {
+        setNewName('')
+        setNewContent('')
+        setNewScheduled('')
+        setShowCreate(false)
+      }
+    })
   }
 
   function generateAIContent() {
@@ -82,33 +135,18 @@ export default function SocialMediaAgent() {
     setAiMode(false)
   }
 
-  function createCampaign() {
-    if (!newName.trim() || !newContent.trim()) return
-    const newCampaign: Campaign = {
-      id: Date.now(),
-      name: newName,
-      channel: newChannel,
-      status: newScheduled ? 'scheduled' : 'draft',
-      content: newContent,
-      scheduledAt: newScheduled,
-      engagement: 0,
-      reach: 0,
-      conversions: 0,
-      confidence: Math.floor(Math.random() * 15) + 85,
-    }
-    setCampaigns(prev => [newCampaign, ...prev])
-    setNewName('')
-    setNewContent('')
-    setNewScheduled('')
-    setShowCreate(false)
+  function startEditingAccount(acc: SocialAccount) {
+    setEditingAccount(acc.id)
+    setEditForm({ handle: acc.handle, url: acc.url })
   }
 
-  const statusColors: Record<string, string> = {
-    draft: 'bg-[rgba(245,240,232,0.06)] text-[#9B9589]',
-    scheduled: 'bg-[rgba(107,155,209,0.12)] text-[#6B9BD1]',
-    running: 'bg-[rgba(74,222,128,0.12)] text-[#4ADE80]',
-    paused: 'bg-[rgba(239,68,68,0.12)] text-[#EF4444]',
-    completed: 'bg-[rgba(200,165,92,0.12)] text-[#C8A55C]',
+  function saveAccountEdit(id: number) {
+    setAccounts(prev => prev.map(a => a.id === id ? { ...a, handle: editForm.handle, url: editForm.url } : a))
+    setEditingAccount(null)
+  }
+
+  function connectAccount(id: number) {
+    setAccounts(prev => prev.map(a => a.id === id ? { ...a, status: 'connected' as const, growth: '+0%', lastPost: 'Just now' } : a))
   }
 
   return (
@@ -143,26 +181,62 @@ export default function SocialMediaAgent() {
         ))}
       </div>
 
-      {/* Social Accounts */}
+      {/* Connected Social Accounts — EDITABLE */}
       <section>
         <h2 className="text-[18px] font-semibold mb-4 flex items-center gap-2">
-          <Users className="w-4 h-4 text-[#C8A55C]" />Connected Accounts
+          <Globe className="w-4 h-4 text-[#C8A55C]" />Connected Accounts
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {socialAccounts.map((acc) => (
-            <div key={acc.platform} className="glass-surface p-4 card-hover">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[14px] font-medium">{acc.platform}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${acc.status === 'connected' ? 'bg-[rgba(74,222,128,0.12)] text-[#4ADE80]' : 'bg-[rgba(239,68,68,0.12)] text-[#EF4444]'}`}>
-                  {acc.status === 'connected' ? 'Live' : 'Auth Needed'}
-                </span>
-              </div>
-              <p className="text-[12px] text-[#9B9589]">{acc.handle}</p>
-              <div className="flex items-center justify-between mt-2 text-[11px] text-[#9B9589]">
-                <span>{acc.followers.toLocaleString()} followers</span>
-                <span className="text-[#4ADE80]">{acc.growth}</span>
-              </div>
-              <p className="text-[10px] text-[#9B9589] mt-1">Last post: {acc.lastPost}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {accounts.map((acc) => (
+            <div key={acc.id} className="glass-surface p-4 card-hover">
+              {editingAccount === acc.id ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[14px] font-semibold text-[#C8A55C]">{acc.platform}</span>
+                    <div className="flex gap-1">
+                      <button onClick={() => saveAccountEdit(acc.id)} className="p-1 rounded bg-[rgba(74,222,128,0.12)] text-[#4ADE80]"><Check className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => setEditingAccount(null)} className="p-1 rounded bg-[rgba(239,68,68,0.12)] text-[#EF4444]"><X className="w-3.5 h-3.5" /></button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-[#9B9589] uppercase tracking-wider mb-1 block">Handle / Username</label>
+                    <input value={editForm.handle} onChange={e => setEditForm(f => ({ ...f, handle: e.target.value }))} className="field text-[12px] w-full" placeholder="@username" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-[#9B9589] uppercase tracking-wider mb-1 block">Profile URL</label>
+                    <input value={editForm.url} onChange={e => setEditForm(f => ({ ...f, url: e.target.value }))} className="field text-[12px] w-full" placeholder="https://..." />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[14px] font-medium">{acc.platform}</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${acc.status === 'connected' ? 'bg-[rgba(74,222,128,0.12)] text-[#4ADE80]' : acc.status === 'needs_auth' ? 'bg-[rgba(245,158,11,0.12)] text-[#F59E0B]' : 'bg-[rgba(245,240,232,0.06)] text-[#9B9589]'}`}>
+                        {acc.status === 'connected' ? 'Live' : acc.status === 'needs_auth' ? 'Auth Needed' : 'Disconnected'}
+                      </span>
+                      <button onClick={() => startEditingAccount(acc)} className="p-1 rounded hover:bg-[rgba(245,240,232,0.04)] text-[#9B9589] hover:text-[#C8A55C] transition-colors" title="Edit handle">
+                        <Edit3 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                  <a href={acc.url} target="_blank" rel="noopener noreferrer" className="text-[12px] text-[#6B9BD1] hover:text-[#C8A55C] transition-colors flex items-center gap-1">
+                    <Link2 className="w-3 h-3" />{acc.handle}
+                  </a>
+                  {acc.followers > 0 && (
+                    <div className="flex items-center justify-between mt-2 text-[11px] text-[#9B9589]">
+                      <span>{acc.followers.toLocaleString()} followers</span>
+                      <span className="text-[#4ADE80]">{acc.growth}</span>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-[#9B9589] mt-1">Last post: {acc.lastPost}</p>
+                  {acc.status !== 'connected' && (
+                    <button onClick={() => connectAccount(acc.id)} className="mt-2 w-full text-[11px] py-1.5 rounded-lg bg-[rgba(200,165,92,0.1)] text-[#C8A55C] hover:bg-[rgba(200,165,92,0.2)] transition-colors flex items-center justify-center gap-1">
+                      <RefreshCw className="w-3 h-3" />{acc.status === 'needs_auth' ? 'Re-Authenticate' : 'Connect Account'}
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           ))}
         </div>
@@ -172,7 +246,6 @@ export default function SocialMediaAgent() {
       {showCreate && (
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="glass-surface p-6 space-y-4">
           <h3 className="text-[16px] font-semibold">Create New Campaign</h3>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-[11px] font-medium text-[#9B9589] uppercase tracking-wider mb-1 block">Campaign Name</label>
@@ -185,7 +258,6 @@ export default function SocialMediaAgent() {
               </select>
             </div>
           </div>
-
           <div className="flex items-center gap-2 mb-2">
             <button onClick={() => setAiMode(!aiMode)} className={`text-[11px] px-2 py-1 rounded flex items-center gap-1 ${aiMode ? 'bg-[rgba(200,165,92,0.15)] text-[#C8A55C]' : 'bg-[rgba(245,240,232,0.04)] text-[#9B9589]'}`}>
               <Zap className="w-3 h-3" />AI Assist
@@ -197,32 +269,23 @@ export default function SocialMediaAgent() {
               </span>
             )}
           </div>
-
           {aiMode && (
             <div className="flex gap-2">
               <input value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} className="field text-[13px] flex-1" placeholder="Describe what you want to promote..." />
               <button onClick={generateAIContent} className="btn-gold text-[12px] px-3"><Zap className="w-3 h-3" />Generate</button>
             </div>
           )}
-
-          <textarea
-            value={newContent}
-            onChange={e => setNewContent(e.target.value)}
-            className="field text-[13px] h-24 resize-none w-full"
-            placeholder="Write your post content here..."
-            maxLength={channelConfig[newChannel]?.maxChars || 280}
-          />
+          <textarea value={newContent} onChange={e => setNewContent(e.target.value)} className="field text-[13px] h-24 resize-none w-full" placeholder="Write your post content here..." maxLength={channelConfig[newChannel]?.maxChars || 280} />
           <div className="text-[10px] text-[#9B9589] text-right">{newContent.length} / {channelConfig[newChannel]?.maxChars || 280}</div>
-
           <div>
             <label className="text-[11px] font-medium text-[#9B9589] uppercase tracking-wider mb-1 block">Schedule (optional — leave blank for draft)</label>
             <input type="datetime-local" value={newScheduled} onChange={e => setNewScheduled(e.target.value)} className="field text-[13px] w-full" />
           </div>
-
           <div className="flex justify-end gap-2">
             <button onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-lg text-[13px] text-[#9B9589] hover:text-[#F5F0E8]">Cancel</button>
-            <button onClick={createCampaign} disabled={!newName.trim() || !newContent.trim()} className="btn-gold text-[13px] disabled:opacity-50">
-              <Send className="w-3.5 h-3.5" />Create Campaign
+            <button onClick={handleCreateCampaign} disabled={!newName.trim() || !newContent.trim() || createMutation.isPending} className="btn-gold text-[13px] disabled:opacity-50 flex items-center gap-2">
+              {createMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+              {createMutation.isPending ? 'Creating...' : 'Create Campaign'}
             </button>
           </div>
         </motion.div>
@@ -232,47 +295,52 @@ export default function SocialMediaAgent() {
       <section>
         <h2 className="text-[18px] font-semibold mb-4 flex items-center gap-2">
           <Calendar className="w-4 h-4 text-[#C8A55C]" />Campaigns
+          {isLoading && <Loader2 className="w-4 h-4 text-[#C8A55C] animate-spin" />}
         </h2>
-        <div className="space-y-2">
-          {campaigns.map((camp, i) => (
-            <motion.div key={camp.id} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="glass-surface p-4 card-hover">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium uppercase ${statusColors[camp.status]}`}>{camp.status}</span>
-                    <span className="text-[11px] text-[#9B9589]">{camp.channel}</span>
-                    {camp.confidence >= 95 && <span className="text-[10px] text-[#4ADE80] flex items-center gap-0.5"><CheckCircle className="w-3 h-3" />95%+</span>}
-                  </div>
-                  <h3 className="text-[14px] font-semibold">{camp.name}</h3>
-                  <p className="text-[12px] text-[#9B9589] truncate mt-0.5">{camp.content}</p>
-                  {camp.scheduledAt && <p className="text-[10px] text-[#6B9BD1] mt-0.5 flex items-center gap-1"><Clock className="w-3 h-3" />{camp.scheduledAt}</p>}
-                </div>
-
-                <div className="flex items-center gap-4 shrink-0">
-                  {camp.engagement > 0 && (
-                    <div className="flex gap-3 text-[11px] text-[#9B9589]">
-                      <span className="flex items-center gap-1"><Heart className="w-3 h-3 text-[#C8A55C]" />{camp.engagement}</span>
-                      <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{camp.reach?.toLocaleString()}</span>
-                      <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3 text-[#4ADE80]" />{camp.conversions}</span>
+        {campaigns.length === 0 && !isLoading ? (
+          <div className="glass-surface p-8 text-center">
+            <p className="text-[13px] text-[#9B9589]">No campaigns yet. Click "New Campaign" to create your first one.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {campaigns.map((camp: any, i: number) => (
+              <motion.div key={camp.id} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="glass-surface p-4 card-hover">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium uppercase ${statusColors[camp.status]}`}>{camp.status}</span>
+                      <span className="text-[11px] text-[#9B9589]">{camp.channel}</span>
+                      {Number(camp.confidenceScore) >= 95 && <span className="text-[10px] text-[#4ADE80] flex items-center gap-0.5"><CheckCircle className="w-3 h-3" />95%+</span>}
                     </div>
-                  )}
-                  <button
-                    onClick={() => toggleStatus(camp.id)}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                      camp.status === 'running' ? 'bg-[rgba(239,68,68,0.12)] hover:bg-[rgba(239,68,68,0.2)]' : 'bg-[rgba(74,222,128,0.12)] hover:bg-[rgba(74,222,128,0.2)]'
-                    }`}
-                    title={camp.status === 'running' ? 'Pause' : 'Start'}
-                  >
-                    {camp.status === 'running' ? <Pause className="w-4 h-4 text-[#EF4444]" /> : <Play className="w-4 h-4 text-[#4ADE80]" />}
-                  </button>
+                    <h3 className="text-[14px] font-semibold">{camp.name}</h3>
+                    <p className="text-[12px] text-[#9B9589] truncate mt-0.5">{camp.content}</p>
+                    {camp.scheduledAt && <p className="text-[10px] text-[#6B9BD1] mt-0.5 flex items-center gap-1"><Clock className="w-3 h-3" />{new Date(camp.scheduledAt).toLocaleString()}</p>}
+                  </div>
+                  <div className="flex items-center gap-4 shrink-0">
+                    {(camp.engagement ?? 0) > 0 && (
+                      <div className="flex gap-3 text-[11px] text-[#9B9589]">
+                        <span className="flex items-center gap-1"><Heart className="w-3 h-3 text-[#C8A55C]" />{camp.engagement}</span>
+                        <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{(camp.reach ?? 0).toLocaleString()}</span>
+                        <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3 text-[#4ADE80]" />{camp.conversions}</span>
+                      </div>
+                    )}
+                    <div className="flex gap-1">
+                      <button onClick={() => handleToggleStatus(camp.id, camp.status)} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${camp.status === 'running' ? 'bg-[rgba(239,68,68,0.12)] hover:bg-[rgba(239,68,68,0.2)]' : 'bg-[rgba(74,222,128,0.12)] hover:bg-[rgba(74,222,128,0.2)]'}`} title={camp.status === 'running' ? 'Pause' : 'Start'}>
+                        {camp.status === 'running' ? <Pause className="w-4 h-4 text-[#EF4444]" /> : <Play className="w-4 h-4 text-[#4ADE80]" />}
+                      </button>
+                      <button onClick={() => handleDelete(camp.id)} className="w-8 h-8 rounded-lg flex items-center justify-center bg-[rgba(239,68,68,0.08)] hover:bg-[rgba(239,68,68,0.15)] transition-all" title="Delete">
+                        <Trash2 className="w-4 h-4 text-[#C27070]" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* Agent Instructions */}
+      {/* Agent Protocol */}
       <section className="glass-surface p-5 border border-[rgba(200,165,92,0.1)]">
         <h3 className="text-[14px] font-semibold mb-3 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-[#C8A55C]" />Agent Operating Protocol

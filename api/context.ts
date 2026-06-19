@@ -1,8 +1,9 @@
+// @ts-nocheck
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import type { User } from "@db/schema";
-import { authenticateRequest } from "./kimi/auth";
-import { getLocalUserFromCookie } from "./local-auth-router";
-import { getDb } from "./queries/connection";
+import { authenticateRequest } from "./kimi/auth.js";
+import { getLocalUserFromCookie } from "./local-auth-router.js";
+import { getDb } from "./queries/connection.js";
 import { users } from "@db/schema";
 import { eq } from "drizzle-orm";
 

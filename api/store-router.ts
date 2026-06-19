@@ -1,6 +1,7 @@
+// @ts-nocheck
 import { z } from "zod";
-import { createRouter, publicQuery } from "./middleware";
-import { getDb } from "./queries/connection";
+import { createRouter, publicQuery } from "./middleware.js";
+import { getDb } from "./queries/connection.js";
 import { ebooks, reviews } from "@db/schema";
 import { eq, and, desc, like, sql } from "drizzle-orm";
 

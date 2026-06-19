@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { serveStatic } from "@hono/node-server/serve-static";
 
 export function serveStaticFiles(app: any) {

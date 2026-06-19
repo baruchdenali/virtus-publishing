@@ -1,33 +1,16 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { DollarSign, Users, TrendingUp, Target, Phone, Mail, Plus, Check, X, Edit3, Trash2, Building2, Star, Package, CreditCard, Award, BarChart3 } from 'lucide-react'
-
-interface Lead {
-  id: number
-  name: string
-  email: string
-  company: string
-  phone: string
-  tier: string
-  value: number
-  status: string
-  notes: string
-  assignedTo: string
-  createdAt: string
-}
+import { useAuth } from '@/hooks/useAuth'
+import { trpc } from '@/providers/trpc'
+import {
+  Target, DollarSign, TrendingUp, Users, Phone, Mail, Building2,
+  FileText, MessageSquare, ChevronRight, Plus, X, Loader2, Trash2
+} from 'lucide-react'
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05, duration: 0.5 } }),
 }
-
-const initialLeads: Lead[] = [
-  { id: 1, name: 'Dr. Sarah Mitchell', email: 's.mitchell@university.edu', company: 'State University Press', phone: '(212) 555-0142', tier: 'Enterprise', value: 15000, status: 'qualified', notes: 'Interested in white-label platform for 200+ faculty. Needs SSO integration.', assignedTo: 'Sales Team', createdAt: '2026-05-28' },
-  { id: 2, name: 'Robert Chen', email: 'r.chen@brightpub.com', company: 'Brightlight Publishing', tier: 'Publisher', value: 8940, status: 'proposal', notes: 'Moving from competitor. Needs bulk management and API access.', assignedTo: 'Sales Team', createdAt: '2026-05-26' },
-  { id: 3, name: 'Lisa Johnson', email: 'lisa.j@greenlibrary.org', company: 'Greenleaf Library Network', tier: 'Enterprise', value: 8500, status: 'negotiation', notes: 'Carbon-neutral publishing aligns with their mission. Fast track possible.', assignedTo: 'Sales Team', createdAt: '2026-05-25' },
-  { id: 4, name: 'Marcus Rivera', email: 'm.rivera@writersguild.net', company: 'Independent', tier: 'Professional', value: 1476, status: 'qualified', notes: 'Guild member referral. Wants audiobook and marketing toolkit bundle.', assignedTo: 'Sales Team', createdAt: '2026-05-29' },
-  { id: 5, name: 'Amara Okafor', email: 'amara.okafor@africanlit.org', company: 'African Literature Foundation', tier: 'Enterprise', value: 12000, status: 'new', notes: 'Non-profit rate requested. 50+ authors need publishing tools.', assignedTo: 'Sales Team', createdAt: '2026-06-01' },
-]
 
 const statusColors: Record<string, string> = {
   new: 'bg-[rgba(107,155,209,0.12)] text-[#6B9BD1]',
@@ -39,196 +22,219 @@ const statusColors: Record<string, string> = {
 }
 
 export default function SalesDashboard() {
-  const [leads, setLeads] = useState<Lead[]>(initialLeads)
+  const { user } = useAuth()
+  const hasAccess = user?.role === 'admin' || user?.role === 'operations' || user?.role === 'sales'
+  const utils = trpc.useUtils()
+
+  const { data: dbLeads, isLoading } = trpc.salesLead.list.useQuery(undefined, { enabled: hasAccess })
+  const createLead = trpc.salesLead.create.useMutation({ onSuccess: () => utils.salesLead.list.invalidate() })
+  const updateLead = trpc.salesLead.update.useMutation({ onSuccess: () => utils.salesLead.list.invalidate() })
+  const deleteLead = trpc.salesLead.delete.useMutation({ onSuccess: () => utils.salesLead.list.invalidate() })
+
+  const leads = dbLeads ?? []
+
   const [showAdd, setShowAdd] = useState(false)
   const [editId, setEditId] = useState<number | null>(null)
-  const [filter, setFilter] = useState('all')
-  const [form, setForm] = useState<Partial<Lead>>({ name: '', email: '', company: '', phone: '', tier: 'Professional', value: 0, status: 'new', notes: '' })
+  const [form, setForm] = useState({
+    name: '', email: '', company: '', phone: '',
+    source: 'website', tier: undefined as string | undefined, notes: '', value: '', status: 'new'
+  })
+  const [filterStatus, setFilterStatus] = useState('all')
 
-  const totalPipeline = leads.reduce((sum, l) => sum + l.value, 0)
-  const totalWon = leads.filter(l => l.status === 'closed_won').reduce((sum, l) => sum + l.value, 0)
-  const avgDeal = leads.length > 0 ? Math.round(totalPipeline / leads.length) : 0
-  const winRate = leads.filter(l => l.status === 'closed_won').length / leads.filter(l => l.status === 'closed_won' || l.status === 'closed_lost').length * 100 || 0
+  if (!hasAccess) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <Target className="w-16 h-16 text-[#C27070] mb-4" />
+        <h2 className="text-[24px] font-semibold mb-2">Access Denied</h2>
+        <p className="text-[14px] text-[#9B9589] mb-6">You need sales team privileges to access this dashboard.</p>
+      </div>
+    )
+  }
 
-  const filtered = filter === 'all' ? leads : leads.filter(l => l.status === filter)
+  const pipelineTotal = leads.reduce((sum: number, l: any) => sum + Number(l.value ?? 0), 0)
+  const closedWon = leads.filter((l: any) => l.status === 'closed_won').reduce((sum: number, l: any) => sum + Number(l.value ?? 0), 0)
+  const avgDeal = leads.length > 0 ? (pipelineTotal / leads.length) : 0
+  const winRate = leads.filter((l: any) => l.status === 'closed_won' || l.status === 'closed_lost').length > 0
+    ? Math.round((leads.filter((l: any) => l.status === 'closed_won').length / leads.filter((l: any) => l.status === 'closed_won' || l.status === 'closed_lost').length) * 100)
+    : 0
+
+  const stages = ['new', 'qualified', 'proposal', 'negotiation', 'closed_won']
 
   function resetForm() {
-    setForm({ name: '', email: '', company: '', phone: '', tier: 'Professional', value: 0, status: 'new', notes: '' })
+    setForm({ name: '', email: '', company: '', phone: '', source: 'website', tier: undefined, notes: '', value: '', status: 'new' })
     setEditId(null)
   }
 
-  function saveLead() {
-    if (!form.name?.trim() || !form.email?.trim()) return
+  function handleSubmit() {
+    if (!form.name.trim() || !form.email.trim()) return
     if (editId) {
-      setLeads(prev => prev.map(l => l.id === editId ? { ...l, ...form } as Lead : l))
+      updateLead.mutate({
+        id: editId,
+        name: form.name, email: form.email, company: form.company,
+        phone: form.phone, notes: form.notes, value: Number(form.value) || 0,
+        status: form.status, tier: form.tier as any,
+      }, { onSuccess: () => { resetForm(); setShowAdd(false) } })
     } else {
-      setLeads(prev => [{ id: Date.now(), ...form as Lead, assignedTo: 'Sales Team', createdAt: new Date().toISOString().slice(0, 10) }, ...prev])
+      createLead.mutate({
+        name: form.name, email: form.email, company: form.company,
+        phone: form.phone, notes: form.notes, value: Number(form.value) || 0,
+        status: form.status, tier: form.tier as any, source: form.source,
+      }, { onSuccess: () => { resetForm(); setShowAdd(false) } })
     }
-    resetForm()
-    setShowAdd(false)
   }
 
-  function startEdit(lead: Lead) {
-    setForm({ name: lead.name, email: lead.email, company: lead.company, phone: lead.phone, tier: lead.tier, value: lead.value, status: lead.status, notes: lead.notes })
+  function startEdit(lead: any) {
     setEditId(lead.id)
+    setForm({
+      name: lead.name, email: lead.email, company: lead.company ?? '',
+      phone: lead.phone ?? '', source: lead.source ?? 'website',
+      tier: lead.tier ?? undefined, notes: lead.notes ?? '',
+      value: String(lead.value ?? ''), status: lead.status ?? 'new',
+    })
     setShowAdd(true)
   }
 
-  function deleteLead(id: number) {
-    if (confirm('Delete this lead?')) setLeads(prev => prev.filter(l => l.id !== id))
+  function advanceStatus(id: number, current: string) {
+    const idx = stages.indexOf(current)
+    if (idx >= 0 && idx < stages.length - 1) {
+      updateLead.mutate({ id, status: stages[idx + 1] })
+    }
   }
 
-  function advanceStatus(id: number) {
-    const flow = ['new', 'qualified', 'proposal', 'negotiation', 'closed_won']
-    setLeads(prev => prev.map(l => {
-      if (l.id !== id) return l
-      const idx = flow.indexOf(l.status)
-      return { ...l, status: idx < flow.length - 1 ? flow[idx + 1] : l.status }
-    }))
-  }
+  const filteredLeads = filterStatus === 'all' ? leads : leads.filter((l: any) => l.status === filterStatus)
 
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <DollarSign className="w-5 h-5 text-[#C8A55C]" />
-            <h1 className="text-[28px] font-semibold">Sales Dashboard</h1>
-          </div>
-          <p className="text-[13px] text-[#9B9589]">Manage leads, track pipeline, close deals.</p>
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <Target className="w-5 h-5 text-[#C8A55C]" />
+          <h1 className="text-[28px] font-semibold">Sales Dashboard</h1>
         </div>
-        <button onClick={() => { resetForm(); setShowAdd(!showAdd) }} className="btn-gold text-[13px] flex items-center gap-2">
-          <Plus className="w-4 h-4" />{showAdd ? 'Close' : 'Add Lead'}
-        </button>
+        <p className="text-[13px] text-[#9B9589]">Pipeline, leads, and deal management.</p>
       </div>
 
-      {/* KPIs */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Pipeline', value: `$${(totalPipeline / 1000).toFixed(1)}k`, icon: Target, color: '#C8A55C' },
-          { label: 'Closed Won', value: `$${(totalWon / 1000).toFixed(1)}k`, icon: Award, color: '#4ADE80' },
-          { label: 'Avg Deal', value: `$${avgDeal.toLocaleString()}`, icon: CreditCard, color: '#6B9BD1' },
-          { label: 'Win Rate', value: `${winRate.toFixed(0)}%`, icon: TrendingUp, color: '#D9BC7A' },
-        ].map((kpi) => (
-          <div key={kpi.label} className="glass-surface p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <kpi.icon className="w-4 h-4" style={{ color: kpi.color }} />
-              <span className="text-[11px] text-[#9B9589]">{kpi.label}</span>
-            </div>
+          { label: 'Pipeline', value: `$${(pipelineTotal / 1000).toFixed(1)}K`, sub: `${leads.length} deals`, color: '#C8A55C' },
+          { label: 'Closed Won', value: `$${(closedWon / 1000).toFixed(1)}K`, sub: `${leads.filter((l: any) => l.status === 'closed_won').length} deals`, color: '#4ADE80' },
+          { label: 'Avg Deal', value: `$${avgDeal.toFixed(0)}`, sub: 'per lead', color: '#6B9BD1' },
+          { label: 'Win Rate', value: `${winRate}%`, sub: 'conversion', color: '#A882DC' },
+        ].map((kpi, i) => (
+          <motion.div key={kpi.label} custom={i} variants={fadeInUp} initial="hidden" animate="visible" className="glass-surface p-5 text-center">
             <div className="text-[22px] font-semibold" style={{ color: kpi.color }}>{kpi.value}</div>
-          </div>
+            <div className="text-[12px] font-medium mt-0.5">{kpi.label}</div>
+            <div className="text-[10px] text-[#9B9589]">{kpi.sub}</div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Pipeline */}
-      <section>
-        <h2 className="text-[18px] font-semibold mb-4 flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 text-[#C8A55C]" />Pipeline
-        </h2>
-        <div className="flex gap-1 overflow-x-auto pb-2">
-          {['new', 'qualified', 'proposal', 'negotiation', 'closed_won'].map(s => (
-            <div key={s} className="min-w-[120px] flex-1">
-              <div className="text-[11px] text-[#9B9589] uppercase tracking-wider mb-1 text-center">{s.replace('_', ' ')}</div>
-              <div className="text-[20px] font-semibold text-center text-[#C8A55C]">
-                ${(leads.filter(l => l.status === s).reduce((sum, l) => sum + l.value, 0) / 1000).toFixed(1)}k
+      {/* Pipeline Visualization */}
+      <div className="glass-surface p-5">
+        <h2 className="text-[14px] font-semibold mb-4 uppercase tracking-wider text-[#9B9589]">Pipeline Flow</h2>
+        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-2">
+          {stages.map((stage, i) => {
+            const count = leads.filter((l: any) => l.status === stage).length
+            const value = leads.filter((l: any) => l.status === stage).reduce((s: number, l: any) => s + Number(l.value ?? 0), 0)
+            return (
+              <div key={stage} className="flex items-center gap-2">
+                <div className="text-center min-w-[100px]">
+                  <div className="text-[18px] font-semibold text-[#F5F0E8]">{count}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-[#9B9589]">{stage.replace('_', ' ')}</div>
+                  <div className="text-[10px] text-[#C8A55C]">${(value / 1000).toFixed(0)}K</div>
+                </div>
+                {i < stages.length - 1 && <ChevronRight className="w-4 h-4 text-[#9B9589] shrink-0" />}
               </div>
-              <div className="text-[10px] text-[#9B9589] text-center">{leads.filter(l => l.status === s).length} deals</div>
-            </div>
-          ))}
+            )
+          })}
         </div>
-      </section>
+      </div>
 
-      {/* Add/Edit Lead */}
+      {/* Add Lead */}
+      <div className="flex justify-end">
+        <button onClick={() => { if (showAdd) { setShowAdd(false); resetForm() } else setShowAdd(true) }} className="btn-gold text-[13px] flex items-center gap-2">
+          {showAdd ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}{showAdd ? 'Cancel' : 'Add Lead'}
+        </button>
+      </div>
+
       {showAdd && (
-        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="glass-surface p-6 space-y-3">
-          <h3 className="text-[16px] font-semibold">{editId ? 'Edit Lead' : 'New Lead'}</h3>
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="glass-surface p-5 space-y-3">
+          <h3 className="text-[14px] font-semibold">{editId ? 'Edit Lead' : 'New Lead'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="field text-[13px]" placeholder="Contact Name *" />
-            <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="field text-[13px]" placeholder="Email *" />
-            <input value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} className="field text-[13px]" placeholder="Company" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="field text-[13px]" placeholder="Phone" />
-            <select value={form.tier} onChange={e => setForm({ ...form, tier: e.target.value })} className="field text-[13px]">
-              {['Creator', 'Professional', 'Publisher', 'Enterprise'].map(t => <option key={t} value={t}>{t}</option>)}
+            <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="field text-[13px]" placeholder="Name *" />
+            <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} className="field text-[13px]" placeholder="Email *" />
+            <input value={form.company} onChange={e => setForm(f => ({ ...f, company: e.target.value }))} className="field text-[13px]" placeholder="Company" />
+            <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className="field text-[13px]" placeholder="Phone" />
+            <input value={form.value} onChange={e => setForm(f => ({ ...f, value: e.target.value }))} className="field text-[13px]" placeholder="Deal Value ($)" type="number" />
+            <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="field text-[13px]">
+              {stages.concat(['closed_lost']).map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
             </select>
-            <input type="number" value={form.value} onChange={e => setForm({ ...form, value: Number(e.target.value) })} className="field text-[13px]" placeholder="Deal Value ($)" />
+            <select value={form.tier ?? ''} onChange={e => setForm(f => ({ ...f, tier: e.target.value || undefined }))} className="field text-[13px]">
+              <option value="">Select Tier...</option>
+              <option value="creator">Creator</option>
+              <option value="professional">Professional</option>
+              <option value="publisher">Publisher</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
           </div>
-          <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} className="field text-[13px] h-16 resize-none" placeholder="Notes..." />
+          <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className="field text-[13px] h-16 resize-none w-full" placeholder="Notes..." />
           <div className="flex justify-end gap-2">
-            <button onClick={() => { resetForm(); setShowAdd(false) }} className="px-4 py-2 rounded-lg text-[13px] text-[#9B9589]">Cancel</button>
-            <button onClick={saveLead} disabled={!form.name?.trim() || !form.email?.trim()} className="btn-gold text-[13px] disabled:opacity-50">{editId ? 'Update' : 'Save'} Lead</button>
+            <button onClick={() => { setShowAdd(false); resetForm() }} className="px-3 py-1.5 text-[12px] text-[#9B9589]">Cancel</button>
+            <button onClick={handleSubmit} disabled={(editId ? updateLead.isPending : createLead.isPending) || !form.name || !form.email} className="btn-gold text-[12px] disabled:opacity-50">
+              {editId ? (updateLead.isPending ? 'Saving...' : 'Save Changes') : (createLead.isPending ? 'Adding...' : 'Add Lead')}
+            </button>
           </div>
         </motion.div>
       )}
 
-      {/* Leads Table */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[18px] font-semibold flex items-center gap-2">
-            <Users className="w-4 h-4 text-[#C8A55C]" />Leads
-          </h2>
-          <select value={filter} onChange={e => setFilter(e.target.value)} className="field text-[12px] py-1.5">
-            <option value="all">All Statuses</option>
-            {Object.keys(statusColors).map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
-          </select>
-        </div>
+      {/* Lead List */}
+      <div className="flex gap-2 mb-3 flex-wrap">
+        {['all', ...stages, 'closed_lost'].map(s => (
+          <button key={s} onClick={() => setFilterStatus(s)} className={`text-[10px] font-semibold px-2.5 py-1 rounded-full transition-all ${filterStatus === s ? 'bg-[rgba(200,165,92,0.15)] text-[#C8A55C]' : 'text-[#9B9589] hover:text-[#F5F0E8]'}`}>
+            {s === 'all' ? 'All' : s.replace('_', ' ').charAt(0).toUpperCase() + s.replace('_', ' ').slice(1)}
+          </button>
+        ))}
+      </div>
 
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 text-[#C8A55C] animate-spin" /></div>
+      ) : filteredLeads.length === 0 ? (
+        <div className="glass-surface p-8 text-center"><p className="text-[13px] text-[#9B9589]">No leads yet. Click "Add Lead" to start your pipeline.</p></div>
+      ) : (
         <div className="space-y-2">
-          {filtered.map((lead, i) => (
-            <motion.div key={lead.id} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="glass-surface p-4 card-hover">
+          {filteredLeads.map((lead: any, i: number) => (
+            <motion.div key={lead.id} custom={i} variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="glass-surface p-4 card-hover cursor-pointer" onClick={() => startEdit(lead)}>
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                <div className="min-w-0 flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[14px] font-semibold">{lead.name}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase ${statusColors[lead.status]}`}>{lead.status.replace('_', ' ')}</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(200,165,92,0.1)] text-[#C8A55C]">{lead.tier}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium uppercase ${statusColors[lead.status]}`}>{lead.status?.replace('_', ' ')}</span>
+                    {lead.tier && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(200,165,92,0.08)] text-[#C8A55C]">{lead.tier}</span>}
+                    <span className="text-[10px] text-[#9B9589]">${Number(lead.value ?? 0).toLocaleString()}</span>
                   </div>
-                  <p className="text-[11px] text-[#9B9589]">{lead.company} | {lead.email}</p>
-                  {lead.notes && <p className="text-[11px] text-[#9B9589] mt-0.5 italic">{lead.notes}</p>}
+                  <h3 className="text-[14px] font-semibold">{lead.name}</h3>
+                  <div className="flex items-center gap-3 mt-1 text-[11px] text-[#9B9589]">
+                    <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{lead.email}</span>
+                    {lead.company && <span className="flex items-center gap-1"><Building2 className="w-3 h-3" />{lead.company}</span>}
+                    {lead.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{lead.phone}</span>}
+                  </div>
+                  {lead.notes && <p className="text-[11px] text-[#9B9589] mt-1">{lead.notes}</p>}
                 </div>
-
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-[14px] font-semibold text-[#C8A55C]">${lead.value.toLocaleString()}</span>
-                  {lead.status !== 'closed_won' && lead.status !== 'closed_lost' && (
-                    <button onClick={() => advanceStatus(lead.id)} className="w-8 h-8 rounded-lg bg-[rgba(74,222,128,0.12)] flex items-center justify-center hover:bg-[rgba(74,222,128,0.2)]" title="Advance">
-                      <Check className="w-4 h-4 text-[#4ADE80]" />
+                <div className="flex items-center gap-2 shrink-0">
+                  {stages.indexOf(lead.status) >= 0 && stages.indexOf(lead.status) < stages.length - 1 && (
+                    <button onClick={e => { e.stopPropagation(); advanceStatus(lead.id, lead.status) }} className="text-[11px] px-2 py-1 rounded bg-[rgba(74,222,128,0.1)] text-[#4ADE80] hover:bg-[rgba(74,222,128,0.2)] transition-colors flex items-center gap-1">
+                      <ChevronRight className="w-3 h-3" />Advance
                     </button>
                   )}
-                  <button onClick={() => startEdit(lead)} className="w-8 h-8 rounded-lg bg-[rgba(245,240,232,0.06)] flex items-center justify-center hover:bg-[rgba(245,240,232,0.1)]">
-                    <Edit3 className="w-3.5 h-3.5 text-[#9B9589]" />
-                  </button>
-                  <button onClick={() => deleteLead(lead.id)} className="w-8 h-8 rounded-lg bg-[rgba(245,240,232,0.06)] flex items-center justify-center hover:bg-[rgba(239,68,68,0.15)]">
-                    <Trash2 className="w-3.5 h-3.5 text-[#EF4444]" />
+                  <button onClick={e => { e.stopPropagation(); if (window.confirm('Delete this lead?')) deleteLead.mutate({ id: lead.id }) }} className="p-1.5 rounded hover:bg-[rgba(239,68,68,0.1)] text-[#9B9589] hover:text-[#EF4444] transition-colors">
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
-      </section>
-
-      {/* Quick Actions */}
-      <section>
-        <h2 className="text-[18px] font-semibold mb-4 flex items-center gap-2">
-          <Target className="w-4 h-4 text-[#C8A55C]" />Quick Actions
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { icon: Phone, label: 'Call Script', desc: 'Enterprise pitch template' },
-            { icon: Mail, label: 'Email Templates', desc: 'Follow-up sequences' },
-            { icon: Package, label: 'Pricing Sheet', desc: 'All tiers + add-ons' },
-            { icon: Award, label: 'Competitor Intel', desc: 'Comparison matrix' },
-          ].map((action) => (
-            <button key={action.label} onClick={() => alert(`${action.label}: Feature available in full version.`)} className="glass-surface p-4 text-left card-hover">
-              <action.icon className="w-5 h-5 text-[#C8A55C] mb-2" />
-              <div className="text-[13px] font-medium">{action.label}</div>
-              <div className="text-[11px] text-[#9B9589]">{action.desc}</div>
-            </button>
-          ))}
-        </div>
-      </section>
+      )}
     </div>
   )
 }
