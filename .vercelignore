@@ -1,6 +1,7 @@
 # Exclude API source files from Vercel auto-detection
 # Only api/index.js (the esbuild bundle) should be deployed as a function
 api/**/*.ts
+api/*.ts
 api/lib/
 api/queries/
 api/kimi/
