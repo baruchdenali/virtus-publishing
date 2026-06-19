@@ -1,203 +1,34 @@
-name: Deploy Virtus Publishing
+name: Deploy to Vercel
 
 on:
   push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
-
-env:
-  NODE_VERSION: "20"
+    branches: [main]
 
 jobs:
-  typecheck:
-    name: Type Check
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          node-version: '20'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run TypeScript check
-        run: npm run check
+      - name: Build API bundle
+        run: npm run build:api
 
-  test:
-    name: Tests
-    runs-on: ubuntu-latest
-    needs: typecheck
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Build frontend
+        run: npm run vercel-build
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm run test --if-present
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: [typecheck]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build application
-        run: npm run build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: dist/public
-          retention-days: 7
-
-  # Deploy to Vercel (Production)
-  deploy-prod:
-    name: Deploy to Vercel Production
-    runs-on: ubuntu-latest
-    needs: [typecheck, build]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Deploy to Vercel (Production)
+      - name: Deploy to Vercel
         uses: vercel/action-deploy@v1
-        if: env.VERCEL_TOKEN != ''
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: "--prod"
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-      # Fallback: direct Vercel CLI deployment
-      - name: Install Vercel CLI
-        if: env.VERCEL_TOKEN != ''
-        run: npm install -g vercel
-
-      - name: Deploy via Vercel CLI
-        if: env.VERCEL_TOKEN != ''
-        run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-  # Deploy to Vercel (Preview)
-  deploy-preview:
-    name: Deploy to Vercel Preview
-    runs-on: ubuntu-latest
-    needs: [typecheck, build]
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Deploy to Vercel (Preview)
-        if: env.VERCEL_TOKEN != ''
-        run: |
-          npm install -g vercel
-          DEPLOY_URL=$(vercel --token=${{ secrets.VERCEL_TOKEN }} --yes)
-          echo "Preview URL: $DEPLOY_URL"
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-  # Deploy to Vercel (Development branch)
-  deploy-dev:
-    name: Deploy to Vercel Development
-    runs-on: ubuntu-latest
-    needs: [typecheck, build]
-    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && github.event_name == 'push'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Deploy to Vercel (Preview)
-        if: env.VERCEL_TOKEN != ''
-        run: |
-          npm install -g vercel
-          vercel --token=${{ secrets.VERCEL_TOKEN }} --yes
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-  # Neon database migration
-  db-migrate:
-    name: Database Migration
-    runs-on: ubuntu-latest
-    needs: [typecheck]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Push database schema
-        run: npm run db:push
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
