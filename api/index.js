@@ -45381,52 +45381,55 @@ var adgptRouter = createRouter({
     if (!rows[0]) return { error: "Campaign not found" };
     const row = rows[0];
     const decrypted = decryptPayload({ ciphertext: row.encryptedPayload, iv: row.iv, authTag: row.authTag });
-    const PDFDocument = (await import("pdfkit")).default;
-    const doc = new PDFDocument();
-    const chunks = [];
-    doc.on("data", (chunk) => chunks.push(chunk));
-    doc.on("end", () => {
-    });
-    doc.fontSize(24).fillColor("#1A1A1F").text("VIRTUS MARKETING BRIEF", 50, 50);
-    doc.fontSize(11).fillColor("#9B9589").text(`Generated: ${new Date(row.generatedAt).toLocaleString()}`, 50, 85);
-    doc.moveDown(2);
-    doc.fontSize(16).fillColor("#C8A55C").text("Book Information");
-    doc.fontSize(12).fillColor("#1A1A1F").text(`Title: ${row.bookTitle}`);
-    doc.text(`Author: ${row.bookAuthor || "N/A"}`);
-    doc.text(`Target URL: ${row.associatedUrl}`);
-    doc.moveDown(1.5);
-    doc.fontSize(16).fillColor("#C8A55C").text("Target Keywords");
+    const { PDFDocument, rgb, StandardFonts } = await import("pdf-lib");
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([612, 792]);
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    let y = 720;
+    const margin = 50;
+    const lineHeight = 14;
+    const pageWidth = 612;
+    const drawText = (text2, opts = {}) => {
+      const { x = margin, size = 11, color = [0.1, 0.1, 0.12], font: f = font } = opts;
+      const lines = text2.split("\n");
+      lines.forEach((line) => {
+        page.drawText(line, { x, y: opts.y ?? y, size, font: f, color: rgb(color[0], color[1], color[2]) });
+        y -= size + 2;
+      });
+    };
+    const drawSection = (title, body) => {
+      y -= 10;
+      drawText(title, { size: 14, color: [0.78, 0.65, 0.36], font: fontBold });
+      y -= 4;
+      drawText(body, { size: 10, color: [0.1, 0.1, 0.12] });
+      y -= 6;
+    };
+    drawText("VIRTUS MARKETING BRIEF", { size: 22, color: [0.1, 0.1, 0.12], font: fontBold });
+    drawText(`Generated: ${new Date(row.generatedAt).toLocaleString()}`, { size: 9, color: [0.61, 0.58, 0.54] });
+    y -= 16;
+    drawSection("Book Information", `Title: ${row.bookTitle}
+Author: ${row.bookAuthor || "N/A"}
+Target URL: ${row.associatedUrl}`);
     if (decrypted.keywords) {
-      doc.fontSize(11).fillColor("#1A1A1F");
-      decrypted.keywords.forEach((kw) => doc.text(`  - ${kw}`));
+      drawSection("Target Keywords", decrypted.keywords.slice(0, 20).join("\n"));
     }
-    doc.moveDown(1.5);
     if (decrypted.ugcScript) {
-      doc.fontSize(16).fillColor("#C8A55C").text("UGC Video Script");
-      doc.fontSize(11).fillColor("#1A1A1F").text(decrypted.ugcScript, { width: 500 });
-      doc.moveDown(1.5);
+      drawSection("UGC Video Script", decrypted.ugcScript);
     }
     if (decrypted.adHeadlines) {
-      doc.fontSize(16).fillColor("#C8A55C").text("Ad Headlines");
-      doc.fontSize(11).fillColor("#1A1A1F").text(decrypted.adHeadlines, { width: 500 });
-      doc.moveDown(1.5);
+      drawSection("Ad Headlines", decrypted.adHeadlines);
     }
-    doc.fontSize(16).fillColor("#C8A55C").text("Platform Targeting");
-    doc.fontSize(11).fillColor("#1A1A1F").text(`Primary Platform: ${decrypted.platform || "mixed"}`);
-    doc.moveDown(1.5);
-    doc.fontSize(9).fillColor("#9B9589").text("Powered by Virtus Publishing AdGPT Engine", 50, doc.page.height - 80);
-    doc.text("CONFIDENTIAL \u2014 Internal Use Only");
-    doc.end();
-    return new Promise((resolve) => {
-      doc.on("end", () => {
-        const pdfBuffer = Buffer.concat(chunks);
-        resolve({
-          success: true,
-          pdfBase64: pdfBuffer.toString("base64"),
-          filename: `virtus-brief-${row.bookTitle.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-${Date.now()}.pdf`
-        });
-      });
-    });
+    drawSection("Platform Targeting", `Primary Platform: ${decrypted.platform || "mixed"}`);
+    y = 60;
+    drawText("Powered by Virtus Publishing AdGPT Engine \u2014 CONFIDENTIAL", { size: 8, color: [0.61, 0.58, 0.54], y: 60 });
+    const pdfBytes = await pdfDoc.save();
+    const pdfBase64 = Buffer.from(pdfBytes).toString("base64");
+    return {
+      success: true,
+      pdfBase64,
+      filename: `virtus-brief-${row.bookTitle.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-${Date.now()}.pdf`
+    };
   })
 });
 function generateKeywords(title, author) {
