@@ -14,6 +14,9 @@ import {
 type Step = 'mode' | 'details' | 'confirm'
 type CreationMode = 'scratch' | 'upload'
 
+// Max 2.5 MB file to stay under Vercel's ~4.5 MB body limit after base64 (+33%)
+const MAX_FILE_SIZE = 2.5 * 1024 * 1024
+
 export default function CreateEbook() {
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -86,7 +89,11 @@ export default function CreateEbook() {
     },
     onError: (err) => {
       setIsParsing(false)
-      const msg = err.message || 'Failed to parse file'
+      let msg = err.message || 'Failed to parse file'
+      // Server returned non-JSON (usually "Request Entity Too Large")
+      if (msg.includes('Unexpected token') || msg.includes('valid JSON') || msg.includes('Request')) {
+        msg = 'File too large for server upload. Please convert to a plain .txt file (smallest format) or use a file under 2.5 MB.'
+      }
       setUploadError(msg)
       toast({ title: 'Parse Failed', description: msg, variant: 'destructive' })
     },
@@ -95,8 +102,12 @@ export default function CreateEbook() {
   // ── File handling ────────────────────────────────────────────────────
 
   const handleFile = useCallback((file: File) => {
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadError('File too large. Maximum size is 10MB.')
+    if (file.size > MAX_FILE_SIZE) {
+      const mb = (file.size / 1024 / 1024).toFixed(1)
+      setUploadError(
+        `File is ${mb} MB — too large for upload (max 2.5 MB). ` +
+        `Please convert to a plain .txt file (smallest format) or split into smaller files.`
+      )
       return
     }
 
@@ -280,7 +291,7 @@ export default function CreateEbook() {
                     <Upload className={`w-10 h-10 mx-auto mb-3 transition-colors ${isDragging ? 'text-[#C8A55C]' : 'text-[#9B9589]'}`} />
                     <p className="text-[14px] font-medium mb-1">Drag & drop your manuscript here</p>
                     <p className="text-[12px] text-[#9B9589]">or click to browse — supports TXT, PDF, DOCX</p>
-                    <p className="text-[11px] text-[#9B9589] mt-2">Maximum file size: 10MB</p>
+                    <p className="text-[11px] text-[#9B9589] mt-2">Maximum file size: 2.5 MB (use .txt for best results)</p>
                   </div>
                 ) : (
                   /* File Uploaded - Show Status */
@@ -395,15 +406,15 @@ export default function CreateEbook() {
                 </div>
                 <div>
                   <h3 className="text-[18px] font-semibold">{title}</h3>
-                  <p className="text-[14px] text-[#9B9589]">{authorName || 'Anonymous'}</p>
-                  <span className="inline-block mt-1 px-2 py-0.5 rounded text-[11px] font-medium bg-[rgba(200,165,92,0.12)] text-[#C8A55C] capitalize">{category}</span>
+                  <p className="text-[14px] text-[#9B9589]\">{authorName || 'Anonymous'}</p>
+                  <span className="inline-block mt-1 px-2 py-0.5 rounded text-[11px] font-medium bg-[rgba(200,165,92,0.12)] text-[#C8A55C] capitalize\">{category}</span>
                 </div>
               </div>
-              {description && <div className="pt-3 border-t border-[rgba(245,240,232,0.06)]"><p className="text-[14px] text-[#9B9589] leading-relaxed">{description}</p></div>}
+              {description && <div className="pt-3 border-t border-[rgba(245,240,232,0.06)]"><p className="text-[14px] text-[#9B9589] leading-relaxed\">{description}</p></div>}
               <div className="flex gap-4 pt-3 border-t border-[rgba(245,240,232,0.06)]">
-                <div><span className="text-[11px] text-[#9B9589] uppercase tracking-wider">Method</span><p className="text-[13px] font-medium capitalize">{mode === 'scratch' ? 'AI Assisted' : 'Manuscript Upload'}</p></div>
-                <div><span className="text-[11px] text-[#9B9589] uppercase tracking-wider">Visibility</span><p className="text-[13px] font-medium capitalize">{visibility}</p></div>
-                {parsedContent && <div><span className="text-[11px] text-[#9B9589] uppercase tracking-wider">Content</span><p className="text-[13px] font-medium text-[#4ADE80]">{(parsedContent.length / 5).toFixed(0)} words extracted</p></div>}
+                <div><span className="text-[11px] text-[#9B9589] uppercase tracking-wider\">Method</span><p className="text-[13px] font-medium capitalize\">{mode === 'scratch' ? 'AI Assisted' : 'Manuscript Upload'}</p></div>
+                <div><span className="text-[11px] text-[#9B9589] uppercase tracking-wider\">Visibility</span><p className="text-[13px] font-medium capitalize\">{visibility}</p></div>
+                {parsedContent && <div><span className="text-[11px] text-[#9B9589] uppercase tracking-wider\">Content</span><p className="text-[13px] font-medium text-[#4ADE80]\">{(parsedContent.length / 5).toFixed(0)} words extracted</p></div>}
               </div>
             </div>
             <div className="glass-surface p-4 border border-[rgba(122,174,122,0.2)]">
@@ -422,7 +433,6 @@ export default function CreateEbook() {
               </div>
             </div>
 
-            {/* Show any errors from create mutation */}
             {createMutation.error && (
               <div className="flex items-start gap-2 p-3 rounded-lg bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.15)] text-[12px] text-[#C27070]">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
