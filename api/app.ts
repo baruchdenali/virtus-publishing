@@ -52,17 +52,28 @@ app.get("/api/dbtest", async (c) => {
         "category" VARCHAR(50) DEFAULT 'other',
         "coverImageUrl" TEXT,
         "price" NUMERIC(10,2) DEFAULT 0,
+        "currency" VARCHAR(3) DEFAULT 'USD',
         "isFree" BOOLEAN DEFAULT FALSE,
         "content" TEXT,
         "status" VARCHAR(20) DEFAULT 'draft',
         "visibility" VARCHAR(20) DEFAULT 'private',
         "publishedAt" TIMESTAMP,
         "pageCount" INTEGER DEFAULT 0,
+        "isbn" VARCHAR(20),
         "language" VARCHAR(10) DEFAULT 'en',
+        "tags" JSONB DEFAULT '[]'::jsonb,
         "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
         "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
       )
     `);
+
+    // Add missing columns to existing ebooks table (idempotent)
+    await pool.query(`ALTER TABLE "ebooks" ADD COLUMN IF NOT EXISTS "currency" VARCHAR(3) DEFAULT 'USD'`);
+    await pool.query(`ALTER TABLE "ebooks" ADD COLUMN IF NOT EXISTS "isbn" VARCHAR(20)`);
+    await pool.query(`ALTER TABLE "ebooks" ADD COLUMN IF NOT EXISTS "tags" JSONB DEFAULT '[]'::jsonb`);
+    await pool.query(`ALTER TABLE "purchases" ADD COLUMN IF NOT EXISTS "currency" VARCHAR(3) DEFAULT 'USD'`);
+    await pool.query(`ALTER TABLE "purchases" ADD COLUMN IF NOT EXISTS "paymentMethod" VARCHAR(50)`);
+    await pool.query(`ALTER TABLE "purchases" ADD COLUMN IF NOT EXISTS "transactionId" VARCHAR(255)`);
 
     await pool.query(`
       CREATE TABLE IF NOT EXISTS "purchases" (
