@@ -81,6 +81,8 @@ export const ebookRouter = createRouter({
         description: z.string().optional(),
         category: z.enum(["fiction", "non-fiction", "business", "technology", "self-help", "academic", "other"]).optional(),
         visibility: z.enum(["public", "private"]).optional(),
+        price: z.union([z.string(), z.number()]).optional().transform((v) => v === undefined ? undefined : String(v)),
+        isFree: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -95,6 +97,8 @@ export const ebookRouter = createRouter({
         category: input.category ?? "other",
         visibility: input.visibility ?? "private",
         status: "draft",
+        price: input.price ?? "0.00",
+        isFree: input.isFree ?? false,
       }).returning();
 
       return result[0];
