@@ -86,22 +86,42 @@ export const ebookRouter = createRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = getDb();
-      const userId = ctx.user.id;
+      try {
+        const db = getDb();
+        const userId = ctx.user.id;
 
-      const result = await db.insert(ebooks).values({
-        userId,
-        title: input.title,
-        authorName: input.authorName ?? ctx.user.name ?? "Anonymous",
-        description: input.description,
-        category: input.category ?? "other",
-        visibility: input.visibility ?? "private",
-        status: "draft",
-        price: input.price ?? "0.00",
-        isFree: input.isFree ?? false,
-      }).returning();
+        const result = await db.insert(ebooks).values({
+          userId,
+          title: input.title,
+          authorName: input.authorName ?? ctx.user.name ?? "Anonymous",
+          description: input.description,
+          category: input.category ?? "other",
+          visibility: input.visibility ?? "private",
+          status: "draft",
+          price: input.price ?? "0.00",
+          isFree: input.isFree ?? false,
+        }).returning();
 
-      return result[0];
+        return result[0];
+      } catch (dbErr: any) {
+        console.error("[ebook.create] DB error:", dbErr.message, dbErr.code);
+        if (dbErr.code === "42703") {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database schema mismatch: missing column. Please run /api/dbtest to update schema.",
+          });
+        }
+        if (dbErr.code === "23505") {
+          throw new TRPCError({ code: "CONFLICT", message: "A book with this title already exists." });
+        }
+        if (dbErr.code === "23502") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Missing required field: " + (dbErr.column || "unknown") });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create eBook. Please try again or contact support.",
+        });
+      }
     }),
 
   update: authedQuery
